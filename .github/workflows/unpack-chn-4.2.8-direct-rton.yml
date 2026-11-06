@@ -1,0 +1,59 @@
+name: PvZ2 CN 4.2.8 direct RTON to JSON
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/unpack-chn-4.2.8-direct-rton.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  direct-rton:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Fetch pinned Chinese Resource_Tool
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init -q "$RUNNER_TEMP/pvz2-tool"
+          git -C "$RUNNER_TEMP/pvz2-tool" remote add origin https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git
+          git -C "$RUNNER_TEMP/pvz2-tool" fetch --depth=1 origin 04f57f42080ef831545c9b2877f81f811f0be4e2
+          git -C "$RUNNER_TEMP/pvz2-tool" checkout -q FETCH_HEAD
+      - name: Download 18 direct RTON from stage1 audit
+        uses: actions/download-artifact@v4
+        with:
+          run-id: "42256393599"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-stage1-audit
+          path: ${{ runner.temp }}/stage1-audit
+      - name: Convert all plaintext direct RTON to JSON with 4 workers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python "$RUNNER_TEMP/pvz2-tool/Resource_Tool/main.py" \
+            -unpack "$RUNNER_TEMP/stage1-audit/pvz2-stage1/RTON" -json \
+            -o "$RUNNER_TEMP/direct-rton-json" -j 4
+          python scripts/audit/report_secondary.py "$RUNNER_TEMP/direct-rton-json" \
+            --out "$RUNNER_TEMP/direct-rton-report.json"
+      - name: Publish direct RTON JSON + audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-direct-rton-json
+          path: |
+            ${{ runner.temp }}/direct-rton-json/*_JSON/
+            ${{ runner.temp }}/direct-rton-report.json
+          if-no-files-found: warn
+          retention-days: 3
