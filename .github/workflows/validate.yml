@@ -1,0 +1,35 @@
+name: Validate extraction scripts
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "docs/**"
+      - "AGENTS.md"
+      - ".github/workflows/validate.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts
+            tests
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Python syntax
+        run: python -m compileall -q scripts tests
+      - name: Synthetic RSLB tests
+        run: python -m unittest discover -s tests -v
+      - name: Help commands
+        run: |
+          python scripts/audit/inspect_apk.py --help
+          python scripts/unpack/unpack_smf.py --help
