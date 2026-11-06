@@ -1,0 +1,103 @@
+name: PvZ2 CN 4.2.8 parallel RSB to RSGP
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/unpack-chn-4.2.8-rsg.yml"
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Successful first-layer run with RSB artifacts
+        required: false
+        default: "42256393599"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: pvz2-428-rsg
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Download shard containing dino.rsb (known partition index 4)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.source_run || '42256393599' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-4
+          path: ${{ runner.temp }}/rsb
+      - name: Real RSGP smoke for dino (12 groups expected)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/unpack/extract_rsg_groups.py "$RUNNER_TEMP/rsb" \
+            --out "$RUNNER_TEMP/dino-rsg" --only dino.rsb --workers 1
+          python3 -c "import json,os; a=json.load(open(os.environ['RUNNER_TEMP']+'/dino-rsg/rsg_report.json')); assert a['summary']['groups']==12 and a['summary']['group_failure']==0, a['summary']"
+      - name: Upload real dino smoke audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-rsg-dino-smoke
+          path: ${{ runner.temp }}/dino-rsg/rsg_report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+  parallel:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Download original validated RSB shard
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.source_run || '42256393599' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-${{ matrix.shard }}
+          path: ${{ runner.temp }}/rsb
+      - name: Extract every RSGP group with two local workers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/unpack/extract_rsg_groups.py "$RUNNER_TEMP/rsb" \
+            --out "$RUNNER_TEMP/rsg" --workers 2
+      - name: Upload group index and SHA audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-rsg-index-${{ matrix.shard }}
+          path: ${{ runner.temp }}/rsg/rsg_report.json
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Upload separated RSGP member files
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-rsg-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/rsg/**/*.rsg
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
