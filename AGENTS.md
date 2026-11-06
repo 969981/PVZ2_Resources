@@ -38,3 +38,12 @@ Pvz2Tool https://github.com/DreamMoonCai/Pvz2Tool
 RSLB exploration https://github.com/Jelly-RayTian/pvz2-format-exploration
 
 Respect third-party licenses. This repository does not contain a verified complete Chinese edition gameplay database yet.
+
+## Obsidian documentation contract
+- Treat `docs/` as an Obsidian Vault root, not the repository root.
+- Begin at `docs/00-知识库首页.md`; keep `docs/README.md` as a GitHub-readable entrance.
+- Every research note should have Obsidian YAML Properties (title, type, tags, region/version where relevant, evidence status where relevant); link related notes using `[[Wiki links]]`.
+- Use `docs/_templates/` for format, experiment, version and field research. Put approved illustrations in `docs/_attachments/`.
+- Keep `docs/ROADMAP.md`, `docs/FORMATS.md`, `docs/SCHEMAS.md`, and `docs/versions/CHN/4.2.8.md` at stable paths.
+- Never treat knowledge-graph backlinks, TODO completion or note frontmatter as proof of real-resource decoding. Include hash, exact build, tool/commit, original path, offset/field, reproduction command, and validation status when making claims.
+- Do not add large assets, proprietary game bytes, secrets, per-user Obsidian workspace state or community plugin code to the Vault.

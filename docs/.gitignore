@@ -1,0 +1,10 @@
+# Machine-specific Obsidian state; shared vault settings remain tracked.
+.obsidian/workspace*.json
+.obsidian/cache
+.obsidian/plugins/
+.obsidian/community-plugins.json
+.obsidian/hotkeys.json
+.obsidian/appearance.json
+.trash/
+.DS_Store
+Thumbs.db

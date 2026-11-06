@@ -1,3 +1,10 @@
+---
+title: 国服解包路线图
+type: roadmap
+tags: [pvz2, unpack, roadmap]
+updated: 2026-11-07
+---
+
 # 国服解包路线图
 
 Objective: reproducible, auditable extraction, with independently validated game semantics. Keep CHN and international builds separate, preserve the APK as immutable evidence and keep ROMS unchanged.
@@ -32,3 +39,7 @@ Objective: reproducible, auditable extraction, with independently validated game
 
 ## Completion and error tracking
 Report total, success, failure, unsupported, skipped (with denominators). Errors must contain path, stage, message and retry action. Support optional full hash verification and sample round-trip tests. Avoid duplicating large binaries in Git or Actions artifacts; CI should operate on tiny synthetic fixtures.
+
+---
+
+Obsidian 导航：[[00-知识库首页]] · [[项目工作台]] · [[versions/CHN/4.2.8]]

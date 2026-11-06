@@ -1,3 +1,10 @@
+---
+title: 数据结构与来源审计
+type: schema
+tags: [pvz2, provenance, export]
+updated: 2026-11-07
+---
+
 # Data provenance and audit schema
 
 ## Mandatory resource evidence fields
@@ -18,3 +25,7 @@ These table names are an extraction design, not verified original game field nam
 
 ## Report contract
 Write UTF-8 JSON plus optional CSV. Keep source hash, tool commit, UTC generated_at, per-stage totals, per-item status and errors. Do not use percentages without exact numerator and denominator. Keep full generated reports in ignored audit/local/, publish only reviewed summaries. Treat run output from synthetic tests separately from results on actual APK bytes.
+
+---
+
+Obsidian 导航：[[00-知识库首页]] · [[研究证据规范]] · [[项目工作台]]

@@ -40,3 +40,7 @@ python scripts/tools/verify_tools.py
 For selective installation on Windows: powershell -ExecutionPolicy Bypass -File .\scripts\tools\setup-tools.ps1 -Only PopStudio,LibWindPop,Pvz2Tool
 
 The tools are tracked upstream sources, not evidence of real CHN 4.2.8 extraction. Existing ROMS/ files are unchanged.
+
+## Obsidian documentation
+
+The entire [docs/](docs/README.md) directory is a standalone Obsidian Vault. Clone this repo, open the local `PVZ2_Resources/docs` folder in Obsidian and start at [00-知识库首页](docs/00-知识库首页.md). New notes use shared `docs/_templates/` templates and Wiki links. Personal workspace state is git-ignored; repo paths and existing technical documents are preserved.

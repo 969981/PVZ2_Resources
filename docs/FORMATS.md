@@ -1,3 +1,10 @@
+---
+title: 资源容器与格式
+type: reference
+tags: [pvz2, formats, rslb, rsb, rton]
+updated: 2026-11-07
+---
+
 # Formats: verified headers and working hypotheses
 
 The provided APK ZIP inventory contains 1,374 entries: 33 assets/*.rsb.smf, 18 assets/properties/*.rton.smf, 33 rsb.tag.smf, 5 other SMF, and 28 .so libraries. Major game library is ELF libSrc.so for ARM64 and ARM32, not a Marmalade S3E executable.
@@ -31,3 +38,7 @@ References:
 - https://github.com/PopGameTool/PopStudio
 - https://github.com/PopGameTool/LibWindPop
 - https://github.com/DreamMoonCai/Pvz2Tool
+
+---
+
+Obsidian 导航：[[00-知识库首页]] · [[术语表]] · [[研究证据规范]]
