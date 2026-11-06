@@ -16,13 +16,13 @@ Header sample from CHN 4.2.8 begins 52 53 4C 42 = RSLB; version at +0x04 is 1. C
 - 0x10 u64 compressed payload length
 - 0x18 u32 uncompressed block size
 - 0x1C u32 block count
-- 0x20 repeated 36-byte records:
-  u64 cumulative offset, u32 uncompressed bytes, u32 reserved,
-  u64 data offset, u32 compressed bytes including 5-byte LZMA params,
-  u8 LZMA property, u32 LZMA dictionary bytes, 3 padding bytes.
+- 0x20 u64 reserved, 0x28 u64 repeated size (either total output or nominal block size)
+- 0x30 first 20-byte block descriptor: u64 compressed data offset, u32 size including LZMA properties, 5 property bytes, 3 bytes padding
+- Between descriptors, a 16-byte link holds cumulative uncompressed end offset and the next block size.
+- Subsequent descriptors repeat the 20-byte structure; the last descriptor has no following link.
 - Each block: 5-byte LZMA1 property header then raw LZMA1 stream.
 
-Check table bounds, continuity, declared sums and decoded byte count before accepting output. Header estimate: 5,639.62 MiB unwrapped across 33 bundles; not real-file validated yet.
+Check table bounds, continuity, declared sums and decoded byte count before accepting output. Header estimate: 5,639.62 MiB unwrapped across 33 bundles; the 2026-11-06 real probe found a stage1 parser mismatch; the corrected descriptor/link parser awaits another real run.
 
 ## RSB v4 and RSGP
 Expected inner magic after RSLB decode: 31 62 73 72 = 1bsr. Probe version, RSGP group count, table offset, record stride and per-group offset/length. An RSB group table is not a complete extraction of its internal members. Layer 2 is a separate milestone.

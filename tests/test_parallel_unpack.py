@@ -18,8 +18,8 @@ class TestParallel(unittest.TestCase):
         raw = lzma.compress(rsb, format=lzma.FORMAT_RAW,
                            filters=[{"id":lzma.FILTER_LZMA1,"dict_size":dic,"lc":3,"lp":0,"pb":2}])
         block = bytes([prop]) + struct.pack("<I", dic) + raw
-        buf = struct.pack("<4sIQQII", b"RSLB", 1, len(rsb), 36+len(block), len(rsb), 1)
-        buf += struct.pack("<QIIQIBI3x", 0, len(rsb), 0, 68, len(block), prop, dic) + block
+        buf = struct.pack("<4sIQQIIQQ", b"RSLB", 1, len(rsb), 36+len(block), len(rsb), 1, 0, len(rsb))
+        buf += struct.pack("<QI5s3x", 68, len(block), bytes([prop]) + struct.pack("<I", dic)) + block
         with tempfile.TemporaryDirectory() as d:
             base=Path(d)
             apk=base/"test.apk"
