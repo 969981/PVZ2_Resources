@@ -1,0 +1,24 @@
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.venv/
+*.part
+*.tmp
+*.log
+audit/local/
+Unpack/
+Extracted/
+Database/generated/
+*_stage1/
+*_audit/
+*.apk
+*.obb
+*.smf
+*.rsb
+*.rsg
+*.rton
+*.ptx
+*.pam
+*.so
+*.dex
+# Existing ROMS/ directory is intentionally retained.
