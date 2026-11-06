@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "notice": "These are pinned upstream tools; real PvZ2 CHN 4.2.8 compatibility must be validated separately.",
+  "tools": [
+    {
+      "name": "PopStudio",
+      "path": "tools/PopStudio",
+      "repo": "PopGameTool/PopStudio",
+      "url": "https://github.com/PopGameTool/PopStudio.git",
+      "branch": "master",
+      "sha": "a8bd1edd3e1dc4ec79e3b37ee29774e268438d85",
+      "license": "Apache-2.0",
+      "role": "RSB RTON PTX PAM Reanim and atlas converter"
+    },
+    {
+      "name": "LibWindPop",
+      "path": "tools/LibWindPop",
+      "repo": "PopGameTool/LibWindPop",
+      "url": "https://github.com/PopGameTool/LibWindPop.git",
+      "branch": "master",
+      "sha": "0b7a246e1ed7eb0d9028ef8eb65b0dcc9a56760b",
+      "license": "Apache-2.0",
+      "role": "PopCap resource parser library"
+    },
+    {
+      "name": "Pvz2Tool",
+      "path": "tools/Pvz2Tool",
+      "repo": "DreamMoonCai/Pvz2Tool",
+      "url": "https://github.com/DreamMoonCai/Pvz2Tool.git",
+      "branch": "main",
+      "sha": "06108438489e3d942dcb8611491d6dcf73424cff",
+      "license": "MIT",
+      "role": "Chinese PvZ2 RSB RSGP RTON PTX SMF Kotlin"
+    },
+    {
+      "name": "PVZ2-CN-Reverse-Tools",
+      "path": "tools/PVZ2-CN-Reverse-Tools",
+      "repo": "lei1737524550/PVZ2-Chinese-Version-Reverse-Tools",
+      "url": "https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git",
+      "branch": "main",
+      "sha": "04f57f42080ef831545c9b2877f81f811f0be4e2",
+      "license": "UNSPECIFIED",
+      "role": "CN Resource_Tool and Player_Tool; tested 4.1.9/4.2.3 upstream"
+    },
+    {
+      "name": "pvz2-format-exploration",
+      "path": "tools/pvz2-format-exploration",
+      "repo": "Jelly-RayTian/pvz2-format-exploration",
+      "url": "https://github.com/Jelly-RayTian/pvz2-format-exploration.git",
+      "branch": "main",
+      "sha": "c02714a065a2217cb3319dfadb709ebe0f3f7cab",
+      "license": "MIT",
+      "role": "RSLB unwrap RSB group probe partial RTON"
+    },
+    {
+      "name": "Twinning",
+      "path": "tools/Twinning",
+      "repo": "twinstar6980/Twinning",
+      "url": "https://github.com/twinstar6980/Twinning.git",
+      "branch": "main",
+      "sha": "860ec8915a08f79aa934408a4111e520ee8f82ed",
+      "license": "GPL-3.0",
+      "role": "PopCap format converter"
+    },
+    {
+      "name": "EffectViewer",
+      "path": "tools/EffectViewer",
+      "repo": "PopGameTool/EffectViewer",
+      "url": "https://github.com/PopGameTool/EffectViewer.git",
+      "branch": "main",
+      "sha": "a02f98d52b258374fb8ad7a9f2473e32542b2774",
+      "license": "MIT",
+      "role": "Reanim particle trail visualization and editing"
+    },
+    {
+      "name": "ReanimAnalyzer",
+      "path": "tools/ReanimAnalyzer",
+      "repo": "PopGameTool/ReanimAnalyzer",
+      "url": "https://github.com/PopGameTool/ReanimAnalyzer.git",
+      "branch": "master",
+      "sha": "9abd623ecf2c1a0068e39c2c522c1232e7df4520",
+      "license": "Apache-2.0",
+      "role": "Reanim track frame transformation analysis"
+    }
+  ]
+}

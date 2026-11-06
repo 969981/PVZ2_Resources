@@ -1,0 +1,41 @@
+# External tool sources, pinned for reproducibility.
+
+[submodule "tools/PopStudio"]
+	path = tools/PopStudio
+	url = https://github.com/PopGameTool/PopStudio.git
+	branch = master
+
+[submodule "tools/LibWindPop"]
+	path = tools/LibWindPop
+	url = https://github.com/PopGameTool/LibWindPop.git
+	branch = master
+
+[submodule "tools/Pvz2Tool"]
+	path = tools/Pvz2Tool
+	url = https://github.com/DreamMoonCai/Pvz2Tool.git
+	branch = main
+
+[submodule "tools/PVZ2-CN-Reverse-Tools"]
+	path = tools/PVZ2-CN-Reverse-Tools
+	url = https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git
+	branch = main
+
+[submodule "tools/pvz2-format-exploration"]
+	path = tools/pvz2-format-exploration
+	url = https://github.com/Jelly-RayTian/pvz2-format-exploration.git
+	branch = main
+
+[submodule "tools/Twinning"]
+	path = tools/Twinning
+	url = https://github.com/twinstar6980/Twinning.git
+	branch = main
+
+[submodule "tools/EffectViewer"]
+	path = tools/EffectViewer
+	url = https://github.com/PopGameTool/EffectViewer.git
+	branch = main
+
+[submodule "tools/ReanimAnalyzer"]
+	path = tools/ReanimAnalyzer
+	url = https://github.com/PopGameTool/ReanimAnalyzer.git
+	branch = master
