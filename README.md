@@ -26,3 +26,17 @@ python -m unittest discover -s tests -v
 Probe: dino.rsb.smf and resourcesDino.rton.smf. Stage 1 only creates RSB outer files and copies RTON; it does not extract individual RSGP members, convert RTON to JSON, or decrypt anything. Full stage 1 RSLB output is estimated from headers to be approximately 5.51 GiB; keep additional temporary space.
 
 See docs/ROADMAP.md before claiming a complete extraction. Keep generated game resources outside public Git history.
+
+## Third-party tools: actual pinned Git submodules
+
+Eight upstream resource tools have been linked in tools/; see tools/README.md and tools/upstreams.json for roles, licenses, SHAs and known limitations.
+
+~~~powershell
+git submodule sync --recursive
+git submodule update --init --recursive
+python scripts/tools/verify_tools.py
+~~~
+
+For selective installation on Windows: powershell -ExecutionPolicy Bypass -File .\scripts\tools\setup-tools.ps1 -Only PopStudio,LibWindPop,Pvz2Tool
+
+The tools are tracked upstream sources, not evidence of real CHN 4.2.8 extraction. Existing ROMS/ files are unchanged.
