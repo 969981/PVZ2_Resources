@@ -13,7 +13,7 @@
 
 当前工作流只处理已经有来源 SHA256 的 PNG 图片，不包含 WEM 音频、原始游戏主程序、私人玩家数据或不明格式二进制。单张图片超过 GitHub 技术限制、校验失败或像素解码失败的分片将停止上传，而不是忽略错误。
 
-## 计划数量
+## 已验证的公开 PNG 数量
 
 | shard | PNG |
 |---|---:|
@@ -27,8 +27,8 @@
 | 07 | 205 |
 | **合计** | **1,520** |
 
-以上数量来自已归档 7 个 Media 源清单和源 Artifact 的 Media-06 审计清单，是**发布前的计划分母**。必须在 Actions 完成、分片 `PNG-MANIFEST.csv` 进入 master 且 Git 中逐文件可读以后才能宣称发布成功。
+以上数据已经通过 [真实发布 Actions #42351434981](https://github.com/969981/PVZ2_Resources/actions/runs/42351434981) 验证：**8/8 个分片全部成功**。从 GitHub 递归树实际核对到 **1,520 个 PNG**、**8 个 PNG-MANIFEST.csv**，大小共 **5,726,599,792 字节**；递归树未截断。远端每份清单逐一验证 SHA256、尺寸、完整像素解码成功（`pillow-verified-and-loaded`），且每个分片内路径唯一。
 
-示例：`Images/CHN/V4.2.8/Media/shard-00/PNG/init/UI_MainMenu_1200/ATLASES/UI_MAINMENU_1200_00.png`。
+示例：[主菜单 PNG 图集](CHN/V4.2.8/Media/shard-00/PNG/init/UI_MainMenu_1200/ATLASES/UI_MAINMENU_1200_00.png)，以及 [Media-06 活动素材](CHN/V4.2.8/Media/shard-06/PNG/LuaAct/LUA_Effects_MonthlyCard_1200/ATLASES/LUA_EFFECTS_MONTHLYCARD_1200_00.png)。
 
 如需本地恢复，参见 `docs/Unpack/15-Media06缺失分片恢复与素材查看.md`。如需技术、结构化 JSON 记录，请进入 `Parsed/CHN/V4.2.8`。
