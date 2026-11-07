@@ -1,0 +1,63 @@
+name: Export authentic PvZ2 CN gameplay tables to Git
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-gameplay-export.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+          persist-credentials: true
+      - name: Restore verified Git archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/recovered"
+      - name: Build SQLite and eight real gameplay CSV tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/export_gameplay.py "$RUNNER_TEMP/recovered" \
+            --out "$RUNNER_TEMP/gameplay-tables" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip
+          python3 - <<'PY'
+          import json,zipfile
+          with zipfile.ZipFile('Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip') as z:
+              s=json.loads(z.read('SUMMARY.json'))
+              counts=s['counts']
+              for k,v in [('exact_PlantType',323),('exact_ZombieType',1265),('exact_LevelDefinition',6636),('exact_WaveManagerProperties',6010),('exact_SkillPropertySheet',857)]:
+                  assert counts.get(k)==v,(k,counts.get(k),v)
+              assert len(s['errors'])==0
+          PY
+      - name: Commit source-backed gameplay tables to Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c gameplay-database-428
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip
+          git commit -m "data(chn-4.2.8): gameplay entity and original field database"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
