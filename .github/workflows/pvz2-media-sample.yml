@@ -50,7 +50,7 @@ jobs:
           PYTHONPATH: ${{ runner.temp }}/pvz2-tool/Resource_Tool
         run: |
           set -euo pipefail
-          python3 scripts/media/inspect_rsg_image_meta.py "$RUNNER_TEMP/rsb/dino.rsb" \\
+          python3 scripts/media/inspect_rsg_image_meta.py "$RUNNER_TEMP/rsb/dino.rsb" \
             --out "$RUNNER_TEMP/media-audit"
       - name: Publish media samples and full header inventory
         uses: actions/upload-artifact@v4
