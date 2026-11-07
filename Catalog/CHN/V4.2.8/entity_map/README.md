@@ -4,6 +4,16 @@
 
 **推荐入口：** [植物 Obsidian 索引](../../../../docs/Entities/CHN/V4.2.8/Plants/INDEX.md) · [僵尸索引](../../../../docs/Entities/CHN/V4.2.8/Zombies/INDEX.md) · [完整说明](../../../../docs/Unpack/18-植物僵尸跨格式关联数据库.md)
 
+## 新增：逐等级技能、Avatar 与道具明细
+
+[Actions #42357893811](https://github.com/969981/PVZ2_Resources/actions/runs/42357893811) 实际生成并提交：7,574 条原等级数组记录、1,459 个进阶技能及 1,468 个属性技能的精确静态别名引用、838 个 Avatar 元素和 953 条外围装扮/道具配置候选，并更新 1,434 份 Obsidian 页面。
+
+- `entity_level_skills.csv`：每级数组序号、AttackLevel/HitPointsLevel 原值、AdvancedSkillType、PropertySkillType、原技能名称键与证据状态。
+- `entity_avatar_details.csv`：AvatarType、AvatarLayers 和原数组序号。
+- `entity_item_costume_candidates.csv`：以原生 PlantName 等字段匹配 Collectable/Accessory/Avatar 相关配置，**候选关系而非已证实装备**。
+- `entity_media_summary.csv`：每条源对象的 PNG/PAM 候选、RTON group ID 命中与图标 ID 缺口。
+- `DETAIL_SUMMARY.json`：全表行数和显式技能别名成功/未解数量。
+
 ## 文件说明
 
 | 文件 | 作用 |
