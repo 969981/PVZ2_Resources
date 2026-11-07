@@ -16,7 +16,10 @@ from pathlib import Path, PurePosixPath
 import re
 import sys
 
-from asset_formats import inspect
+try:
+    from .asset_formats import inspect
+except ImportError:  # direct CLI invocation as scripts/parse/parse_shard.py
+    from asset_formats import inspect
 
 MIB=1024*1024
 COLUMNS=["region","version","stage","shard","original_path","format","category",
