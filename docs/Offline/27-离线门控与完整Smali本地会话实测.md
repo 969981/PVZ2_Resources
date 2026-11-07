@@ -108,3 +108,31 @@ AlertDialog.Builder.setMessage
 在不改变返回值或游戏行为的前提下，Frida 为 `AndroidGameApp.UI_ShowAlertDialog`、`Device_ExitApp` 和 Android `Process.killProcess` 加入仅记录栈帧的方法跟踪。专门保留 `INTEGRITY_ALERT_REQUEST.exit_requested` 与 `GAME_EXIT_REQUEST` 事件，不输出帐号、证书或签名值。窗口缩短为同意后 5/25/45 秒，因既有证据已显示 25 秒进程退出。
 
 验收要点：先确认警告究竟由哪条 JNI 链调用，以及真实退出是来自弹窗按钮还是独立原生退出路径。**主菜单、第一关和保存仍然均未通过；不提供未经实机验收的“离线可玩 APK”。**
+
+## 2026-11-07 22:09 北京时间：原生初始化退出链已由 Frida 实机闭合
+
+[Actions #42379758700](https://github.com/969981/PVZ2_Resources/actions/runs/42379758700) 在同一 SHA 锁定的实验 APK 上复现。Android 11、飞行模式、ADB PID 6332、Frida 按 PID 一次附加成功；脚本不点击任何不明弹窗：
+
+| 只读捕获 | 次数 | 证明 |
+| --- | ---: | --- |
+| `INTEGRITY_ALERT_REQUEST` | 1 | `AndroidGameApp.UI_ShowAlertDialog` 的 message 为正版警告，`exit_requested=true` |
+| `INTEGRITY_WARNING_STACK` | 1 | `AndroidGameApp$1.run` 显示 Android 警告 |
+| `GAME_EXIT_REQUEST/Device_ExitApp` | 1 | Java 退出桥确实被游戏调用 |
+| `GAME_EXIT_REQUEST/Process.killProcess` | 1 | 退出桥实际杀掉本进程 |
+
+**关键真实调用栈**：
+
+```text
+AndroidSurfaceView$AndroidRenderer.onSurfaceCreated(AndroidSurfaceView.java:958)
+→ AndroidSurfaceView.Native_onSurfaceCreated(Native Method)
+  → AndroidGameApp.UI_ShowAlertDialog(... exitApp=true)
+  → AndroidGameApp.Device_ExitApp()
+       → Process.killProcess()
+```
+
+精确说法是：本次可观测到两次 *从 `Native_onSurfaceCreated` 返回的 Java 调用栈*，分别请求弹窗与退出；上游 C++ 条件分支所在地址**尚未定位**。这证明旧版的「Android 随机 SIGKILL」解释不成立：`Device_ExitApp` 和 `Process.killProcess` 确实由游戏自己的启动调用触发，无须点击弹窗确认按钮。
+
+- 不应该修改 `AndroidGameApp$1.run` 或任意地方的 `killProcess` 来假装修复认证，原生启动逻辑仍可能拒绝继续初始化。
+- 本次实验被明确判定 `FAIL_INTEGRITY_WARNING`；仍无真实主菜单、第一关结算、冷重启读档证据。
+- 下一步将根据 `AndroidSurfaceView.Native_onSurfaceCreated()V` 的真实 JNI 注册表 RVA，在 **同 SHA256 的 ARM64 `libSrc.so`** 中建立 Ghidra 原生调用图，把完整性校验和必须联网的 SDK 初始化拆开。
+- 已新增 `scripts/offline/surface_jni_registration.py` 和独立 `.github/workflows/pvz2-offline-surface-jni-map.yml`，仅输出 ELF RVA、签名和注册表候选，保留零原版 ELF/APK 二进制产物。
