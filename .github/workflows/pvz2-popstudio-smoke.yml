@@ -1,0 +1,113 @@
+name: Validate real PvZ2 CN PTX and PAM with PopStudio
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-popstudio-smoke.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  real-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Fetch pinned PopStudio source and build Linux console
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init -q "$RUNNER_TEMP/PopStudio"
+          git -C "$RUNNER_TEMP/PopStudio" remote add origin https://github.com/PopGameTool/PopStudio.git
+          git -C "$RUNNER_TEMP/PopStudio" fetch --depth=1 origin a8bd1edd3e1dc4ec79e3b37ee29774e268438d85
+          git -C "$RUNNER_TEMP/PopStudio" checkout -q FETCH_HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          f=Path(__import__('os').environ['RUNNER_TEMP'])/'PopStudio/PopStudio.ConsoleProject/Program.cs'
+          t=f.read_text(encoding='utf-8-sig')
+          assert t.count('while (true)')==1
+          f.write_text(t.replace('while (true)','for (int once=0;once<1;once++)'),encoding='utf-8')
+          PY
+          dotnet build "$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/PopStudio.ConsoleProject.csproj" \
+            -c Release -r linux-x64 --no-self-contained
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42256393599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-4
+          path: ${{ runner.temp }}/rsb
+      - name: Unpack real dino RSB with PTX to PNG conversion
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll="$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/bin/Release/net9.0/linux-x64/PopStudio.dll"
+          if [ ! -f "$dll" ]; then dll="$(find "$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/bin" -name PopStudio.dll -print -quit)"; fi
+          test -f "$dll"
+          dotnet "$dll" "$RUNNER_TEMP/rsb/dino.rsb" 1 T F \
+            > "$RUNNER_TEMP/popstudio-dino.log" 2>&1
+          test -d "$RUNNER_TEMP/rsb/dino_unpack"
+          count="$(find "$RUNNER_TEMP/rsb/dino_unpack" -type f -iname '*.png' | wc -l)"
+          echo "PTX decoded PNG count: $count"
+          test "$count" -gt 0
+          head -70 "$RUNNER_TEMP/popstudio-dino.log"
+      - name: Convert real PAM animations to structural JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll="$(find "$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/bin" -name PopStudio.dll -print -quit)"
+          export PS_DLL="$dll"
+          python3 - <<'PY'
+          import pathlib,subprocess,os,json
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'rsb/dino_unpack'
+          items=sorted(f for f in root.rglob('*') if f.is_file() and f.suffix.lower()=='.pam')
+          ok=0
+          for f in items:
+              result=subprocess.run(['dotnet',os.environ['PS_DLL'],str(f),'180'],
+                                    stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,
+                                    text=True,timeout=30)
+              output=f.with_suffix('.pam.json')
+              if output.is_file():
+                  with output.open('r',encoding='utf-8') as fd:json.load(fd)
+                  ok+=1
+          print('PAM input',len(items),'decoded JSON',ok)
+          assert ok>0
+          PY
+      - name: Build media validation report and share small examples
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,pathlib,shutil
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'rsb/dino_unpack'
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'media-result'
+          out.mkdir()
+          items=list(root.rglob('*'))
+          png=sorted((f for f in items if f.is_file() and f.suffix.lower()=='.png'),key=lambda p:p.stat().st_size)
+          pam=sorted((f for f in items if f.is_file() and f.name.lower().endswith('.pam.json')),key=lambda p:p.stat().st_size)
+          checked=0
+          for f in png:
+              raw=f.open('rb').read(24)
+              assert raw[:8]==b'\x89PNG\r\n\x1a\n',str(f)
+              checked+=1
+          report={'rsb':'dino.rsb','png_valid':checked,'pam_json':len(pam),
+                  'source':'PopStudio pinned a8bd1edd3e1dc4ec79e3b37ee29774e268438d85',
+                  'scope':'real samples, not full APK media'}
+          (out/'summary.json').write_text(json.dumps(report,indent=2))
+          for f in png[:2]+pam[:3]:
+              shutil.copy2(f,out/f.name)
+          print(json.dumps(report))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-chn-4.2.8-popstudio-real-media-smoke
+          path: ${{ runner.temp }}/media-result/
+          if-no-files-found: warn
+          retention-days: 3
