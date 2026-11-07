@@ -570,7 +570,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                     field.startswith("$.PopAnim")):
                 continue
             matched=[t for t in exact_alias_matches(token,refs)
-                     if t["category"] in ("skills","projectiles")]
+                     if t.get("category") in ("skills","projectiles")]
             if len(matched)>10:continue
             for t in matched:
                 tables["links"].append({
