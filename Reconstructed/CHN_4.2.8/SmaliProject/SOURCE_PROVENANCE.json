@@ -1,0 +1,23 @@
+{
+  "status": "SIX_DEX_SMALI_EXPORTED_FOR_SOURCE_CONTROL",
+  "source_apk_sha256": "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4",
+  "decode_tool": "APKTool 2.12.1",
+  "root_count": 6,
+  "smali_files": 16375,
+  "smali_total_bytes": 149187235,
+  "smali_by_dex": {
+    "smali": 1032,
+    "smali_classes2": 5069,
+    "smali_classes3": 2061,
+    "smali_classes4": 365,
+    "smali_classes5": 2753,
+    "smali_classes6": 5095
+  },
+  "tree_content_sha256": "b031068b373c3cd8aece6a91a3d9c793348b3c0e2d978d5420ba96aea7c63c83",
+  "apktool_metadata_present": true,
+  "manifest_present": true,
+  "raw_dex_or_native_libraries_included": false,
+  "raw_assets_included": false,
+  "roundtrip_test": "Required before Git commit",
+  "playable_offline_test": "Not established; original-signature warning remains"
+}

@@ -1,0 +1,34 @@
+.class public final synthetic Lcom/tw/gamesdk/ui/-$$Lambda$TwgameUsercenterChangePhoneUtil$nbt9cq5P6Ek812Jd_XdYMuccI3U;
+.super Ljava/lang/Object;
+.source "lambda"
+
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
+
+# instance fields
+.field public final synthetic f$0:Lcom/tw/gamesdk/ui/TwgameUsercenterChangePhoneUtil;
+
+
+# direct methods
+.method public synthetic constructor <init>(Lcom/tw/gamesdk/ui/TwgameUsercenterChangePhoneUtil;)V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput-object p1, p0, Lcom/tw/gamesdk/ui/-$$Lambda$TwgameUsercenterChangePhoneUtil$nbt9cq5P6Ek812Jd_XdYMuccI3U;->f$0:Lcom/tw/gamesdk/ui/TwgameUsercenterChangePhoneUtil;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final onClick(Landroid/view/View;)V
+    .locals 1
+
+    iget-object v0, p0, Lcom/tw/gamesdk/ui/-$$Lambda$TwgameUsercenterChangePhoneUtil$nbt9cq5P6Ek812Jd_XdYMuccI3U;->f$0:Lcom/tw/gamesdk/ui/TwgameUsercenterChangePhoneUtil;
+
+    invoke-virtual {v0, p1}, Lcom/tw/gamesdk/ui/TwgameUsercenterChangePhoneUtil;->lambda$setupListeners$1$TwgameUsercenterChangePhoneUtil(Landroid/view/View;)V
+
+    return-void
+.end method
