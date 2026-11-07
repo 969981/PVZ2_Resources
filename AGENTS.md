@@ -18,7 +18,7 @@ Target game: Plants vs. Zombies 2; current focus: Android Chinese edition (CHN) 
 - Differentiate observed bytes, documented format assumptions, inferred meaning and runtime-confirmed behavior.
 - Every exported row needs region, version, original APK SHA, original path, container chain, parser version, warnings and status.
 - Encrypted, unknown, corrupt and unsupported files remain in error inventory; never quietly omit them.
-- Do not publish game assets, APK files, private keys, personal saves or credentials.
+- Default to public Git commits for project-authored tools, documentation, metadata catalogs, structured data, and individual extracted media that the project is entitled to redistribute. Remove blanket blocks on publishing assets solely because they are images, animation files, audio files, or game data. Never publish private keys, credentials, personal saves, or other sensitive user data.
 - Preserve original case-sensitive filenames and source IDs; avoid cross-version mixing without checksums.
 
 ## Engineering
@@ -28,7 +28,7 @@ Target game: Plants vs. Zombies 2; current focus: Android Chinese edition (CHN) 
 - Write via temporary partial files and atomic rename; never leave misleading partial outputs.
 - Tests should use synthetic fixtures by default; real APK is optional and local-only.
 - Update docs/versions/CHN/4.2.8.md when new real evidence is available.
-- Preserve existing ROMS and restrict commits to code, documentation, schemas and small authorized fixtures.
+- Preserve existing `ROMS/` unmodified. When the user asks for browseable individual-file exports, prefer versioned public files with original paths and SHA256, bounded commits, resume/retry logic, and an audit of any missing shards. Do not treat the 512 KiB text-preview classification as a Git size limit.
 - Report commit URL, tests, current support boundary and unresolved questions upon completion.
 
 ## Tool sources
@@ -52,7 +52,7 @@ Respect third-party licenses. This repository does not contain a verified comple
 
 - See `Offline/README.md`, `docs/Offline/00-离线版总览.md` and `scripts/offline/` before making changes to the offline workstream.
 - Do not claim an offline-playable APK on the basis of static host strings, synthetic tests, hook stubs or missing networking logs. Runtime success requires an airplane-mode device and a complete launch/play/save/restart trace.
-- Preserve unmodified originals, avoid touching `ROMS/`, never commit signed APKs, DEX/SO binaries, login tokens, device identifiers, private logcat, saves or unlicensed extracted assets.
+- Preserve unmodified originals and avoid touching `ROMS/`. Keep login tokens, device identifiers, private logcat and saves out of public history. Signed APKs and native executables require a separate security and redistribution review. Do not claim the right to distribute third-party game assets merely because they were extracted from a locally held APK.
 - Do not implement simulated real-money purchases or grant online account entitlements. Local offline economy must remain clearly separate from real online accounts.
 - Record package/version/build SHA, method, reproducibility and evidence status for every network contract or native hook. Never invent offsets or remote responses.
 
@@ -61,6 +61,10 @@ Respect third-party licenses. This repository does not contain a verified comple
 - Catalog/CHN/V4.2.8/shards contains source-backed per-file original path, byte size, SHA256, actual source run and stage/shard; the CSV and SUMMARY are safe metadata, not copied source assets.
 - Treat small_file_candidate as a LEGACY optional <=512 KiB text-preview classification. It is NOT the GitHub maximum and must not be quoted as a count of ordinary-Git-eligible files.
 - Use git_size_eligible for technical size eligibility (<95 MiB), and git_warning_over_50mib separately. Under 95 MiB does not imply copyright authorization, repository capacity, or successful GitHub UI preview.
-- Use scripts/catalog/index_git_shard.py to stream-verify and inventory original files. Use scripts/catalog/materialize_readable.py to restore verified individual files locally; Readable/ remains Git-ignored.
-- Do not automatically stage Readable/, game textures, audio, or proprietary source bytes just because each file is below GitHub's 100 MiB hard limit. Repository-wide duplication and public redistribution rights must be handled separately.
+- Use `scripts/catalog/index_git_shard.py` to verify and inventory files, then `scripts/catalog/materialize_readable.py` to recover each SHA256-checked original path. `Readable/` stays Git-ignored as a working directory; explicitly approved publishable outputs may be staged into a separate browseable Git directory.
+- For files with confirmed redistribution rights, publicly publish individual PNG, animation JSON, audio, and game-data files when explicitly requested; use per-file SHA256 checks and batch commits, not a 512 KiB preview filter. Separate size eligibility (<95 MiB), total repository costs, deduplication and legal redistribution status. Unverified third-party content must not be asserted to be licensed.
 - Keep docs/Unpack/10-独立素材清单与Git体积规则.md and the Obsidian MOC up to date with source-backed per-format totals, true size thresholds, and unprocessed shard gaps.
+
+## Public output preference
+- The user prefers a publicly browseable per-file repository rather than archive-only downloads. Make public deliverables the default for project-owned or redistribution-permitted material, and keep all original-path, byte-size, SHA256, provenance, and missing-file evidence.
+- Do not equate GitHub's 100 MiB per-file technical limit with a grant of copyright or redistribution permission. Flag missing permissions rather than making legal claims or silently publishing third-party copyrighted works.
