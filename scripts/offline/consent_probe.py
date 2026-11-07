@@ -5,7 +5,8 @@ On a fresh throwaway Android 11 emulator (no accounts), confirm the original
 privacy-policy screen before clicking its "同意" button. Then record actual
 screens, UI text, foreground process and a bounded logcat indicator summary.
 No hidden activity navigation, unverified tapping, purchases or real accounts.
-The APP IS NOT PATCHED. This is not evidence of playable offline operation.
+The build kind is explicit: source APK vs temporary Smali trial. This is not
+evidence of playable offline operation.
 """
 from __future__ import annotations
 
@@ -83,35 +84,84 @@ def screen_is_privacy_visual(frame: dict, images_dir: Path) -> tuple[bool, int]:
 
 
 
+def redact_evidence_line(line: str) -> str:
+    """Bounded, scrubbed diagnostics from a disposable account-free emulator."""
+    line = re.sub(r"https?://\\S+", "<url>", line)
+    line = re.sub(r"(?i)[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}", "<email>", line)
+    line = re.sub(r"(?<![\\w.])(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?![\\w.])", "<ip>", line)
+    line = re.sub(r"(?i)\\b(token|password|session|authorization)\\s*[:=]\\s*\\S+",
+                  r"\\1=<redacted>", line)
+    return line.strip()[:280]
+
+
+def summarize_logcat_text(text: str) -> dict:
+    expressions = {
+        "java_fatal": r"FATAL EXCEPTION",
+        "native_signal": r"Fatal signal \\d+",
+        "missing_native_library": r"UnsatisfiedLinkError|dlopen failed",
+        "dns_failure": r"UnknownHostException|EAI_NODATA",
+        "connect_failure": r"ConnectException|ECONNREFUSED",
+        "timeout": r"SocketTimeoutException|ETIMEDOUT",
+        "ssl_failure": r"SSLHandshakeException|CERTIFICATE_VERIFY_FAILED",
+        "activity_anr": r"\\bANR in " + re.escape(PACKAGE),
+    }
+    lines = text.splitlines()
+    indices = set()
+    for i, line in enumerate(lines):
+        if (("ANR in " + PACKAGE) in line or
+                ("FATAL EXCEPTION" in line and PACKAGE in line) or
+                ("Fatal signal" in line and PACKAGE in line) or
+                ("am_anr" in line and PACKAGE in line) or
+                ("Killing" in line and PACKAGE in line)):
+            indices.update(range(i, min(i + 5, len(lines))))
+    events = [redact_evidence_line(lines[i]) for i in sorted(indices)][:30]
+    return {"status": "ok", "sampled_lines": len(lines),
+            "counts": {k: len(re.findall(pattern, text, re.I))
+                       for k, pattern in expressions.items()},
+            "bounded_runtime_events": events}
+
+
 def logcat_summary() -> dict:
     try:
         raw = adb("logcat", "-d", "-v", "brief", "-t", "7000", timeout=50)
-        if raw.returncode:
-            return {"status": "unavailable"}
-        text = decoded(raw)
-        expressions = {
-            "java_fatal": r"FATAL EXCEPTION",
-            "native_signal": r"Fatal signal \d+",
-            "missing_native_library": r"UnsatisfiedLinkError|dlopen failed",
-            "dns_failure": r"UnknownHostException|EAI_NODATA",
-            "connect_failure": r"ConnectException|ECONNREFUSED",
-            "timeout": r"SocketTimeoutException|ETIMEDOUT",
-            "ssl_failure": r"SSLHandshakeException|CERTIFICATE_VERIFY_FAILED",
-            "activity_anr": r"\bANR in " + re.escape(PACKAGE),
-        }
-        return {"status": "ok", "sampled_lines": len(text.splitlines()),
-                "counts": {k: len(re.findall(v, text, re.I))
-                           for k, v in expressions.items()}}
+        return (summarize_logcat_text(decoded(raw))
+                if raw.returncode == 0 else {"status": "unavailable"})
     except (OSError, TimeoutError):
         return {"status": "unavailable"}
 
 
-def run(apk: Path, out: Path, times: list[int]) -> dict:
-    base = run_probe(apk, out, [30])
+def exit_info_summary() -> dict:
+    """Read Android 11's process exit records without exporting raw device logs."""
+    try:
+        raw = adb("shell", "dumpsys", "activity", "exit-info", PACKAGE, timeout=30)
+        if raw.returncode:
+            return {"status": "unavailable"}
+        lines = decoded(raw).splitlines()
+        matches = [redact_evidence_line(line) for line in lines
+                   if re.search(r"ApplicationExitInfo|reason=|description=|status=", line, re.I)]
+        return {"status": "ok", "relevant_lines": matches[:20]}
+    except (OSError, TimeoutError):
+        return {"status": "unavailable"}
+
+
+def classify_runtime(frames: list[dict], logcat: dict) -> str:
+    if any(frame.get("anr_dialog_seen") for frame in frames) or (
+            logcat.get("counts", {}).get("activity_anr", 0) > 0):
+        return "FAIL_ANDROID_ANR"
+    if any(frame.get("process_alive") is False for frame in frames):
+        return "FAIL_GAME_PROCESS_EXITED"
+    return "RUNTIME_OBSERVED_GAMEPLAY_NOT_VERIFIED"
+
+
+def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original') -> dict:
+    if build_kind not in ('original', 'smali-local-trial'):
+        raise ValueError('Unsupported build kind')
+    base = run_probe(apk, out, [30], game_modified=build_kind != 'original')
     report = {
         "scope": "fresh_disconnected_emulator_privacy_consent_then_noninteractive_observation",
         "source_apk": "4.2.8/1895 source SHA guarded in workflow",
-        "clean_no_account_emulator": True, "game_modified": False,
+        "clean_no_account_emulator": True, "game_modified": build_kind != "original",
+        "build_kind": build_kind,
         "consent_authorized_by_owner_for_this_test": True,
         "consent_clicked": False, "main_menu_verified": False,
         "level_verified": False, "save_verified": False,
@@ -152,14 +202,20 @@ def run(apk: Path, out: Path, times: list[int]) -> dict:
             frame = sample(out, f"after_consent_{seconds:03d}s")
             frame["offset_target_seconds"] = seconds
             frame["privacy_policy_visible"] = screen_is_privacy_policy(frame)
+            frame["anr_dialog_seen"] = any(
+                "isn't responding" in (node.get("text", "") + node.get("content_desc", "")) or
+                "无响应" in (node.get("text", "") + node.get("content_desc", ""))
+                for node in frame.get("ui_tree", {}).get("described_nodes", [])
+            )
             report["after_consent"].append(frame)
             # No further interaction with unknown screens without visual inspection.
         report["logcat"] = logcat_summary()
+        report["android_exit_info"] = exit_info_summary()
         report["privacy_gate_still_visible"] = screen_is_privacy_policy(report["after_consent"][-1])
         report["offline_after_consent"] = (
             decoded(adb("shell", "settings", "get", "global", "airplane_mode_on")) == "1"
         )
-        report["status"] = "CONSENT_PATH_SCREENS_CAPTURED_NEED_VISUAL_REVIEW"
+        report["status"] = classify_runtime(report["after_consent"], report["logcat"])
         return report
     finally:
         out.mkdir(parents=True, exist_ok=True)
@@ -173,6 +229,8 @@ def main() -> None:
     parser.add_argument("--apk", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--checkpoints", default="5,25,60,120")
+    parser.add_argument("--build-kind", choices=("original", "smali-local-trial"),
+                        default="original")
     args = parser.parse_args()
     if not args.apk.is_file():
         parser.error("Source APK not found")
@@ -182,7 +240,7 @@ def main() -> None:
         parser.error("Checkpoints must be comma-separated integer seconds")
     if not points or points != sorted(set(points)) or not 0 < points[0] or points[-1] > 180:
         parser.error("Checkpoints must be unique ascending seconds within 1..180")
-    print(json.dumps(run(args.apk, args.out, points), ensure_ascii=False, indent=2))
+    print(json.dumps(run(args.apk, args.out, points, build_kind=args.build_kind), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
