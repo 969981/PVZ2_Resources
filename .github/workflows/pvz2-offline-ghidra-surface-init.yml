@@ -6,6 +6,8 @@ on:
       - experiment/chn428-offline-gate-20261107
     paths:
       - ".github/workflows/pvz2-offline-ghidra-surface-init.yml"
+      - "scripts/offline/ghidra/PvZ2SurfaceBranchIndex.java"
+      - "scripts/offline/rank_surface_branch_candidates.py"
 permissions:
   contents: read
 jobs:
@@ -26,6 +28,7 @@ jobs:
             scripts/offline/jni_registration_probe.py
             scripts/offline/surface_jni_registration.py
             scripts/offline/ghidra
+            scripts/offline/rank_surface_branch_candidates.py
       - name: Recover verified original APK and prepare Ghidra inputs
         shell: bash
         run: |
@@ -145,6 +148,9 @@ jobs:
           assert row["function_name"]!="UNRESOLVED" and row["mapped_instruction_address"]!="NO_DISASSEMBLY", \
               "Surface JNI entry not confirmed by Ghidra function analysis"
           PY
+          python3 scripts/offline/rank_surface_branch_candidates.py \
+            --in-csv "$RUNNER_TEMP/ghidra-derived/surface_branch_index.csv" \
+            --out "$RUNNER_TEMP/ghidra-derived/ranked_surface_branch_candidates.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -153,6 +159,7 @@ jobs:
             ${{ runner.temp }}/ghidra-derived/surface_jni_registration.json
             ${{ runner.temp }}/ghidra-derived/surface_function_refs.csv
             ${{ runner.temp }}/ghidra-derived/surface_branch_index.csv
+            ${{ runner.temp }}/ghidra-derived/ranked_surface_branch_candidates.json
             ${{ runner.temp }}/ghidra-derived/surface_function_summary.json
           retention-days: 2
           if-no-files-found: warn
