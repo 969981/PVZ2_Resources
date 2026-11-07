@@ -1,0 +1,43 @@
+name: Audit actual PvZ2 CN gameplay JSON schemas
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-game-json-audit.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+      - name: Recover the first Git-backed large config shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/recovered"
+      - name: Enumerate real classes, aliases and field names
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/scan_game_json.py "$RUNNER_TEMP/recovered" \
+            --out "$RUNNER_TEMP/game-schema"
+      - name: Publish original-field audits
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-chn-4.2.8-real-game-json-schema
+          path: ${{ runner.temp }}/game-schema/
+          if-no-files-found: warn
+          retention-days: 3
