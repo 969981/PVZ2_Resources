@@ -1,6 +1,6 @@
 # PVZ2 CHN 4.2.8 Offline Edition — research workspace
 
-Status: **M0/M1 tooling only. NOT a playable offline APK.** This subproject preserves the upstream game engine and original APK bytes while identifying which startup, save, level and reward functions require online services.
+Status: **Real APK M0 static audit passed; M1 capture tooling ready. NOT a playable offline APK.** This subproject preserves the upstream game engine and original APK bytes while identifying which startup, save, level and reward functions require online services.
 
 ## First local steps
 
@@ -33,3 +33,5 @@ Candidate package name `com.popcap.pvz2cthdbk` comes from repository resource ob
 Read the Obsidian overview in `docs/Offline/00-离线版总览.md`.
 
 The project does not emulate real purchases, grant online account entitlements, or redistribute copyrighted game assets. Do not change `ROMS/` or publish a patched commercial APK.
+
+Real APK evidence: [Actions #42325659025](https://github.com/969981/PVZ2_Resources/actions/runs/42325659025) verified package `com.popcap.pvz2cthdbk`, versionCode `1895`, versionName `4.2.8`, targetSdk `30`, 28 native libraries (ARM64/ARM32), and 142 *static* domain/IP candidates. See `docs/Offline/06-M0真实APK审计.md`.
