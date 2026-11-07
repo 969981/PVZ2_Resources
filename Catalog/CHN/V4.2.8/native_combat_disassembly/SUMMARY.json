@@ -1,0 +1,951 @@
+{
+  "source_so_sha256": "b216b12e0e17a6429d993f380a7e6bbd9b99704906ec20a445d59952681b10ba",
+  "exec_segments": 1,
+  "xref_sites": 98,
+  "disassembled_instruction_rows": 6272,
+  "unique_field_labels": 25,
+  "field_code_reference_counts": {
+    "AdvancedVenomRate": 1,
+    "BasicVenomRate": 1,
+    "ConvallariaChemistPlantfoodProjectile": 2,
+    "ConvallariaChemistProjectile": 9,
+    "ConvallariaChemistSuperProjectile": 2,
+    "FlashSection": 1,
+    "ImprovedGrenadeBonus": 1,
+    "Level5AttackRate": 5,
+    "MaximumStackLevel": 1,
+    "MaximumStacksPerLevel": 1,
+    "MulberryFlashGrenade": 4,
+    "MulberryGasGrenade": 4,
+    "MulberryPlasmaGrenade": 4,
+    "MulberryProjectile": 4,
+    "PlantConvallariaChemist": 6,
+    "PlantMulberry": 4,
+    "PlasmaSection": 1,
+    "PoisonDamage": 5,
+    "PoisonDuration": 8,
+    "PoisonInfos": 1,
+    "SplashRadius": 5,
+    "SplitGrenadeRate": 1,
+    "StacksToAdd": 2,
+    "StunDuration": 24,
+    "VenomItemName": 1
+  },
+  "nearby_field_groups": [
+    {
+      "field": "PoisonDuration",
+      "site": "0x3bdcd50",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDamage",
+          "distance_bytes": 132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDamage",
+      "site": "0x3bdcdd4",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDuration",
+          "distance_bytes": -132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PlantConvallariaChemist",
+      "site": "0x3d8ec68",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 304
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3d8ed98",
+      "peers_within_512_bytes": [
+        {
+          "field": "PlantConvallariaChemist",
+          "distance_bytes": -304
+        },
+        {
+          "field": "PlantMulberry",
+          "distance_bytes": 416
+        },
+        {
+          "field": "MulberryProjectile",
+          "distance_bytes": 492
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PlantMulberry",
+      "site": "0x3d8ef38",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -416
+        },
+        {
+          "field": "MulberryProjectile",
+          "distance_bytes": 76
+        },
+        {
+          "field": "MulberryPlasmaGrenade",
+          "distance_bytes": 152
+        },
+        {
+          "field": "MulberryFlashGrenade",
+          "distance_bytes": 304
+        },
+        {
+          "field": "MulberryGasGrenade",
+          "distance_bytes": 456
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MulberryProjectile",
+      "site": "0x3d8ef84",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -492
+        },
+        {
+          "field": "PlantMulberry",
+          "distance_bytes": -76
+        },
+        {
+          "field": "MulberryPlasmaGrenade",
+          "distance_bytes": 76
+        },
+        {
+          "field": "MulberryFlashGrenade",
+          "distance_bytes": 228
+        },
+        {
+          "field": "MulberryGasGrenade",
+          "distance_bytes": 380
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MulberryPlasmaGrenade",
+      "site": "0x3d8efd0",
+      "peers_within_512_bytes": [
+        {
+          "field": "PlantMulberry",
+          "distance_bytes": -152
+        },
+        {
+          "field": "MulberryProjectile",
+          "distance_bytes": -76
+        },
+        {
+          "field": "MulberryFlashGrenade",
+          "distance_bytes": 152
+        },
+        {
+          "field": "MulberryGasGrenade",
+          "distance_bytes": 304
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MulberryFlashGrenade",
+      "site": "0x3d8f068",
+      "peers_within_512_bytes": [
+        {
+          "field": "PlantMulberry",
+          "distance_bytes": -304
+        },
+        {
+          "field": "MulberryProjectile",
+          "distance_bytes": -228
+        },
+        {
+          "field": "MulberryPlasmaGrenade",
+          "distance_bytes": -152
+        },
+        {
+          "field": "MulberryGasGrenade",
+          "distance_bytes": 152
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MulberryGasGrenade",
+      "site": "0x3d8f100",
+      "peers_within_512_bytes": [
+        {
+          "field": "PlantMulberry",
+          "distance_bytes": -456
+        },
+        {
+          "field": "MulberryProjectile",
+          "distance_bytes": -380
+        },
+        {
+          "field": "MulberryPlasmaGrenade",
+          "distance_bytes": -304
+        },
+        {
+          "field": "MulberryFlashGrenade",
+          "distance_bytes": -152
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDuration",
+      "site": "0x3e1bdb0",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDamage",
+          "distance_bytes": 132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDamage",
+      "site": "0x3e1be34",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDuration",
+          "distance_bytes": -132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDuration",
+      "site": "0x3e24f30",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDamage",
+          "distance_bytes": 144
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDamage",
+      "site": "0x3e24fc0",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDuration",
+          "distance_bytes": -144
+        },
+        {
+          "field": "MaximumStackLevel",
+          "distance_bytes": 500
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MaximumStackLevel",
+      "site": "0x3e251b4",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDamage",
+          "distance_bytes": -500
+        },
+        {
+          "field": "MaximumStacksPerLevel",
+          "distance_bytes": 128
+        },
+        {
+          "field": "StacksToAdd",
+          "distance_bytes": 260
+        },
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": 396
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "MaximumStacksPerLevel",
+      "site": "0x3e25234",
+      "peers_within_512_bytes": [
+        {
+          "field": "MaximumStackLevel",
+          "distance_bytes": -128
+        },
+        {
+          "field": "StacksToAdd",
+          "distance_bytes": 132
+        },
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": 268
+        },
+        {
+          "field": "VenomItemName",
+          "distance_bytes": 432
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "StacksToAdd",
+      "site": "0x3e252b8",
+      "peers_within_512_bytes": [
+        {
+          "field": "MaximumStackLevel",
+          "distance_bytes": -260
+        },
+        {
+          "field": "MaximumStacksPerLevel",
+          "distance_bytes": -132
+        },
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": 136
+        },
+        {
+          "field": "VenomItemName",
+          "distance_bytes": 300
+        },
+        {
+          "field": "BasicVenomRate",
+          "distance_bytes": 460
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonInfos",
+      "site": "0x3e25340",
+      "peers_within_512_bytes": [
+        {
+          "field": "MaximumStackLevel",
+          "distance_bytes": -396
+        },
+        {
+          "field": "MaximumStacksPerLevel",
+          "distance_bytes": -268
+        },
+        {
+          "field": "StacksToAdd",
+          "distance_bytes": -136
+        },
+        {
+          "field": "VenomItemName",
+          "distance_bytes": 164
+        },
+        {
+          "field": "BasicVenomRate",
+          "distance_bytes": 324
+        },
+        {
+          "field": "AdvancedVenomRate",
+          "distance_bytes": 456
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "VenomItemName",
+      "site": "0x3e253e4",
+      "peers_within_512_bytes": [
+        {
+          "field": "MaximumStacksPerLevel",
+          "distance_bytes": -432
+        },
+        {
+          "field": "StacksToAdd",
+          "distance_bytes": -300
+        },
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": -164
+        },
+        {
+          "field": "BasicVenomRate",
+          "distance_bytes": 160
+        },
+        {
+          "field": "AdvancedVenomRate",
+          "distance_bytes": 292
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "BasicVenomRate",
+      "site": "0x3e25484",
+      "peers_within_512_bytes": [
+        {
+          "field": "StacksToAdd",
+          "distance_bytes": -460
+        },
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": -324
+        },
+        {
+          "field": "VenomItemName",
+          "distance_bytes": -160
+        },
+        {
+          "field": "AdvancedVenomRate",
+          "distance_bytes": 132
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 460
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "AdvancedVenomRate",
+      "site": "0x3e25508",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonInfos",
+          "distance_bytes": -456
+        },
+        {
+          "field": "VenomItemName",
+          "distance_bytes": -292
+        },
+        {
+          "field": "BasicVenomRate",
+          "distance_bytes": -132
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 328
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3e25650",
+      "peers_within_512_bytes": [
+        {
+          "field": "BasicVenomRate",
+          "distance_bytes": -460
+        },
+        {
+          "field": "AdvancedVenomRate",
+          "distance_bytes": -328
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3e26ca4",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistPlantfoodProjectile",
+          "distance_bytes": 40
+        },
+        {
+          "field": "ConvallariaChemistPlantfoodProjectile",
+          "distance_bytes": 248
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistPlantfoodProjectile",
+      "site": "0x3e26ccc",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -40
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 456
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistPlantfoodProjectile",
+      "site": "0x3e26d9c",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -248
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 248
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3e26e94",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistPlantfoodProjectile",
+          "distance_bytes": -456
+        },
+        {
+          "field": "ConvallariaChemistPlantfoodProjectile",
+          "distance_bytes": -248
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3e27d2c",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistSuperProjectile",
+          "distance_bytes": 40
+        },
+        {
+          "field": "ConvallariaChemistSuperProjectile",
+          "distance_bytes": 248
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistSuperProjectile",
+      "site": "0x3e27d54",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -40
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 452
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistSuperProjectile",
+      "site": "0x3e27e24",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": -248
+        },
+        {
+          "field": "ConvallariaChemistProjectile",
+          "distance_bytes": 244
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ConvallariaChemistProjectile",
+      "site": "0x3e27f18",
+      "peers_within_512_bytes": [
+        {
+          "field": "ConvallariaChemistSuperProjectile",
+          "distance_bytes": -452
+        },
+        {
+          "field": "ConvallariaChemistSuperProjectile",
+          "distance_bytes": -244
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "SplitGrenadeRate",
+      "site": "0x3e29988",
+      "peers_within_512_bytes": [
+        {
+          "field": "ImprovedGrenadeBonus",
+          "distance_bytes": 124
+        },
+        {
+          "field": "Level5AttackRate",
+          "distance_bytes": 260
+        },
+        {
+          "field": "PlasmaSection",
+          "distance_bytes": 384
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "ImprovedGrenadeBonus",
+      "site": "0x3e29a04",
+      "peers_within_512_bytes": [
+        {
+          "field": "SplitGrenadeRate",
+          "distance_bytes": -124
+        },
+        {
+          "field": "Level5AttackRate",
+          "distance_bytes": 136
+        },
+        {
+          "field": "PlasmaSection",
+          "distance_bytes": 260
+        },
+        {
+          "field": "FlashSection",
+          "distance_bytes": 392
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "Level5AttackRate",
+      "site": "0x3e29a8c",
+      "peers_within_512_bytes": [
+        {
+          "field": "SplitGrenadeRate",
+          "distance_bytes": -260
+        },
+        {
+          "field": "ImprovedGrenadeBonus",
+          "distance_bytes": -136
+        },
+        {
+          "field": "PlasmaSection",
+          "distance_bytes": 124
+        },
+        {
+          "field": "FlashSection",
+          "distance_bytes": 256
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PlasmaSection",
+      "site": "0x3e29b08",
+      "peers_within_512_bytes": [
+        {
+          "field": "SplitGrenadeRate",
+          "distance_bytes": -384
+        },
+        {
+          "field": "ImprovedGrenadeBonus",
+          "distance_bytes": -260
+        },
+        {
+          "field": "Level5AttackRate",
+          "distance_bytes": -124
+        },
+        {
+          "field": "FlashSection",
+          "distance_bytes": 132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "FlashSection",
+      "site": "0x3e29b8c",
+      "peers_within_512_bytes": [
+        {
+          "field": "ImprovedGrenadeBonus",
+          "distance_bytes": -392
+        },
+        {
+          "field": "Level5AttackRate",
+          "distance_bytes": -256
+        },
+        {
+          "field": "PlasmaSection",
+          "distance_bytes": -132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDuration",
+      "site": "0x3e2df58",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDamage",
+          "distance_bytes": 132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "PoisonDamage",
+      "site": "0x3e2dfdc",
+      "peers_within_512_bytes": [
+        {
+          "field": "PoisonDuration",
+          "distance_bytes": -132
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "StunDuration",
+      "site": "0x4142728",
+      "peers_within_512_bytes": [
+        {
+          "field": "SplashRadius",
+          "distance_bytes": 280
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    },
+    {
+      "field": "SplashRadius",
+      "site": "0x4142840",
+      "peers_within_512_bytes": [
+        {
+          "field": "StunDuration",
+          "distance_bytes": -280
+        }
+      ],
+      "meaning": "potential common parser/registration routine; not combat execution"
+    }
+  ],
+  "site_examples": [
+    {
+      "field": "SplashRadius",
+      "xref_site": "0x25e6988",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x25e6978",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x25e6988",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x25e6a00",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "StunDuration",
+      "xref_site": "0x29a4288",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x29a4278",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x29a4288",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x29a4300",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "PlantConvallariaChemist",
+      "xref_site": "0x31a94f0",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "bl #0x59af710",
+        "bl #0x2366bf8",
+        "tbz w8, #0, #0x31a9534",
+        "bl #0x59af6a0",
+        "b.ne #0x31a95ac",
+        "ret ",
+        "b #0x31a958c",
+        "tbz w8, #0, #0x31a957c",
+        "bl #0x59af6a0",
+        "b #0x31a957c"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "PlantConvallariaChemist",
+      "xref_site": "0x31a9600",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "b.ne #0x31a95ac",
+        "bl #0x59ab820",
+        "bl #0x59af6c0",
+        "bl #0x59af710",
+        "bl #0x23672e4",
+        "tbz w8, #0, #0x31a9644",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x31a9654",
+        "bl #0x59af6a0",
+        "bl #0x351de20"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "StunDuration",
+      "xref_site": "0x377bbe4",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x377bbd4",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x377bbe4",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x377bc5c",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "Level5AttackRate",
+      "xref_site": "0x37875c4",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x37875b4",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x37875c4",
+        "bl #0x59af6a0",
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x3787630",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "PoisonDuration",
+      "xref_site": "0x3900a7c",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x3900a6c",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x3900a7c",
+        "bl #0x59af6a0",
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x3900af0",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "PoisonDuration",
+      "xref_site": "0x390e000",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x390dff0",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x390e000",
+        "bl #0x59af6a0",
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x390e074",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "SplashRadius",
+      "xref_site": "0x39561c8",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x39561b8",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x39561c8",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x3956240",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "StunDuration",
+      "xref_site": "0x398dc4c",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x398dc30",
+        "bl #0x59af6a0",
+        "blr x8",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x398dcc4",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x398dcd4"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "StunDuration",
+      "xref_site": "0x399f320",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x8",
+        "blr x8",
+        "tbz w8, #0, #0x399f310",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x399f320",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x399f398",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    },
+    {
+      "field": "StunDuration",
+      "xref_site": "0x39ca0e0",
+      "instructions": 64,
+      "nearby_branch_mnemonics": [
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x39ca0d0",
+        "bl #0x59af6a0",
+        "tbz w8, #0, #0x39ca0e0",
+        "bl #0x59af6a0",
+        "blr x9",
+        "blr x8",
+        "tbz w8, #0, #0x39ca158",
+        "bl #0x59af6a0"
+      ],
+      "classification": "disassembly-neighborhood-only"
+    }
+  ],
+  "verified": "ELF map and instruction decodes at 100% of selected XREFs",
+  "not_verified": [
+    "runtime RNG action selection",
+    "percent health poison damage formula",
+    "real device battle events",
+    "function entry boundaries"
+  ]
+}
