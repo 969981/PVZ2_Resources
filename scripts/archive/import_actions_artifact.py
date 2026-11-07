@@ -16,7 +16,7 @@ import subprocess
 import tempfile
 
 CHUNK_BYTES = 64 * 1024 * 1024
-RUN_IDS = {"RSB": 42256393599, "RSGP": 42258406327, "Internal": 42259266531}
+RUN_IDS = {"RSB": 42256393599, "RSGP": 42258406327, "Internal": 42259266531, "Media": 42321977158}
 
 def digest(path: Path) -> str:
     h=hashlib.sha256()

@@ -1,0 +1,82 @@
+name: Git-history archive of full PvZ2 CN converted media
+on:
+  workflow_run:
+    workflows: ["PvZ2 CHN full parallel PTX ASTC PNG PAM JSON WEM"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      media_run:
+        description: Successful full PvZ2 CN media workflow run ID
+        type: string
+        default: "42321977158"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: pvz2-chn-428-git-media-archive
+  cancel-in-progress: false
+
+jobs:
+  store:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: scripts
+          persist-credentials: true
+      - name: Initialize compression and verified source id
+        shell: bash
+        env:
+          MEDIA_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.media_run || github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          echo "MEDIA_SOURCE_RUN=$MEDIA_RUN" >> "$GITHUB_ENV"
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config gc.auto 0
+          git switch -c pvz2-428-media-git
+      - name: Import all eight converted-media artifact shards to Git history
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for shard in 0 1 2 3 4 5 6 7; do
+            folder="$(printf '%02d' "$shard")"
+            dest="Unpack/CHN/V4.2.8/Media/shard-$folder"
+            git fetch --no-tags origin master
+            if git cat-file -e "FETCH_HEAD:$dest/manifest.json" 2>/dev/null; then
+              echo "$dest already in history"
+              continue
+            fi
+            mkdir -p "$RUNNER_TEMP/media"
+            gh run download "$MEDIA_SOURCE_RUN" -R "$GITHUB_REPOSITORY" \
+              -n "pvz2-chn-4.2.8-media-$shard" -D "$RUNNER_TEMP/media"
+            python3 scripts/archive/import_actions_artifact.py \
+              --input "$RUNNER_TEMP/media" \
+              --output-root Unpack/CHN/V4.2.8 \
+              --stage Media --shard "$shard" --temporary "$RUNNER_TEMP"
+            git add --sparse -f -- "$dest"
+            git commit -m "data(chn-4.2.8): verified decoded media shard $shard"
+            pushed=false
+            for retry in 1 2 3 4 5; do
+              git fetch --no-tags origin master
+              git rebase FETCH_HEAD
+              if git push origin HEAD:refs/heads/master; then
+                pushed=true
+                break
+              fi
+              sleep 5
+            done
+            test "$pushed" == true
+            rm -rf "$RUNNER_TEMP/media"
+            echo "Git media archive success $dest"
+            df -h .
+          done
