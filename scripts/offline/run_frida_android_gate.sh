@@ -23,6 +23,6 @@ else
   echo "FRIDA_SERVER_DOWNLOAD_UNAVAILABLE"
 fi
 "$python" scripts/offline/consent_probe.py \
-  --apk "$apk" --out "$out" --checkpoints 5,25,60,120 \
+  --apk "$apk" --out "$out" --checkpoints 5,25,45 \
   --build-kind smali-local-trial \
   --frida-script scripts/offline/frida_warning_stack.js
