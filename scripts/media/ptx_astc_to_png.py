@@ -81,6 +81,7 @@ def main():
     p.add_argument("--out",type=Path,required=True)
     p.add_argument("--workers",type=int,default=2)
     p.add_argument("--profile",choices=("srgb","linear"),default="srgb")
+    p.add_argument("--allow-empty",action="store_true",help="Allow an RSB shard with zero PTX textures")
     a=p.parse_args()
     if not 1<=a.workers<=8:p.error("workers must be 1..8")
     files=sorted(x for x in a.source.rglob("*") if x.is_file() and x.suffix.lower()==".ptx")
@@ -99,7 +100,7 @@ def main():
     print("SUMMARY",json.dumps(summary,ensure_ascii=False),flush=True)
     for e in entries:
         if e["status"]!="ok":print("REQUIRES_REVIEW",e["source"],e.get("error"))
-    if summary["failed"] or not summary["png_ok"]:
+    if summary["failed"] or (not summary["png_ok"] and not a.allow_empty):
         raise SystemExit(1)
 if __name__=="__main__":
     main()
