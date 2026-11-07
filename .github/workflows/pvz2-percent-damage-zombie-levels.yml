@@ -1,0 +1,102 @@
+name: Audit CHN 4.2.8 percent damage and zombie 1-10 mode level curves
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-percent-damage-zombie-levels.yml
+      - scripts/catalog/audit_percent_damage_zombie_levels.py
+      - tests/test_audit_percent_damage_zombie_levels.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-percent-damage-levels-428
+  cancel-in-progress: false
+jobs:
+  source_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/archive/restore_git_shard.py
+            scripts/catalog/audit_percent_damage_zombie_levels.py
+            tests/test_audit_percent_damage_zombie_levels.py
+            Catalog/CHN/V4.2.8/shards/Internal-05/files.csv
+            Unpack/CHN/V4.2.8/Internal/shard-05/
+            Catalog/CHN/V4.2.8/damage_level_audit/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source scanner on synthetic cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/catalog/audit_percent_damage_zombie_levels.py
+          python -m unittest discover -s tests -p test_audit_percent_damage_zombie_levels.py -v
+      - name: Install zstd and recover real source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          python scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/real-internal05"
+      - name: Scan SHA256 verified real percentage damage and level data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/catalog/audit_percent_damage_zombie_levels.py \
+            --raw-root "$RUNNER_TEMP/real-internal05" \
+            --source-index Catalog/CHN/V4.2.8/shards/Internal-05/files.csv \
+            --out Catalog/CHN/V4.2.8/damage_level_audit
+          python - <<'PY'
+          import json,pathlib
+          out=pathlib.Path('Catalog/CHN/V4.2.8/damage_level_audit')
+          s=json.loads((out/'SUMMARY.json').read_text())
+          assert s['total_source_json_files']>50,s
+          assert s['objects_seen']>1000,s
+          assert s['level_vectors']>0,s
+          assert s['percent_field_hits']>0,s
+          for p in ('percent_field_hits.csv','zombie_level_profiles.csv','candidate_source_objects.jsonl'):
+            assert (out/p).is_file()
+          print('SOURCE_PERCENT_DAMAGE_LEVEL_AUDIT_ACCEPTED',
+                s['total_source_json_files'],s['objects_seen'],
+                s['level_vectors'],s['percent_field_hits'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-percent-damage-zombie-level-source-evidence
+          path: Catalog/CHN/V4.2.8/damage_level_audit/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Commit source-derived audit without original game asset bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config gc.auto 0
+          git switch -c "damage-level-audit-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/damage_level_audit/
+          if git diff --cached --quiet; then
+            echo 'AUDIT_ALREADY_PUBLISHED'
+            exit 0
+          fi
+          git commit -m "data(chn428): source-verified percent poison and zombie level curves"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo 'DAMAGE_LEVEL_SOURCE_AUDIT_PUBLISHED'
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
