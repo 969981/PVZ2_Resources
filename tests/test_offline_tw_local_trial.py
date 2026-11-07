@@ -50,7 +50,7 @@ class OfflineLocalTestPatch(unittest.TestCase):
         self.assertIn("ThirdpartyPurchaseDriver;->mNativeDriverPtr:J",patched)
 
     def test_no_unspecified_native_signatures(self):
-        with self.assertRaisesRegex(ValueError,"Expected static native"):
+        with self.assertRaisesRegex(ValueError,"Expected exactly one verified native method"):
             patch_smali(BASE.replace("Native_SDKInitEnd(JI)V","Native_SDKInitEnd(J)V"),init_status=0,login_status=1)
 
     def test_no_ambiguous_run_methods(self):
