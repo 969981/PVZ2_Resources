@@ -1,0 +1,123 @@
+name: Commit full CHN 4.2.8 Smali project and verify repository-source APK rebuild
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/chn428-reconstructed-smali-apk-build-20261107
+    paths:
+      - ".github/workflows/pvz2-commit-complete-smali-project.yml"
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-smali-public-export
+  cancel-in-progress: false
+jobs:
+  publish-full-six-dex-smali:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+      APKTOOL_SHA: 66cf4524a4a45a7f56567d08b2c9b6ec237bcdd78cee69fd4a59c8a0243aeafa
+      TARGET: Reconstructed/CHN_4.2.8/SmaliProject
+      APKTOOL_JAR: /tmp/ch428-apktool_2.12.1.jar
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: false
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout: |
+            ROMS/CHN/V4.2.8
+            scripts/offline
+            Reconstructed/CHN_4.2.8/SmaliProject
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Check source files and free nonessential runner space
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/offline/build_from_committed_smali.sh
+          python3 -m py_compile scripts/offline/export_reconstructed_smali.py
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          command -v 7z >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y p7zip-full)
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          df -h .
+      - name: Extract original from 88 stored volumes and enforce SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/restore"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/restore" -y
+          src="$(find "$RUNNER_TEMP/restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$src"
+          mv "$src" "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8_original.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore" ROMS
+          df -h .
+      - name: Install exact version and hash pinned APKTool
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 240 "https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar" -o "$APKTOOL_JAR"
+          echo "$APKTOOL_SHA  $APKTOOL_JAR" | sha256sum -c -
+          java -jar "$APKTOOL_JAR" --version
+      - name: Decode all six DEX and write every Smali source file into the tracked project
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -Xmx5g -jar "$APKTOOL_JAR" d -f --no-res --no-assets             "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"             -o "$RUNNER_TEMP/decoded" > "$RUNNER_TEMP/apktool-decode.log" 2>&1 ||
+            { tail -80 "$RUNNER_TEMP/apktool-decode.log"; exit 3; }
+          python3 scripts/offline/export_reconstructed_smali.py             --decoded "$RUNNER_TEMP/decoded"             --source-apk "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"             --output "$TARGET"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["TARGET"])
+          d=json.loads((p/"SOURCE_PROVENANCE.json").read_text())
+          assert d["smali_files"]==16375,d["smali_files"]
+          assert d["root_count"]==6
+          print("EXPORTED_FULL_SMALI_SOURCE_COUNT:",d["smali_files"])
+          print("BY_DEX:",d["smali_by_dex"])
+          print("TOTAL_SMALI_BYTES:",d["smali_total_bytes"])
+          PY
+          df -h .
+      - name: Prove version-controlled Smali source rebuilds all six DEX into an APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/offline/build_from_committed_smali.sh             "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"             "$TARGET"             "$RUNNER_TEMP/rebuilt-from-repo-smali"             "$APKTOOL_JAR"
+          python3 - <<'PY'
+          import os,json,pathlib
+          file=pathlib.Path(os.environ["RUNNER_TEMP"])/"rebuilt-from-repo-smali/build_from_committed_smali_report.json"
+          data=json.loads(file.read_text())
+          assert data["status"]=="SIGNED_APK_FROM_REPO_SMALI_BUILT"
+          assert data["rebuilt_dex_count"]==6
+          assert data["unchanged_original_member_count"]==1363
+          print("REPOSITORY_SMALI_REBUILDS_FULL_APK_AND_PRESERVES_RESOURCES")
+          PY
+      - name: Commit all Smali source files and provenance to the feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config core.longpaths true
+          git -c gc.auto=0 add -A -- "$TARGET"
+          added="$(git diff --cached --name-only -- "$TARGET" | wc -l)"
+          count="$(find "$TARGET" -type f -name '*.smali' | wc -l)"
+          echo "Staged paths: $added; Smali source files: $count"
+          test "$count" -eq 16375
+          if git diff --cached --quiet -- "$TARGET"; then
+            echo "All 16,375 Smali files already committed; nothing to push"
+          else
+            git -c gc.auto=0 commit -q -m 'chore(pvz2): store full verified CHN 4.2.8 six-DEX Smali project'
+            git -c gc.auto=0 push -q origin "HEAD:feature/chn428-reconstructed-smali-apk-build-20261107"
+            echo "FULL_SMALI_SOURCE_PUBLISHED_IN_REPOSITORY_BRANCH"
+          fi
+          git rev-parse HEAD
+          echo "## Full editable Smali project" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 16,375 Smali source files across six DEX roots" >> "$GITHUB_STEP_SUMMARY"
+          echo "- APKTool metadata, source SHA and original manifest where available" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Rebuilt and signed an actual APK from the committed source tree" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Original game main menu and offline play remain unverified; anti-tamper warning occurs" >> "$GITHUB_STEP_SUMMARY"

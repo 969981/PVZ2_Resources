@@ -1,0 +1,922 @@
+.class public Lcom/alipay/sdk/m/o/c;
+.super Ljava/lang/Object;
+.source "SourceFile"
+
+
+# static fields
+.field public static final d:Ljava/lang/String; = "virtualImeiAndImsi"
+
+.field public static final e:Ljava/lang/String; = "virtual_imei"
+
+.field public static final f:Ljava/lang/String; = "virtual_imsi"
+
+.field public static volatile g:Lcom/alipay/sdk/m/o/c;
+
+
+# instance fields
+.field public a:Ljava/lang/String;
+
+.field public b:Ljava/lang/String;
+
+.field public c:Ljava/lang/String;
+
+
+# direct methods
+.method public constructor <init>()V
+    .locals 3
+
+    .line 1
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    const-string v0, "sdk-and-lite"
+
+    .line 2
+    iput-object v0, p0, Lcom/alipay/sdk/m/o/c;->b:Ljava/lang/String;
+
+    .line 3
+    invoke-static {}, Lcom/alipay/sdk/m/l/a;->a()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 4
+    invoke-static {}, Lcom/alipay/sdk/m/l/a;->b()Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    .line 5
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget-object v2, p0, Lcom/alipay/sdk/m/o/c;->b:Ljava/lang/String;
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const/16 v2, 0x5f
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/alipay/sdk/m/o/c;->b:Ljava/lang/String;
+
+    :cond_0
+    return-void
+.end method
+
+.method public static declared-synchronized a()Lcom/alipay/sdk/m/o/c;
+    .locals 2
+
+    const-class v0, Lcom/alipay/sdk/m/o/c;
+
+    monitor-enter v0
+
+    .line 1
+    :try_start_0
+    sget-object v1, Lcom/alipay/sdk/m/o/c;->g:Lcom/alipay/sdk/m/o/c;
+
+    if-nez v1, :cond_0
+
+    .line 2
+    new-instance v1, Lcom/alipay/sdk/m/o/c;
+
+    invoke-direct {v1}, Lcom/alipay/sdk/m/o/c;-><init>()V
+
+    sput-object v1, Lcom/alipay/sdk/m/o/c;->g:Lcom/alipay/sdk/m/o/c;
+
+    .line 4
+    :cond_0
+    sget-object v1, Lcom/alipay/sdk/m/o/c;->g:Lcom/alipay/sdk/m/o/c;
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    monitor-exit v0
+
+    return-object v1
+
+    :catchall_0
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+.end method
+
+.method public static a(Landroid/content/Context;)Ljava/lang/String;
+    .locals 1
+
+    .line 14
+    new-instance v0, Landroid/widget/TextView;
+
+    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v0}, Landroid/widget/TextView;->getTextSize()F
+
+    move-result p0
+
+    .line 15
+    invoke-static {p0}, Ljava/lang/Float;->toString(F)Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method public static declared-synchronized a(Ljava/lang/String;)V
+    .locals 3
+
+    const-class v0, Lcom/alipay/sdk/m/o/c;
+
+    monitor-enter v0
+
+    :try_start_0
+    const-string v1, "mspl"
+
+    const-string v2, "setRsaPublicKey"
+
+    .line 5
+    invoke-static {v1, v2}, Lcom/alipay/sdk/m/y/g;->b(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 6
+    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    if-eqz v1, :cond_0
+
+    monitor-exit v0
+
+    return-void
+
+    .line 9
+    :cond_0
+    :try_start_1
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->c()Lcom/alipay/sdk/m/w/b;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lcom/alipay/sdk/m/w/b;->b()Landroid/content/Context;
+
+    move-result-object v1
+
+    .line 11
+    invoke-static {v1}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    .line 12
+    invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    const-string v2, "trideskey"
+
+    invoke-interface {v1, v2, p0}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 13
+    sput-object p0, Lcom/alipay/sdk/m/n/a;->g:Ljava/lang/String;
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    monitor-exit v0
+
+    return-void
+
+    :catchall_0
+    move-exception p0
+
+    monitor-exit v0
+
+    throw p0
+.end method
+
+.method public static b()Ljava/lang/String;
+    .locals 3
+
+    .line 1
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v0
+
+    .line 2
+    invoke-static {v0, v1}, Ljava/lang/Long;->toHexString(J)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 3
+    new-instance v1, Ljava/util/Random;
+
+    invoke-direct {v1}, Ljava/util/Random;-><init>()V
+
+    .line 4
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const/16 v0, 0x2328
+
+    invoke-virtual {v1, v0}, Ljava/util/Random;->nextInt(I)I
+
+    move-result v0
+
+    add-int/lit16 v0, v0, 0x3e8
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static b(Landroid/content/Context;)Ljava/lang/String;
+    .locals 3
+
+    if-eqz p0, :cond_0
+
+    .line 5
+    :try_start_0
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 7
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 8
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object p0
+
+    const/4 v2, 0x0
+
+    .line 9
+    invoke-virtual {p0, v1, v2}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+
+    move-result-object p0
+
+    const-string v2, "("
+
+    .line 10
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 11
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, ";"
+
+    .line 12
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 13
+    iget p0, p0, Landroid/content/pm/PackageInfo;->versionCode:I
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string p0, ")"
+
+    .line 14
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 16
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p0
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    return-object p0
+
+    :catch_0
+    :cond_0
+    const-string p0, ""
+
+    return-object p0
+.end method
+
+.method public static d()Ljava/lang/String;
+    .locals 1
+
+    const-string v0, "-1;-1"
+
+    return-object v0
+.end method
+
+.method public static e()Ljava/lang/String;
+    .locals 1
+
+    const-string v0, "1"
+
+    return-object v0
+.end method
+
+.method public static f()Ljava/lang/String;
+    .locals 5
+
+    .line 1
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->c()Lcom/alipay/sdk/m/w/b;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/alipay/sdk/m/w/b;->b()Landroid/content/Context;
+
+    move-result-object v0
+
+    const-string v1, "virtualImeiAndImsi"
+
+    const/4 v2, 0x0
+
+    .line 2
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    const-string v2, "virtual_imei"
+
+    const/4 v3, 0x0
+
+    .line 4
+    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 6
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_1
+
+    .line 7
+    invoke-static {v0}, Lcom/alipay/sdk/m/x/a;->a(Landroid/content/Context;)Lcom/alipay/sdk/m/x/a;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Lcom/alipay/sdk/m/x/a;->f()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    .line 8
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->b()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 10
+    :cond_0
+    invoke-static {v0}, Lcom/alipay/sdk/m/y/d;->b(Landroid/content/Context;)Lcom/alipay/sdk/m/y/d;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/alipay/sdk/m/y/d;->b()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_0
+    move-object v3, v0
+
+    .line 12
+    invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    .line 13
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    :cond_1
+    return-object v3
+.end method
+
+.method public static g()Ljava/lang/String;
+    .locals 5
+
+    .line 1
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->c()Lcom/alipay/sdk/m/w/b;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/alipay/sdk/m/w/b;->b()Landroid/content/Context;
+
+    move-result-object v0
+
+    const-string v1, "virtualImeiAndImsi"
+
+    const/4 v2, 0x0
+
+    .line 2
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    const-string v2, "virtual_imsi"
+
+    const/4 v3, 0x0
+
+    .line 4
+    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 6
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_3
+
+    .line 7
+    invoke-static {v0}, Lcom/alipay/sdk/m/x/a;->a(Landroid/content/Context;)Lcom/alipay/sdk/m/x/a;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Lcom/alipay/sdk/m/x/a;->f()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_2
+
+    .line 8
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->c()Lcom/alipay/sdk/m/w/b;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/alipay/sdk/m/w/b;->d()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 9
+    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_1
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    const/16 v4, 0x12
+
+    if-ge v3, v4, :cond_0
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v3, 0x3
+
+    .line 12
+    invoke-virtual {v0, v3, v4}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_1
+
+    .line 13
+    :cond_1
+    :goto_0
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->b()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_1
+
+    .line 18
+    :cond_2
+    invoke-static {v0}, Lcom/alipay/sdk/m/y/d;->b(Landroid/content/Context;)Lcom/alipay/sdk/m/y/d;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/alipay/sdk/m/y/d;->c()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_1
+    move-object v3, v0
+
+    .line 20
+    invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    .line 21
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    :cond_3
+    return-object v3
+.end method
+
+.method public static h()Ljava/lang/String;
+    .locals 1
+
+    const-string v0, "00"
+
+    return-object v0
+.end method
+
+.method public static i()Ljava/lang/String;
+    .locals 1
+
+    const-string v0, "-1"
+
+    return-object v0
+.end method
+
+
+# virtual methods
+.method public a(Lcom/alipay/sdk/m/w/a;Lcom/alipay/sdk/m/x/a;Z)Ljava/lang/String;
+    .locals 17
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    .line 16
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->c()Lcom/alipay/sdk/m/w/b;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lcom/alipay/sdk/m/w/b;->b()Landroid/content/Context;
+
+    move-result-object v2
+
+    .line 17
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/d;->b(Landroid/content/Context;)Lcom/alipay/sdk/m/y/d;
+
+    move-result-object v3
+
+    .line 20
+    iget-object v4, v0, Lcom/alipay/sdk/m/o/c;->a:Ljava/lang/String;
+
+    invoke-static {v4}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v4
+
+    const-string v5, ";"
+
+    if-eqz v4, :cond_0
+
+    .line 24
+    invoke-static {}, Lcom/alipay/sdk/m/y/q;->f()Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 27
+    invoke-static {}, Lcom/alipay/sdk/m/y/q;->e()Ljava/lang/String;
+
+    move-result-object v6
+
+    .line 30
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/q;->c(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v7
+
+    .line 33
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/q;->e(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v8
+
+    .line 36
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/q;->f(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v9
+
+    .line 38
+    invoke-static {v2}, Lcom/alipay/sdk/m/o/c;->a(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v10
+
+    .line 40
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v12, "Msp/15.8.42"
+
+    .line 41
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v12, " ("
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 42
+    invoke-virtual {v11, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v11, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 43
+    invoke-virtual {v11, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v11, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 44
+    invoke-virtual {v11, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v11, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 45
+    invoke-virtual {v11, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v11, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 46
+    invoke-virtual {v11, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v11, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 47
+    invoke-virtual {v11, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 48
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    iput-object v4, v0, Lcom/alipay/sdk/m/o/c;->a:Ljava/lang/String;
+
+    .line 52
+    :cond_0
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/d;->d(Landroid/content/Context;)Lcom/alipay/sdk/m/y/i;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Lcom/alipay/sdk/m/y/i;->c()Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 55
+    invoke-static {v2}, Lcom/alipay/sdk/m/y/q;->b(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v6
+
+    .line 58
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->e()Ljava/lang/String;
+
+    move-result-object v7
+
+    .line 61
+    invoke-virtual {v3}, Lcom/alipay/sdk/m/y/d;->c()Ljava/lang/String;
+
+    move-result-object v8
+
+    .line 64
+    invoke-virtual {v3}, Lcom/alipay/sdk/m/y/d;->b()Ljava/lang/String;
+
+    move-result-object v9
+
+    .line 66
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->g()Ljava/lang/String;
+
+    move-result-object v10
+
+    .line 68
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->f()Ljava/lang/String;
+
+    move-result-object v11
+
+    if-eqz p2, :cond_1
+
+    .line 72
+    invoke-virtual/range {p2 .. p2}, Lcom/alipay/sdk/m/x/a;->e()Ljava/lang/String;
+
+    move-result-object v12
+
+    iput-object v12, v0, Lcom/alipay/sdk/m/o/c;->c:Ljava/lang/String;
+
+    .line 76
+    :cond_1
+    sget-object v12, Landroid/os/Build;->MANUFACTURER:Ljava/lang/String;
+
+    const-string v13, " "
+
+    invoke-virtual {v12, v5, v13}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+
+    move-result-object v12
+
+    .line 79
+    sget-object v14, Landroid/os/Build;->MODEL:Ljava/lang/String;
+
+    invoke-virtual {v14, v5, v13}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+
+    move-result-object v13
+
+    .line 82
+    invoke-static {}, Lcom/alipay/sdk/m/w/b;->e()Z
+
+    move-result v14
+
+    .line 84
+    invoke-virtual {v3}, Lcom/alipay/sdk/m/y/d;->d()Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 86
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->i()Ljava/lang/String;
+
+    move-result-object v15
+
+    .line 87
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->h()Ljava/lang/String;
+
+    move-result-object v1
+
+    move-object/from16 p3, v2
+
+    .line 89
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    move-object/from16 v16, v1
+
+    .line 91
+    iget-object v1, v0, Lcom/alipay/sdk/m/o/c;->a:Ljava/lang/String;
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 92
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 93
+    invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 94
+    invoke-virtual {v2, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 95
+    invoke-virtual {v2, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 96
+    invoke-virtual {v2, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget-object v1, v0, Lcom/alipay/sdk/m/o/c;->c:Ljava/lang/String;
+
+    .line 97
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 98
+    invoke-virtual {v2, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 99
+    invoke-virtual {v2, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 100
+    invoke-virtual {v2, v14}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 101
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 102
+    invoke-static {}, Lcom/alipay/sdk/m/o/c;->d()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget-object v1, v0, Lcom/alipay/sdk/m/o/c;->b:Ljava/lang/String;
+
+    .line 103
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 104
+    invoke-virtual {v2, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 105
+    invoke-virtual {v2, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 106
+    invoke-virtual {v2, v15}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-object/from16 v1, v16
+
+    .line 107
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    if-eqz p2, :cond_2
+
+    move-object/from16 v1, p1
+
+    move-object/from16 v3, p3
+
+    .line 110
+    invoke-static {v1, v3}, Lcom/alipay/sdk/m/a0/b;->c(Lcom/alipay/sdk/m/w/a;Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 111
+    invoke-static {v3}, Lcom/alipay/sdk/m/x/a;->a(Landroid/content/Context;)Lcom/alipay/sdk/m/x/a;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Lcom/alipay/sdk/m/x/a;->f()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v1, v3, v5, v4}, Lcom/alipay/sdk/m/a0/b;->a(Lcom/alipay/sdk/m/w/a;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 112
+    invoke-static {v1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_2
+
+    const-string v3, ";;;"
+
+    .line 113
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    :cond_2
+    const-string v1, ")"
+
+    .line 116
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 118
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    return-object v1
+.end method
+
+.method public c()Ljava/lang/String;
+    .locals 1
+
+    .line 1
+    iget-object v0, p0, Lcom/alipay/sdk/m/o/c;->c:Ljava/lang/String;
+
+    return-object v0
+.end method

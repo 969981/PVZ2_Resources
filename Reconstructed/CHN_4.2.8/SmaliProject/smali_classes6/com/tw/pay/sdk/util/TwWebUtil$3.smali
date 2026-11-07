@@ -1,0 +1,71 @@
+.class Lcom/tw/pay/sdk/util/TwWebUtil$3;
+.super Ljava/lang/Object;
+.source "TwWebUtil.java"
+
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/tw/pay/sdk/util/TwWebUtil;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Lcom/tw/pay/sdk/util/TwWebUtil;
+
+
+# direct methods
+.method constructor <init>(Lcom/tw/pay/sdk/util/TwWebUtil;)V
+    .locals 0
+
+    .line 112
+    iput-object p1, p0, Lcom/tw/pay/sdk/util/TwWebUtil$3;->this$0:Lcom/tw/pay/sdk/util/TwWebUtil;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public onClick(Landroid/view/View;)V
+    .locals 2
+
+    .line 117
+    invoke-virtual {p1}, Landroid/view/View;->getId()I
+
+    move-result p1
+
+    iget-object v0, p0, Lcom/tw/pay/sdk/util/TwWebUtil$3;->this$0:Lcom/tw/pay/sdk/util/TwWebUtil;
+
+    invoke-static {v0}, Lcom/tw/pay/sdk/util/TwWebUtil;->access$200(Lcom/tw/pay/sdk/util/TwWebUtil;)Landroid/content/Context;
+
+    move-result-object v0
+
+    const-string v1, "closeImg"
+
+    invoke-static {v0, v1}, Lcom/tw/pay/sdk/tool/Resource;->getId(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v0
+
+    if-ne p1, v0, :cond_0
+
+    .line 118
+    iget-object p1, p0, Lcom/tw/pay/sdk/util/TwWebUtil$3;->this$0:Lcom/tw/pay/sdk/util/TwWebUtil;
+
+    invoke-static {p1}, Lcom/tw/pay/sdk/util/TwWebUtil;->access$100(Lcom/tw/pay/sdk/util/TwWebUtil;)Landroid/app/Dialog;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
+
+    :cond_0
+    return-void
+.end method

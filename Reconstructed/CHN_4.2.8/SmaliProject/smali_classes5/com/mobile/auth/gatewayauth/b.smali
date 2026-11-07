@@ -1,0 +1,7 @@
+.class public interface abstract Lcom/mobile/auth/gatewayauth/b;
+.super Ljava/lang/Object;
+
+
+# virtual methods
+.method public abstract a(Ljava/lang/String;)Z
+.end method

@@ -1,0 +1,14 @@
+version: 2.12.1
+apkFileName: PVZ2_4.2.8_original.apk
+doNotCompress:
+- arsc
+- jpg
+- mp3
+- png
+- smf
+- webp
+- androidsupportmultidexversion.txt
+- assets/dexopt/baseline.prof
+- assets/dexopt/baseline.profm
+- okhttp3/internal/publicsuffix/publicsuffixes.gz
+- osdk/okhttp3/internal/publicsuffix/publicsuffixes.gz

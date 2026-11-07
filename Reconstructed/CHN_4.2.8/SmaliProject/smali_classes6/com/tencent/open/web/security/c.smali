@@ -1,0 +1,221 @@
+.class public Lcom/tencent/open/web/security/c;
+.super Lcom/tencent/open/a$a;
+.source "ProGuard"
+
+
+# instance fields
+.field private d:Ljava/lang/String;
+
+
+# direct methods
+.method public constructor <init>(Landroid/webkit/WebView;JLjava/lang/String;Ljava/lang/String;)V
+    .locals 0
+
+    .line 26
+    invoke-direct {p0, p1, p2, p3, p4}, Lcom/tencent/open/a$a;-><init>(Landroid/webkit/WebView;JLjava/lang/String;)V
+
+    .line 28
+    iput-object p5, p0, Lcom/tencent/open/web/security/c;->d:Ljava/lang/String;
+
+    return-void
+.end method
+
+.method private b(Ljava/lang/String;)V
+    .locals 4
+
+    .line 62
+    iget-object v0, p0, Lcom/tencent/open/web/security/c;->a:Ljava/lang/ref/WeakReference;
+
+    invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/webkit/WebView;
+
+    if-eqz v0, :cond_0
+
+    .line 64
+    new-instance v1, Ljava/lang/StringBuffer;
+
+    const-string v2, "javascript:if(!!"
+
+    invoke-direct {v1, v2}, Ljava/lang/StringBuffer;-><init>(Ljava/lang/String;)V
+
+    .line 65
+    iget-object v2, p0, Lcom/tencent/open/web/security/c;->d:Ljava/lang/String;
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    move-result-object v2
+
+    const-string v3, "){"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    .line 66
+    iget-object v2, p0, Lcom/tencent/open/web/security/c;->d:Ljava/lang/String;
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    .line 67
+    const-string v2, "("
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    .line 68
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    .line 69
+    const-string p1, ")}"
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuffer;->append(Ljava/lang/String;)Ljava/lang/StringBuffer;
+
+    .line 71
+    invoke-virtual {v1}, Ljava/lang/StringBuffer;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    .line 72
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    const-string v2, "-->callback, callback: "
+
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "openSDK_LOG.SecureJsListener"
+
+    invoke-static {v2, v1}, Lcom/tencent/open/a/f;->a(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 73
+    invoke-virtual {v0, p1}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
+
+    :cond_0
+    return-void
+.end method
+
+
+# virtual methods
+.method public a()V
+    .locals 2
+
+    .line 38
+    const-string v0, "openSDK_LOG.SecureJsListener"
+
+    const-string v1, "-->onNoMatchMethod..."
+
+    invoke-static {v0, v1}, Lcom/tencent/open/a/f;->b(Ljava/lang/String;Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method public a(Ljava/lang/Object;)V
+    .locals 2
+
+    .line 33
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    const-string v1, "-->onComplete, result: "
+
+    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    const-string v0, "openSDK_LOG.SecureJsListener"
+
+    invoke-static {v0, p1}, Lcom/tencent/open/a/f;->a(Ljava/lang/String;Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method public a(Ljava/lang/String;)V
+    .locals 4
+
+    .line 43
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    const-string v1, "-->onCustomCallback, js: "
+
+    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "openSDK_LOG.SecureJsListener"
+
+    invoke-static {v1, v0}, Lcom/tencent/open/a/f;->a(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 44
+    new-instance v0, Lorg/json/JSONObject;
+
+    invoke-direct {v0}, Lorg/json/JSONObject;-><init>()V
+
+    .line 47
+    sget-boolean v1, Lcom/tencent/open/c/c;->a:Z
+
+    if-nez v1, :cond_0
+
+    const/4 v1, -0x4
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v1, 0x0
+
+    .line 51
+    :goto_0
+    :try_start_0
+    const-string v2, "result"
+
+    invoke-virtual {v0, v2, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
+
+    .line 52
+    const-string v1, "sn"
+
+    iget-wide v2, p0, Lcom/tencent/open/web/security/c;->b:J
+
+    invoke-virtual {v0, v1, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
+
+    .line 53
+    const-string v1, "data"
+
+    invoke-virtual {v0, v1, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    :try_end_0
+    .catch Lorg/json/JSONException; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_1
+
+    :catch_0
+    move-exception p1
+
+    .line 55
+    invoke-virtual {p1}, Lorg/json/JSONException;->printStackTrace()V
+
+    .line 58
+    :goto_1
+    invoke-virtual {v0}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-direct {p0, p1}, Lcom/tencent/open/web/security/c;->b(Ljava/lang/String;)V
+
+    return-void
+.end method

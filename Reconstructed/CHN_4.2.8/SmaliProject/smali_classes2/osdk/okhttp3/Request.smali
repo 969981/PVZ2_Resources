@@ -1,0 +1,284 @@
+.class public final Losdk/okhttp3/Request;
+.super Ljava/lang/Object;
+.source "Request.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Losdk/okhttp3/Request$Builder;
+    }
+.end annotation
+
+
+# instance fields
+.field final body:Losdk/okhttp3/RequestBody;
+    .annotation runtime Ljavax/annotation/Nullable;
+    .end annotation
+.end field
+
+.field private volatile cacheControl:Losdk/okhttp3/CacheControl;
+
+.field final headers:Losdk/okhttp3/Headers;
+
+.field private ipAddrStr:Ljava/lang/String;
+
+.field final method:Ljava/lang/String;
+
+.field final tag:Ljava/lang/Object;
+
+.field final url:Losdk/okhttp3/HttpUrl;
+
+
+# direct methods
+.method constructor <init>(Losdk/okhttp3/Request$Builder;)V
+    .locals 1
+
+    .line 38
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 39
+    iget-object v0, p1, Losdk/okhttp3/Request$Builder;->url:Losdk/okhttp3/HttpUrl;
+
+    iput-object v0, p0, Losdk/okhttp3/Request;->url:Losdk/okhttp3/HttpUrl;
+
+    .line 40
+    iget-object v0, p1, Losdk/okhttp3/Request$Builder;->method:Ljava/lang/String;
+
+    iput-object v0, p0, Losdk/okhttp3/Request;->method:Ljava/lang/String;
+
+    .line 41
+    iget-object v0, p1, Losdk/okhttp3/Request$Builder;->headers:Losdk/okhttp3/Headers$Builder;
+
+    invoke-virtual {v0}, Losdk/okhttp3/Headers$Builder;->build()Losdk/okhttp3/Headers;
+
+    move-result-object v0
+
+    iput-object v0, p0, Losdk/okhttp3/Request;->headers:Losdk/okhttp3/Headers;
+
+    .line 42
+    iget-object v0, p1, Losdk/okhttp3/Request$Builder;->body:Losdk/okhttp3/RequestBody;
+
+    iput-object v0, p0, Losdk/okhttp3/Request;->body:Losdk/okhttp3/RequestBody;
+
+    .line 43
+    iget-object v0, p1, Losdk/okhttp3/Request$Builder;->tag:Ljava/lang/Object;
+
+    if-eqz v0, :cond_0
+
+    iget-object p1, p1, Losdk/okhttp3/Request$Builder;->tag:Ljava/lang/Object;
+
+    goto :goto_0
+
+    :cond_0
+    move-object p1, p0
+
+    :goto_0
+    iput-object p1, p0, Losdk/okhttp3/Request;->tag:Ljava/lang/Object;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public body()Losdk/okhttp3/RequestBody;
+    .locals 1
+    .annotation runtime Ljavax/annotation/Nullable;
+    .end annotation
+
+    .line 75
+    iget-object v0, p0, Losdk/okhttp3/Request;->body:Losdk/okhttp3/RequestBody;
+
+    return-object v0
+.end method
+
+.method public cacheControl()Losdk/okhttp3/CacheControl;
+    .locals 1
+
+    .line 91
+    iget-object v0, p0, Losdk/okhttp3/Request;->cacheControl:Losdk/okhttp3/CacheControl;
+
+    if-eqz v0, :cond_0
+
+    goto :goto_0
+
+    .line 92
+    :cond_0
+    iget-object v0, p0, Losdk/okhttp3/Request;->headers:Losdk/okhttp3/Headers;
+
+    invoke-static {v0}, Losdk/okhttp3/CacheControl;->parse(Losdk/okhttp3/Headers;)Losdk/okhttp3/CacheControl;
+
+    move-result-object v0
+
+    iput-object v0, p0, Losdk/okhttp3/Request;->cacheControl:Losdk/okhttp3/CacheControl;
+
+    :goto_0
+    return-object v0
+.end method
+
+.method public getIpAddrStr()Ljava/lang/String;
+    .locals 1
+
+    .line 47
+    iget-object v0, p0, Losdk/okhttp3/Request;->ipAddrStr:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+.method public header(Ljava/lang/String;)Ljava/lang/String;
+    .locals 1
+    .annotation runtime Ljavax/annotation/Nullable;
+    .end annotation
+
+    .line 67
+    iget-object v0, p0, Losdk/okhttp3/Request;->headers:Losdk/okhttp3/Headers;
+
+    invoke-virtual {v0, p1}, Losdk/okhttp3/Headers;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
+
+    return-object p1
+.end method
+
+.method public headers(Ljava/lang/String;)Ljava/util/List;
+    .locals 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/lang/String;",
+            ")",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .line 71
+    iget-object v0, p0, Losdk/okhttp3/Request;->headers:Losdk/okhttp3/Headers;
+
+    invoke-virtual {v0, p1}, Losdk/okhttp3/Headers;->values(Ljava/lang/String;)Ljava/util/List;
+
+    move-result-object p1
+
+    return-object p1
+.end method
+
+.method public headers()Losdk/okhttp3/Headers;
+    .locals 1
+
+    .line 63
+    iget-object v0, p0, Losdk/okhttp3/Request;->headers:Losdk/okhttp3/Headers;
+
+    return-object v0
+.end method
+
+.method public isHttps()Z
+    .locals 1
+
+    .line 96
+    iget-object v0, p0, Losdk/okhttp3/Request;->url:Losdk/okhttp3/HttpUrl;
+
+    invoke-virtual {v0}, Losdk/okhttp3/HttpUrl;->isHttps()Z
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public method()Ljava/lang/String;
+    .locals 1
+
+    .line 59
+    iget-object v0, p0, Losdk/okhttp3/Request;->method:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+.method public newBuilder()Losdk/okhttp3/Request$Builder;
+    .locals 1
+
+    .line 83
+    new-instance v0, Losdk/okhttp3/Request$Builder;
+
+    invoke-direct {v0, p0}, Losdk/okhttp3/Request$Builder;-><init>(Losdk/okhttp3/Request;)V
+
+    return-object v0
+.end method
+
+.method public setIpAddrStr(Ljava/lang/String;)V
+    .locals 0
+
+    .line 51
+    iput-object p1, p0, Losdk/okhttp3/Request;->ipAddrStr:Ljava/lang/String;
+
+    return-void
+.end method
+
+.method public tag()Ljava/lang/Object;
+    .locals 1
+
+    .line 79
+    iget-object v0, p0, Losdk/okhttp3/Request;->tag:Ljava/lang/Object;
+
+    return-object v0
+.end method
+
+.method public toString()Ljava/lang/String;
+    .locals 2
+
+    .line 100
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "Request{method="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget-object v1, p0, Losdk/okhttp3/Request;->method:Ljava/lang/String;
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, ", url="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget-object v1, p0, Losdk/okhttp3/Request;->url:Losdk/okhttp3/HttpUrl;
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    const-string v1, ", tag="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget-object v1, p0, Losdk/okhttp3/Request;->tag:Ljava/lang/Object;
+
+    if-eq v1, p0, :cond_0
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v1, 0x0
+
+    :goto_0
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    const/16 v1, 0x7d
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public url()Losdk/okhttp3/HttpUrl;
+    .locals 1
+
+    .line 55
+    iget-object v0, p0, Losdk/okhttp3/Request;->url:Losdk/okhttp3/HttpUrl;
+
+    return-object v0
+.end method
