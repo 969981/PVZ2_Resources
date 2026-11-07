@@ -1,0 +1,27 @@
+{
+  "schema": "pvz2-media-actions-audit-v1",
+  "game": "PVZ2",
+  "region": "CHN",
+  "version": "4.2.8",
+  "stage": "Media",
+  "shard": "06",
+  "source_run_id": 42321977158,
+  "artifact_id": 13552674620,
+  "source_type": "Actions artifact (NOT a Git shard archive)",
+  "file_count": 501,
+  "total_size_bytes": 1147629810,
+  "statuses": {
+    "json-parsed": 237,
+    "png-header-verified": 175,
+    "wem-header-verified": 89
+  },
+  "suffix_counts": {
+    ".json": 237,
+    ".png": 175,
+    ".wem": 89
+  },
+  "format_errors": 0,
+  "archive_manifest_verified": false,
+  "scope": "SHA256 of source Artifact files and bounded format checks; no game asset bytes included",
+  "next_gate": "Archive, restore, source-manifest SHA256 comparison and playable-media checks remain separate"
+}
