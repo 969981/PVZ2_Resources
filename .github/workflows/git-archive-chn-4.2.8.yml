@@ -1,4 +1,4 @@
-name: PvZ2 git archive smoke import
+name: PvZ2 git archive full import
 on:
   push:
     branches: [master]
@@ -9,10 +9,65 @@ permissions:
   contents: write
   actions: read
 
+concurrency:
+  group: pvz2-chn-428-git-archive-full
+  cancel-in-progress: false
+
 jobs:
   archive:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - stage: Internal
+            shard: 0
+          - stage: Internal
+            shard: 1
+          - stage: Internal
+            shard: 2
+          - stage: Internal
+            shard: 3
+          - stage: Internal
+            shard: 4
+          - stage: Internal
+            shard: 6
+          - stage: Internal
+            shard: 7
+          - stage: RSB
+            shard: 0
+          - stage: RSB
+            shard: 1
+          - stage: RSB
+            shard: 2
+          - stage: RSB
+            shard: 3
+          - stage: RSB
+            shard: 4
+          - stage: RSB
+            shard: 5
+          - stage: RSB
+            shard: 6
+          - stage: RSB
+            shard: 7
+          - stage: RSGP
+            shard: 0
+          - stage: RSGP
+            shard: 1
+          - stage: RSGP
+            shard: 2
+          - stage: RSGP
+            shard: 3
+          - stage: RSGP
+            shard: 4
+          - stage: RSGP
+            shard: 5
+          - stage: RSGP
+            shard: 6
+          - stage: RSGP
+            shard: 7
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,35 +75,63 @@ jobs:
           fetch-depth: 0
           sparse-checkout: scripts
           persist-credentials: true
-      - name: Download an existing 4.2.8 internal shard
+      - name: Resolve existing successful artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.stage }}" in
+            Internal) echo "SOURCE_RUN=42259266531" >> "$GITHUB_ENV"
+                      echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-json-files-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            RSB) echo "SOURCE_RUN=42256393599" >> "$GITHUB_ENV"
+                 echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsb-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            RSGP) echo "SOURCE_RUN=42258406327" >> "$GITHUB_ENV"
+                  echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsg-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            *) exit 2 ;;
+          esac
+      - name: Download verified resource shard
         uses: actions/download-artifact@v4
         with:
-          run-id: 42259266531
+          run-id: ${{ env.SOURCE_RUN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: pvz2-chn-4.2.8-json-files-5
+          name: ${{ env.SOURCE_ARTIFACT }}
           path: ${{ runner.temp }}/pvz2-artifact
-      - name: Install zstd and set Git author
+      - name: Install zstd and configure Git author
         shell: bash
         run: |
           set -euo pipefail
           if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Build verified Git-friendly archive
+      - name: Create 64 MiB Git archive fragments
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/archive/import_actions_artifact.py \
             --input "$RUNNER_TEMP/pvz2-artifact" \
             --output-root Unpack/CHN/V4.2.8 \
-            --stage Internal --shard 5 --temporary "$RUNNER_TEMP"
-      - name: Commit and push the first real shard
+            --stage "${{ matrix.stage }}" --shard "${{ matrix.shard }}" \
+            --temporary "$RUNNER_TEMP"
+      - name: Commit each shard independently to master
         shell: bash
         run: |
           set -euo pipefail
-          git switch -c pvz2-archive-internal-5
-          git add --sparse -f -- Unpack/CHN/V4.2.8/Internal/shard-05
-          git commit -m "data(chn-4.2.8): archive Internal shard 5 as verified Git parts"
-          git fetch origin master
-          git rebase FETCH_HEAD
-          git push origin HEAD:refs/heads/master
+          DEST="Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-$(printf '%02d' ${{ matrix.shard })"
+          git switch -c "archive-${{ matrix.stage }}-${{ matrix.shard }}"
+          git add --sparse -f -- "$DEST"
+          git commit -m "data(chn-4.2.8): git archive ${{ matrix.stage }} shard ${{ matrix.shard }}"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "GIT_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Push rejected; retry $attempt"
+            sleep 5
+          done
+          exit 1
+      - name: Confirm Git commit
+        shell: bash
+        run: |
+          echo "Archived ${{ matrix.stage }} shard ${{ matrix.shard }}"
+          git log -1 --format='%h %s'
