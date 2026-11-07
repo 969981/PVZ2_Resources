@@ -120,6 +120,12 @@ python3 scripts/catalog/materialize_readable.py \
 
 Media/shard-06 **尚未完成 Git 归档**。从此前真实归档工作流日志可见该分片原始媒体有 501 个文件、压缩后 14 个 64 MiB 左右分卷；失败发生在 git push 的并发 master ref 更新（cannot lock ref / rejected），不是超出 100 MiB 单文件硬限制。已有前六个压缩部件不代表全部归档成功；在 manifest 出现并通过校验以前，不能将该分片计入最终可恢复目录。
 
+## 独立文件真实恢复验证（追加结果）
+
+[逐文件恢复任务 #42330303634](https://github.com/969981/PVZ2_Resources/actions/runs/42330303634) 已成功：15 个实际分片中 **26,774/26,774** 个文件逐一 SHA256 校验通过。格式审计为 12,259 个 JSON 已解析、9,040 个结构头部通过、5,473 个仅源字节通过、2 个未识别格式。新增 Catalog/CHN/V4.2.8/validation/ 的 SQLite、CSV、SUMMARY.json 可从 GitHub 查询源路径、格式和校验状态。
+
+该任务没有将全部商业游戏原件作为普通文件重新公开发布，也不表示音视频全部可播放。缺失 Media-06 仍需修复。
+
 ## 后续验收
 
 - [x] Internal-05 的 8,440 个来源文件和 Media-00 的 1,366 个文件已建立来源索引；
