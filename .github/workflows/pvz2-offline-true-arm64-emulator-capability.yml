@@ -1,0 +1,44 @@
+name: PVZ2 research true ARM64 Android emulator availability
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-true-arm64-emulator-capability.yml"
+permissions:
+  contents: read
+jobs:
+  arm64-emulator-capability:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - name: Confirm runner CPU architecture and virtualization capability
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "aarch64"
+          echo "host_arch=$(uname -m)"
+          if [ -e /dev/kvm ]; then
+            ls -l /dev/kvm
+          else
+            echo "NO_DEV_KVM"
+          fi
+      - name: Test Android 11 true arm64-v8a emulator capability (no APK)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: arm64-v8a
+          profile: pixel_5
+          ram-size: 3072M
+          heap-size: 512M
+          disk-size: 8192M
+          emulator-boot-timeout: 480
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -no-accel
+          script: adb shell getprop ro.product.cpu.abi
+      - name: Confirm native execution target
+        shell: bash
+        run: |
+          test "$(adb shell getprop ro.product.cpu.abi | tr -d '\r')" = "arm64-v8a"
+          echo "NATIVE_ARM64_EMULATOR_AVAILABLE"
