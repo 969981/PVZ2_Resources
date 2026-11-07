@@ -59,13 +59,35 @@ def patch_smali(source: str, *, init_status:int, login_status:int,
                 super_source and re.search(field_pattern,super_source)),
         },ensure_ascii=False))
         raise ValueError("Could not verify native driver field in class or exact superclass")
+    invoke_modes={}
     for name,descriptor in NATIVE.items():
-        declaration=re.compile(
-            r"(?m)^\.method\b(?=[^\n]*\bstatic\b)(?=[^\n]*\bnative\b)"
-            +r"[^\n]*\b"+re.escape(name)+re.escape(descriptor)+r"\s*$"
+        pattern=re.compile(
+            r"(?m)^\.method\s+(?P<flags>[^\n]*?)\b"
+            +re.escape(name)+re.escape(descriptor)+r"\s*$"
         )
-        if not declaration.search(source):
-            raise ValueError(f"Expected static native method missing: {name}{descriptor}")
+        matches=list(pattern.finditer(source))
+        if len(matches)!=1:
+            found=[line.strip() for line in source.splitlines()
+                   if line.startswith(".method") and name in line][:6]
+            print(json.dumps({"smali_preflight":"NATIVE_METHOD_DECLARATION_MISMATCH",
+                              "method":name,"expected_descriptor":descriptor,
+                              "native_method_declarations":found},ensure_ascii=False))
+            raise ValueError(f"Expected exactly one verified native method: {name}{descriptor}")
+        flags=matches[0].group("flags").split()
+        if "native" not in flags:
+            raise ValueError(f"Method is not native: {name}")
+        if "static" in flags:
+            invoke_modes[name]="invoke-static"
+        elif "private" in flags:
+            invoke_modes[name]="invoke-direct"
+        elif "public" in flags or "protected" in flags:
+            invoke_modes[name]="invoke-virtual"
+        else:
+            raise ValueError(f"Unrecognized invocation access for {name}")
+    def emit_invoke(name:str, args:list[str])->str:
+        op=invoke_modes[name]
+        actual=args if op=="invoke-static" else ["p0"]+args
+        return f"    {op} {{{', '.join(actual)}}}, {OWNER}->{name}{NATIVE[name]}\n"
     hits=list(RUN_PATTERN.finditer(source))
     if len(hits)!=1:
         raise ValueError(f"Expected one instance run()V method; got {len(hits)}")
@@ -82,13 +104,13 @@ def patch_smali(source: str, *, init_status:int, login_status:int,
         f"{h}\n"
         "    .locals 4\n"
         f"    iget-wide v0, p0, {handle_owner}->mNativeDriverPtr:J\n"
-        f"    invoke-static {{v0, v1}}, {OWNER}->Native_SDKInitStart(J)V\n"
+        emit_invoke("Native_SDKInitStart", ["v0","v1"])
         f"    const/4 v2, 0x{init_status:x}\n"
-        f"    invoke-static {{v0, v1, v2}}, {OWNER}->Native_SDKInitEnd(JI)V\n"
-        f"    invoke-static {{v0, v1}}, {OWNER}->Native_SDKLoginStart(J)V\n"
+        emit_invoke("Native_SDKInitEnd", ["v0","v1","v2"])
+        emit_invoke("Native_SDKLoginStart", ["v0","v1"])
         f"    const/4 v2, 0x{login_status:x}\n"
         '    const-string v3, "offline-local-test-only"\n'
-        f"    invoke-static {{v0, v1, v2, v3}}, {OWNER}->Native_SDKLoginEnd(JILjava/lang/String;)V\n"
+        emit_invoke("Native_SDKLoginEnd", ["v0","v1","v2","v3"])
         "    return-void\n"
         ".end method"
     )
@@ -99,6 +121,7 @@ def patch_smali(source: str, *, init_status:int, login_status:int,
         "class":"com.popcap.pvz2cthddev.TWPurchase",
         "method":"run()V",
         "native_handle_field_owner":handle_owner,
+        "native_invocation_modes":invoke_modes,
         "source_smali_sha256":hashlib.sha256(source.encode()).hexdigest(),
         "patched_smali_sha256":hashlib.sha256(patched.encode()).hexdigest(),
         "init_status_trial":init_status,
