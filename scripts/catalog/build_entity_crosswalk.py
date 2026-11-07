@@ -56,6 +56,9 @@ FIELDS = {
                         "group_id","group_type","group_index","match_status"],
     "skill_records": ["skill_id","source_file","object_index","aliases_json","skill_name_json",
                       "skill_description_json","skill_icon_json","status"],
+    "image_refs": ["owner_id","owner_kind","source_field","raw_reference",
+                   "resource_id","resource_source_file","resource_path","atlas_parent_id",
+                   "ax","ay","aw","ah","match_status","evidence"],
 }
 TABLE_KEYS = {
     "entities": "entity_id", "ancillary": "ancillary_id", "skill_records": "skill_id",
@@ -188,11 +191,17 @@ def load_localization(con):
 
 def load_resources(con):
     groups=defaultdict(list)
+    resources=defaultdict(list)
     for file,idx,gid,gtype in con.execute(
         "SELECT source_file,group_index,group_id,group_type FROM groups"):
         if isinstance(gid,str) and gid:
             groups[gid].append((file,int(idx),gid,gtype))
-    return groups
+    for file,rid,path,parent,ax,ay,aw,ah in con.execute(
+        "SELECT source_file,resource_id,resource_path,atlas_parent_id,ax,ay,aw,ah FROM resources"):
+        if rid:
+            resources[str(rid)].append((file,str(path or ""),str(parent or ""),
+                                        ax,ay,aw,ah))
+    return groups,resources
 
 
 def exact_alias_matches(key, alias_map):
@@ -344,7 +353,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                           "pvz2_chs428_localized_entities.sqlite",folder)
         try:
             gameplay=load_gameplay(game)
-            groups=load_resources(resource)
+            groups,resource_ids=load_resources(resource)
             localization=load_localization(loc)
         finally:
             game.close();resource.close();loc.close()
@@ -401,8 +410,30 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                 for eid in entity_token.get(raw,()):
                     ancillary_index[eid].append((aid,raw,key,"typed-field-exact-name-candidate"))
 
+    def add_image_ref(owner_id,owner_kind,field,value):
+        tokens=list(dict.fromkeys(token for _,token in references(value,path=field,include_plain=True)))
+        for token in tokens:
+            hit=resource_ids.get(symbol(token),[])
+            if not hit:
+                tables["image_refs"].append({
+                    "owner_id":owner_id,"owner_kind":owner_kind,"source_field":field,
+                    "raw_reference":token,"resource_id":"","resource_source_file":"",
+                    "resource_path":"","atlas_parent_id":"","ax":"","ay":"","aw":"","ah":"",
+                    "match_status":"unresolved-resource-id",
+                    "evidence":"exact-ID-not-present-in-exported-resources"})
+            for file,path,parent,ax,ay,aw,ah in hit:
+                tables["image_refs"].append({
+                    "owner_id":owner_id,"owner_kind":owner_kind,"source_field":field,
+                    "raw_reference":token,"resource_id":symbol(token),
+                    "resource_source_file":file,"resource_path":path,
+                    "atlas_parent_id":parent,"ax":ax,"ay":ay,"aw":aw,"ah":ah,
+                    "match_status":"exact-RTON-resource-id" if len(hit)==1 else "ambiguous-resource-id",
+                    "evidence":"resource-manifest-id-and-raw-atlas-fields-not-PNG-pixel-validated"})
+
     for r in gameplay:
         if r["category"]=="skills":
+            skill_id="skill:"+hashlib.sha256((r["source"]+"\\0"+str(r["index"])).encode()).hexdigest()[:18]
+            add_image_ref(skill_id,"skill","$.SkillIconImage",r["data"].get("SkillIconImage"))
             tables["skill_records"].append({
                 "skill_id":"skill:"+hashlib.sha256((r["source"]+"\\0"+str(r["index"])).encode()).hexdigest()[:18],
                 "source_file":r["source"],"object_index":r["index"],
@@ -440,6 +471,9 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
             "status":"source-PlantType" if kind=="plant" else "source-ZombieType",
             "apk_sha256":APK_SHA,
         })
+        if kind=="plant":
+            add_image_ref(eid,kind,"$.PlantPieceImageName",data.get("PlantPieceImageName"))
+            add_image_ref(eid,kind,"$.AvatarPieceImageName",data.get("AvatarPieceImageName"))
         for i,item in enumerate(avatar_list):
             toks=list(dict.fromkeys(token for _,token in references(item,include_plain=True)))
             tables["avatars"].append({
@@ -506,6 +540,30 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                         "field":key,"ordinal":i,"raw_value_json":trim_json(v),
                         "source_field_path":f"$.{key}[{i}]" if isinstance(raw,list) else f"$.{key}",
                         "status":"source-exact-property-alias-no-runtime-formula"})
+            # Skill and projectile references must exist as explicit nested RTIDs.
+            # A mere matching name or property action type is NOT a skill foreign key.
+            for path,token in references(values,path="$.Properties"):
+                scope=symbol(token).split("@")[-1].lstrip("$")
+                if scope not in ("SkillTypes","ProjectileTypes"):
+                    continue
+                target=[v for v in exact_alias_matches(token,refs)
+                        if v.get("category") in ("skills","projectiles") or
+                           v["source"].endswith(("/SKILLTYPES.json","/PROJECTILETYPES.json"))]
+                if not target:
+                    tables["links"].append({
+                        "entity_id":eid,"kind":kind,"relation":"property-nested-skill-or-projectile-RTID",
+                        "field_path":path,"source_reference":token,"target_type":"",
+                        "target_id":"","target_source_file":"","target_object_index":"",
+                        "status":"unresolved-static-skill-ref",
+                        "evidence":"original-nested-property-RTID-no-target"})
+                for v in target:
+                    tables["links"].append({
+                        "entity_id":eid,"kind":kind,"relation":"property-nested-skill-or-projectile-RTID",
+                        "field_path":path,"source_reference":token,"target_type":v["class"],
+                        "target_id":entity_key("skill_or_projectile",v["source"],v["index"]),
+                        "target_source_file":v["source"],"target_object_index":v["index"],
+                        "status":"exact-static-skill-ref" if len(target)==1 else "ambiguous-static-skill-ref",
+                        "evidence":"original-RTID-and-exact-source-alias-no-runtime-activation"})
 
         # Resource groups are resolved using exported RTON group ID, preserving ambiguous IDs.
         group_refs=list(references(data.get(group_field),path="$."+group_field,include_plain=True))
@@ -598,6 +656,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
         "resource_group_status_counts":dict(Counter(r["match_status"] for r in tables["resource_groups"])),
         "asset_candidate_status_counts":dict(Counter(r["association_status"] for r in tables["assets"])),
         "ancillary_link_status_counts":dict(Counter(r["match_status"] for r in tables["ancillary_links"])),
+        "image_reference_status_counts":dict(Counter(r["match_status"] for r in tables["image_refs"])),
         "sqlite_integrity_check":"ok",
         "evidence_limits":[
             "Plant/Zombie 381/1265 rows count source records, not unique species",
