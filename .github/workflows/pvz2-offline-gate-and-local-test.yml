@@ -189,6 +189,8 @@ jobs:
               "frida_device_process":d.get("frida_diagnostics",{}),
               "frida_attached":d.get("frida_status")=="attached",
               "frida_warning_event_count":len(d.get("frida_warning_events",[])),
+              "integrity_alert_request_count":sum(e.get("type")=="INTEGRITY_ALERT_REQUEST" for e in d.get("frida_warning_events",[])),
+              "traced_exit_event_count":sum(e.get("type")=="GAME_EXIT_REQUEST" for e in d.get("frida_warning_events",[])),
               "android_exit_info":d.get("android_exit_info",{}).get("relevant_lines",[])[:10],
               "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
                   d.get("logcat",{}).get("counts",{}).get("activity_anr",0)>0,
