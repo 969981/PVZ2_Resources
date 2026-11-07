@@ -37,6 +37,22 @@ python3 scripts/media/audit_actions_media.py \
   --expected-count 501
 ```
 
+### Media-06 从源 Artifact 恢复全部真实 PNG/WEM/JSON 到本地
+
+已有独立来源哈希清单后，可恢复 501 个文件，并保留其原相对路径：
+
+```bash
+python3 scripts/catalog/restore_media06_local.py \
+  --artifact Readable/CHN/V4.2.8/Media-06-Actions \
+  --catalog Catalog/CHN/V4.2.8/recovery/Media-06/files.csv \
+  --out Readable/CHN/V4.2.8 \
+  --copy \
+  --report audit/local/CHN-4.2.8/media06-materialized.json
+```
+
+输出示例：`Readable/CHN/V4.2.8/Media/shard-06/PNG/LuaAct/.../ATLASES/*.png`。
+不加 `--copy` 时仅校验，不写副本；加 `--extensions .png` 则只恢复 175 张 PNG。始终逐文件比对 SHA256、检测多余/缺失文件、拒绝路径穿越和哈希冲突。这里仅完成**个人工作区的本地恢复**，不是向公开 GitHub 发布游戏美术。
+
 这份审计生成 `files.csv`、`SUMMARY.json`，包含原相对路径、字节大小、SHA256、格式检查状态。PNG 只校验签名、IHDR 和尺寸；WEM 只校验 RIFF/WAVE 头；JSON 做语法检查；其他素材做 checksum-only。**无像素渲染、WEM 实际播放或完整游戏行为验证**。
 
 对应的 [Media-06 Artifact 审计工作流](https://github.com/969981/PVZ2_Resources/actions/workflows/pvz2-media06-artifact-audit.yml) 从同一 Artifact 自动生成报告，成功后写入 `Catalog/CHN/V4.2.8/recovery/Media-06/`。只提交文件元信息，不再次公开原始图片或音频。真实工作流 **#42334455984 已成功**，`Catalog/CHN/V4.2.8/recovery/Media-06/files.csv` 和 `SUMMARY.json` 已进入 `master`。这证明源 Artifact 的 501 个文件哈希/基本格式检查成功，但仍不证明 PNG 全像素读取、WEM 可播放或 Git 分卷可恢复。
