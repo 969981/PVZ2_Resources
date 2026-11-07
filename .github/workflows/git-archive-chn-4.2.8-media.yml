@@ -1,82 +1,173 @@
 name: Git-history archive of full PvZ2 CN converted media
 on:
-  workflow_run:
-    workflows: ["PvZ2 CHN full parallel PTX ASTC PNG PAM JSON WEM"]
-    types: [completed]
+  push:
+    branches: [master]
+    paths: [".github/workflows/git-archive-chn-4.2.8-media.yml"]
   workflow_dispatch:
-    inputs:
-      media_run:
-        description: Successful full PvZ2 CN media workflow run ID
-        type: string
-        default: "42321977158"
 
 permissions:
   contents: write
   actions: read
 
 concurrency:
-  group: pvz2-chn-428-git-media-archive
+  group: pvz2-chn-428-git-archive-full
   cancel-in-progress: false
 
 jobs:
   store:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: Persist decoded-media shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v4
         with:
           filter: blob:none
           fetch-depth: 0
           sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
           persist-credentials: true
-      - name: Initialize compression and verified source id
+      - name: Prepare compressor and Git
         shell: bash
-        env:
-          MEDIA_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.media_run || github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          echo "MEDIA_SOURCE_RUN=$MEDIA_RUN" >> "$GITHUB_ENV"
-          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v zstd >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq zstd
+          fi
+          gh --version
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config gc.auto 0
-          git switch -c pvz2-428-media-git
-      - name: Import all eight converted-media artifact shards to Git history
+          git switch -c "media-${{ matrix.shard }}"
+      - name: Recover the correct successful media artifact
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          for shard in 0 1 2 3 4 5 6 7; do
-            folder="$(printf '%02d' "$shard")"
-            dest="Unpack/CHN/V4.2.8/Media/shard-$folder"
-            git fetch --no-tags origin master
-            if git cat-file -e "FETCH_HEAD:$dest/manifest.json" 2>/dev/null; then
-              echo "$dest already in history"
-              continue
-            fi
-            mkdir -p "$RUNNER_TEMP/media"
-            gh run download "$MEDIA_SOURCE_RUN" -R "$GITHUB_REPOSITORY" \
-              -n "pvz2-chn-4.2.8-media-$shard" -D "$RUNNER_TEMP/media"
-            python3 scripts/archive/import_actions_artifact.py \
-              --input "$RUNNER_TEMP/media" \
-              --output-root Unpack/CHN/V4.2.8 \
-              --stage Media --shard "$shard" --temporary "$RUNNER_TEMP"
-            git add --sparse -f -- "$dest"
-            git commit -m "data(chn-4.2.8): verified decoded media shard $shard"
-            pushed=false
-            for retry in 1 2 3 4 5; do
+          shard="${{ matrix.shard }}"
+          if [[ "$shard" == "1" || "$shard" == "3" ]]; then
+            run=42322830660
+            artifact="pvz2-chn-4.2.8-media-repaired-$shard"
+          else
+            run=42321977158
+            artifact="pvz2-chn-4.2.8-media-$shard"
+          fi
+          echo "SOURCE_RUN=$run" >> "$GITHUB_ENV"
+          echo "MEDIA_ARTIFACT=$artifact" >> "$GITHUB_ENV"
+          gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$artifact" -D "$RUNNER_TEMP/media"
+          test "$(find "$RUNNER_TEMP/media" -type f | wc -l)" -gt 0
+      - name: Compress and split verified media into 64 MiB Git blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/archive/import_actions_artifact.py \
+            --input "$RUNNER_TEMP/media" \
+            --output-root Unpack/CHN/V4.2.8 \
+            --stage Media --shard ${{ matrix.shard }} \
+            --source-run-id "$SOURCE_RUN" --temporary "$RUNNER_TEMP"
+          rm -rf "$RUNNER_TEMP/media"
+      - name: Commit in bounded batches, manifest last
+        shell: bash
+        run: |
+          set -euo pipefail
+          shard="$(printf '%02d' ${{ matrix.shard }})"
+          dest="Unpack/CHN/V4.2.8/Media/shard-$shard"
+          git fetch --no-tags origin master
+          if git cat-file -e "FETCH_HEAD:$dest/manifest.json" 2>/dev/null; then
+            echo "Already imported. Verifying source manifest was written in Git"
+            exit 0
+          fi
+          flush_batch() {
+            if git diff --cached --quiet; then return; fi
+            git commit -m "data(chn-4.2.8): decoded Media shard $shard, batch $batch"
+            for attempt in 1 2 3 4 5; do
               git fetch --no-tags origin master
               git rebase FETCH_HEAD
               if git push origin HEAD:refs/heads/master; then
-                pushed=true
-                break
+                echo "Committed media shard $shard batch $batch: $(git rev-parse --short HEAD)"
+                return 0
               fi
-              sleep 5
+              sleep 8
             done
-            test "$pushed" == true
-            rm -rf "$RUNNER_TEMP/media"
-            echo "Git media archive success $dest"
-            df -h .
+            echo "Unable to push media batch $batch"
+            exit 1
+          }
+          count=0
+          batch=1
+          for part in "$dest"/archive.tar.zst.part-*; do
+            test -f "$part"
+            test "$(stat -c%s "$part")" -lt 100000000
+            git add --sparse -f -- "$part"
+            count=$((count + 1))
+            if [[ $((count % 6)) -eq 0 ]]; then
+              flush_batch
+              batch=$((batch + 1))
+            fi
           done
+          flush_batch
+          git add --sparse -f -- "$dest/manifest.json"
+          batch="manifest"
+          flush_batch
+          echo "Media shard ${{ matrix.shard }} fully committed"
+          df -h .
+
+  special_png:
+    needs: store
+    name: Persist non-ASTC PNG shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        shard: [0, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+      - name: Install zstd and configure Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "special-png-${{ matrix.shard }}"
+      - name: Fetch two verified 0/147 format PNG outputs
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42322830668
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-special-ptx-${{ matrix.shard }}
+          path: ${{ runner.temp }}/png
+      - name: Archive special PNG outputs and push into Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          shard="$(printf '%02d' ${{ matrix.shard }})"
+          dest="Unpack/CHN/V4.2.8/MediaSpecial/shard-$shard"
+          python3 scripts/archive/import_actions_artifact.py \
+            --input "$RUNNER_TEMP/png" \
+            --output-root Unpack/CHN/V4.2.8 \
+            --stage MediaSpecial --shard ${{ matrix.shard }} \
+            --source-run-id 42322830668 --temporary "$RUNNER_TEMP"
+          git add --sparse -f -- "$dest"
+          git commit -m "data(chn-4.2.8): archive verified non-ASTC PNG $shard"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
