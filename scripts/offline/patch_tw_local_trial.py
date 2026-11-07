@@ -100,20 +100,20 @@ def patch_smali(source: str, *, init_status:int, login_status:int,
     # Preserve the original method access flags. p0 is the unchanged object.
     # Four local scratch registers; long v0/v1, status v2, string v3.
     h=match.group("header")
-    body=(
-        f"{h}\n"
-        "    .locals 4\n"
-        f"    iget-wide v0, p0, {handle_owner}->mNativeDriverPtr:J\n"
-        emit_invoke("Native_SDKInitStart", ["v0","v1"])
-        f"    const/4 v2, 0x{init_status:x}\n"
-        emit_invoke("Native_SDKInitEnd", ["v0","v1","v2"])
-        emit_invoke("Native_SDKLoginStart", ["v0","v1"])
-        f"    const/4 v2, 0x{login_status:x}\n"
-        '    const-string v3, "offline-local-test-only"\n'
-        emit_invoke("Native_SDKLoginEnd", ["v0","v1","v2","v3"])
-        "    return-void\n"
-        ".end method"
-    )
+    body="".join([
+        f"{h}\n",
+        "    .locals 4\n",
+        f"    iget-wide v0, p0, {handle_owner}->mNativeDriverPtr:J\n",
+        emit_invoke("Native_SDKInitStart", ["v0","v1"]),
+        f"    const/4 v2, 0x{init_status:x}\n",
+        emit_invoke("Native_SDKInitEnd", ["v0","v1","v2"]),
+        emit_invoke("Native_SDKLoginStart", ["v0","v1"]),
+        f"    const/4 v2, 0x{login_status:x}\n",
+        '    const-string v3, "offline-local-test-only"\n',
+        emit_invoke("Native_SDKLoginEnd", ["v0","v1","v2","v3"]),
+        "    return-void\n",
+        ".end method",
+    ])
     patched=source[:match.start()]+body+source[match.end():]
     assert patched.count("offline-local-test-only")==1
     report={
