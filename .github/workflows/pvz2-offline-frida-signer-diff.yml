@@ -6,6 +6,7 @@ on:
       - ".github/workflows/pvz2-offline-frida-signer-diff.yml"
       - "scripts/offline/frida_signer_trace.js"
       - "scripts/offline/frida_signer_probe.py"
+      - "scripts/offline/consent_probe.py"
       - "tests/test_offline_frida_signer_probe.py"
   workflow_dispatch:
 permissions:
