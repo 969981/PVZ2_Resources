@@ -1,0 +1,26 @@
+name: Test permission-aware PVZ2 individual file staging
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/catalog/prepare_authorized_files.py"
+      - "tests/test_authorized_file_plan.py"
+      - ".github/workflows/pvz2-authorized-publish-tests.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/catalog/prepare_authorized_files.py
+            tests/test_authorized_file_plan.py
+          sparse-checkout-cone-mode: false
+      - name: Ensure all tests use only synthetic self-authored files
+        run: |
+          python3 -m py_compile scripts/catalog/prepare_authorized_files.py
+          python3 -m unittest discover -s tests -p 'test_authorized_file_plan.py' -v
