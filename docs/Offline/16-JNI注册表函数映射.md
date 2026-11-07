@@ -1,7 +1,7 @@
 ---
 title: 国服4.2.8 登录JNINativeMethod注册表与单机入口验证
 type: evidence-and-test-workflow
-status: table-scanner-ready-real-results-pending
+status: four-jninativemethod-candidates-verified-ghidra-pending
 region: CHN
 version: 4.2.8
 updated: 2026-11-07
@@ -49,6 +49,22 @@ fnPtr*     → 指向 ELF 的可执行 PT_LOAD 段
 - 引用来源（原始指针或相对重定位）。
 
 工作流 `.github/workflows/pvz2-offline-code-decompile.yml` 会调用本工具，仅上传 `jni_registration_candidates.csv` 和 `jni_registration_summary.json` 等**结构化元数据**。没有把原始 ELF、反编译函数体或 APK 公开上传。若无有效注册表项，标为 `0`：可能使用 Android packed relocations、`RELR`、动态构表或其他 JNI 注册方式，**不能据此声称该函数不存在**。
+
+
+## 2026-11-07：真实 ELF 注册表定位已成功
+
+[Actions #42338454193](https://github.com/969981/PVZ2_Resources/actions/runs/42338454193) 成功：在原始 SHA256 一致的 ARM64 主库中找到 **4 条连续的 `JNINativeMethod` 结构记录**。它们的名称指针通过 `R_AARCH64_RELATIVE` 重定位指向已确认的 JNI 方法名，签名指针为符合 JNI 语法的字符串，函数指针位于 ELF 可执行 PT_LOAD。
+
+| Native 方法 | 注册表项 RVA | JNI 类型签名 | 候选函数 RVA |
+| --- | --- | --- | --- |
+| `Native_SDKInitStart` | `0x5E6C910` | `(J)V` | `0x4A9B1B0` |
+| `Native_SDKInitEnd` | `0x5E6C928` | `(JI)V` | `0x4A9B284` |
+| `Native_SDKLoginStart` | `0x5E6C940` | `(J)V` | `0x4A9B488` |
+| **`Native_SDKLoginEnd`** | **`0x5E6C958`** | **`(JILjava/lang/String;)V`** | **`0x4A9B678`** |
+
+这四条**结构证据比仅有字符串的 RVA 强得多**，但它们还只是注册表候选：需要确认运行时代码确实通过 `RegisterNatives` 使用这些表项、目标函数是有效 ARM64 反汇编入口，并明确 `int` 与 `String` 在成功/失败路径中的含义。
+
+已更新 Ghidra 无界面工作流 `.github/workflows/pvz2-offline-ghidra-callgraph.yml`，把以上四个原生函数 RVA 与 21 条服务地址 XREF 一起导入原始 `libSrc.so` 项目，单独产出 `ghidra_jni_function_refs.csv` 并检查四条是否落在有效函数边界。**Ghidra 映射仍属于静态验证，不等于实际登录回调成功或离线关卡可运行。**
 
 ## 使用这个地址前必须满足的验证
 
