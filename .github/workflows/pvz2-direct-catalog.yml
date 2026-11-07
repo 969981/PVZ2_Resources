@@ -1,0 +1,52 @@
+name: Export PvZ2 CN 4.2.8 resource catalog into Git
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-direct-catalog.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: scripts
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42259518014
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-direct-rton-json
+          path: ${{ runner.temp }}/direct-rton
+      - name: Export a source-backed SQLite and CSV catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/export_direct_rton.py "$RUNNER_TEMP/direct-rton" \
+            --out "$RUNNER_TEMP/resource-catalog" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_resource_catalog.zip
+          python3 -c "import json,zipfile; a=zipfile.ZipFile('Database/CHN/V4.2.8/pvz2_chs428_resource_catalog.zip'); j=json.loads(a.read('SUMMARY.json')); assert j['counts']['source_json_files']==18 and j['counts']['resources']==128426"
+      - name: Commit verified catalog archive to Git history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c direct-catalog-428
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_resource_catalog.zip
+          git commit -m "data(chn-4.2.8): publish SQLite and CSV resource catalog (128426 rows)"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
