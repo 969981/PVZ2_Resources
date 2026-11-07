@@ -51,6 +51,7 @@ status: static-source-mapping-runtime-unverified
 | --- | --- | --- | --- | --- |
 | property-reference | ZombiePumpkinWizard@CurrentLevel | ZombiePumpkinWizardProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_31_N.json | exact-source-property-alias |
 | property-reference | ZombiePumpkinWizard@PropertySheets | ZombiePumpkinWizardProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | PumpkinWizardMagicDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

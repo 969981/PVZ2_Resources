@@ -43,6 +43,20 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | LotusShowerDefault@PropertySheets | LotusShowerPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | LotusShowerLandNormalBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | LotusShowerLandPlantFoodBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | LotusShowerLandAvatarPlantFoodBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | LotusShowerWaterNormalBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | LotusShowerWaterPlantFoodBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | LotusShowerWaterAvatarPlantFoodBullet@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Lotusshower_Skill_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Lotusshower_Skill_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level3@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | plant_wakeup_level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | SunflowerLevel5Avatar@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | plant_wakeup_level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

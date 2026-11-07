@@ -43,6 +43,18 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | NukeLauncherDefault@PropertySheets | NukeLauncherProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | NukeLauncherDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncherPlantfoodDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncherAvatarDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncherSuperDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncher_Skill_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncher_Skill_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level3@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | plant_wakeup_level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level4@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | NukeLauncher_Skill_Level5@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

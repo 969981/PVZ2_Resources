@@ -42,6 +42,27 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieJulietMemoDefault@PropertySheets | ZombieJulietProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | MangofierLob@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | StickybombRiceDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumThickDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumLv5@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | StarCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | GoldCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | GoldFoodCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | GoldFoodLightingCabbage@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | KernelDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterRocket@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterFire@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | AvatarMegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaMelonLevel5@ProjectileTypes |  |  | unresolved-static-skill-ref |
+
+本页仅展示前 20 条；完整 90 条请查看 SQLite/CSV。
 
 ## 已公开 PNG 图集候选（可点击）
 

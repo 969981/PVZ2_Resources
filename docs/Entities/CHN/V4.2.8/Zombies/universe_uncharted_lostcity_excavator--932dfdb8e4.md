@@ -52,7 +52,27 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieExcavatorUniverseUncharted@CurrentLevel | ZombieExcavatorNo42UniverseProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S26_11_H.json | exact-source-property-alias |
-| property-reference | ZombieExcavatorUniverseUncharted@PropertySheets | ZombieExcavatorNo42UniverseProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | StickybombRiceDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumThickDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumLv5@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | CabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | StarCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | KernelDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterRocket@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ButterFire@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | WinterMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | WinterMegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PepperpultDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PepperpultPlantfoodDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | AkeeDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MegaAkeeDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+
+本页仅展示前 20 条；完整 145 条请查看 SQLite/CSV。
 
 ## 已公开 PNG 图集候选（可点击）
 

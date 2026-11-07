@@ -34,6 +34,13 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | BitPeashooter@PropertySheets | PeashooterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | PeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | FirePeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | UltraFirePeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | SnowPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PrimalPeashooterRockPea@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PrimalPeashooterPea@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PrimalPeashooterLevel5Pea@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

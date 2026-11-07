@@ -39,6 +39,7 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieToxicWaterDefault@PropertySheets | ZombieToxicWaterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | ZombieToxicWaterDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

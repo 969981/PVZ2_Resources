@@ -50,7 +50,9 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieMechFootball@CurrentLevel | ZombieMechFootballProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S26_63_N.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | FootballDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 | property-reference | ZombieMechFootball@PropertySheets | ZombieMechFootballProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | FootballDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

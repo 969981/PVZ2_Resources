@@ -53,6 +53,7 @@ status: static-source-mapping-runtime-unverified
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieSkycityBattlePlane@CurrentLevel | ZombieSkycityBattlePlaneProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S32_4_N.json | exact-source-property-alias |
 | property-reference | ZombieCardGameSkycityBattlePlaneProps@PropertySheets | ZombieSkycityBattlePlaneProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | CardGameBattlePlaneDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

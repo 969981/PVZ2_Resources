@@ -131,14 +131,15 @@
   "optional_not_in_source_inventory": [],
   "records": {
     "entities": 1646,
-    "links": 1698,
+    "links": 6486,
     "assets": 7573,
     "level_rows": 16913,
     "avatars": 838,
     "ancillary": 3149,
     "ancillary_links": 953,
     "resource_groups": 3455,
-    "skill_records": 857
+    "skill_records": 857,
+    "image_refs": 1595
   },
   "kinds": {
     "zombie": 1265,
@@ -146,8 +147,10 @@
   },
   "link_status_counts": {
     "exact-source-property-alias": 1540,
+    "unresolved-static-skill-ref": 1861,
     "ambiguous-alias": 104,
     "dollar-namespace-alias-candidate": 42,
+    "exact-static-skill-ref": 2927,
     "unresolved": 12
   },
   "resource_group_status_counts": {
@@ -161,6 +164,9 @@
   },
   "ancillary_link_status_counts": {
     "typed-field-exact-name-candidate": 953
+  },
+  "image_reference_status_counts": {
+    "unresolved-resource-id": 1595
   },
   "sqlite_integrity_check": "ok",
   "evidence_limits": [

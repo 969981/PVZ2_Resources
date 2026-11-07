@@ -51,6 +51,7 @@ status: static-source-mapping-runtime-unverified
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieJourneyToTheWestTridentDefault@CurrentLevel | ZombieHeianNinjaProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S26_20_N.json | exact-source-property-alias |
 | property-reference | ZombieJourneyToTheWestTridentDefault@PropertySheets | ZombieHeianNinjaProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-nested-skill-or-projectile-RTID | ZombieJourneyToTheWestThrowSushiDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 
