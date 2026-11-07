@@ -168,6 +168,21 @@ def pid_from_adb_output(raw: str) -> int | None:
     return first if first > 0 else None
 
 
+def validated_native_trace(payload: object) -> dict:
+    """Retain only bounded exact libSrc.so offsets, never arbitrary script data."""
+    if not isinstance(payload, dict):
+        return {"status": "MISSING", "frames": []}
+    status = payload.get("status")
+    if status not in ("OBSERVED", "LIBSRC_NOT_MAPPED", "BACKTRACE_UNAVAILABLE"):
+        return {"status": "INVALID", "frames": []}
+    values = payload.get("frames", [])
+    if not isinstance(values, list):
+        return {"status": "INVALID", "frames": []}
+    offsets = [value.lower() for value in values[:24]
+               if isinstance(value, str) and re.fullmatch(r"0x[0-9a-fA-F]{1,16}", value)]
+    return {"status": status, "module": "libSrc.so", "frames": offsets}
+
+
 def attach_frida_warning_probe(js_path: Path, output: list[dict],
                                diagnostics: dict):
     """Attach to a verified live emulator PID before privacy consent.
@@ -217,6 +232,7 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                             frames = payload.get("frames", [])
                             record["frames"] = [redact_evidence_line(str(item))
                                                 for item in frames[:24] if isinstance(item, str)]
+                            record["native_trace"] = validated_native_trace(payload.get("native_trace"))
                         if typ == "INTEGRITY_ALERT_REQUEST":
                             record["exit_requested"] = payload.get("exit_requested") is True
                         if typ == "TRACE_HOOK_ERROR":
