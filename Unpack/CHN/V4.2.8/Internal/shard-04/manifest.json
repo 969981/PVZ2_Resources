@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "game": "PvZ2",
+  "region": "CHN",
+  "version_label": "4.2.8",
+  "stage": "Internal",
+  "shard": 4,
+  "source_actions_run_id": 42259266531,
+  "source_file_count": 824,
+  "source_total_bytes": 762756782,
+  "archive_filename": "archive.tar.zst",
+  "archive_bytes": 299881133,
+  "archive_sha256": "cb64017782f1498e1bfbd0c06c10c0c1504de57570652d06ec74916c486c3b55",
+  "chunk_size_bytes": 67108864,
+  "parts": [
+    {
+      "file": "archive.tar.zst.part-000",
+      "bytes": 67108864,
+      "sha256": "411f10d5bf739c9244639886aaf06bfe646175e9a4e534deb908cf96467bf52e"
+    },
+    {
+      "file": "archive.tar.zst.part-001",
+      "bytes": 67108864,
+      "sha256": "9d0964083a028e5c5509ce18d6b4f3b32bc22c2848e0c72c5f14f0ffd855aeb9"
+    },
+    {
+      "file": "archive.tar.zst.part-002",
+      "bytes": 67108864,
+      "sha256": "2aaaedaecb9540e0ef9bb7ca51db7ca7da53c39bb50d47c13ea455f955c64e1f"
+    },
+    {
+      "file": "archive.tar.zst.part-003",
+      "bytes": 67108864,
+      "sha256": "733574d53ed71759995db8d6434adb68f658e7852a7af5ab31bbb17369c1c5f5"
+    },
+    {
+      "file": "archive.tar.zst.part-004",
+      "bytes": 31445677,
+      "sha256": "5a12d8b735e3662db7d71df5213655709b389779454d42a8195eacf7e3d1af81"
+    }
+  ],
+  "created_utc": "2026-11-07T00:53:34.361283+00:00",
+  "scope_note": "Git objects contain compressed original Actions artifact contents. Restore and verify before use."
+}
