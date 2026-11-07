@@ -9,10 +9,12 @@ on:
       - "scripts/offline/smali_gate_index.py"
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/consent_probe.py"
+      - "scripts/offline/find_integrity_warning.py"
       - "scripts/offline/emulator_ui_capture.py"
       - "tests/test_offline_smali_gate_index.py"
       - "tests/test_offline_tw_local_trial.py"
       - "tests/test_offline_runtime_diagnostics.py"
+      - "tests/test_offline_integrity_warning_location.py"
 permissions:
   contents: read
 concurrency:
@@ -47,7 +49,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_smali_gate_index.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
-          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py
+          python3 -m unittest discover -s tests -p 'test_offline_integrity_warning_location.py' -v
+          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/find_integrity_warning.py
           bash -n scripts/offline/build_from_committed_smali.sh
       - name: Scan all six real Smali DEX sources, metadata only
         run: |
@@ -82,6 +85,13 @@ jobs:
             "https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar" \
             -o "$RUNNER_TEMP/apktool.jar"
           echo "$APKTOOL_SHA  $RUNNER_TEMP/apktool.jar" | sha256sum -c -
+      - name: Locate exact integrity warning text in original APK, metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/find_integrity_warning.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8_original.apk" \
+            --out "$RUNNER_TEMP/offline-gate-report/integrity_warning_source.json"
       - name: Build local-only JNI experiment APK from temp Smali copy
         shell: bash
         run: |
