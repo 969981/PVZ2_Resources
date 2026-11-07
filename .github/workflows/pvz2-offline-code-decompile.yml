@@ -56,7 +56,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell || true
+          test -x "$JAVA_HOME/bin/java" || { echo '::error::JDK missing after runner disk cleanup'; exit 1; }
+          "$JAVA_HOME/bin/java" -version
           if ! command -v 7z >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y p7zip-full; fi
           test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
           mkdir -p "$RUNNER_TEMP/pvz2-restored"
