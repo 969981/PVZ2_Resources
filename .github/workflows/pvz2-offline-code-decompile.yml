@@ -6,6 +6,8 @@ on:
     paths:
       - ".github/workflows/pvz2-offline-code-decompile.yml"
       - "scripts/offline/reverse_dependencies.py"
+      - "scripts/offline/inspect_login_flow.py"
+      - "tests/test_offline_login_flow.py"
   workflow_dispatch:
 
 permissions:
@@ -52,6 +54,9 @@ jobs:
           chmod +x "$RUNNER_TEMP/jadx/bin/jadx"
           "$RUNNER_TEMP/jadx/bin/jadx" --version
 
+      - name: Validate targeted first-party login flow analyzer
+        run: python3 -m unittest discover -s tests -p test_offline_login_flow.py -v
+
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
         run: |
@@ -94,6 +99,25 @@ jobs:
               out.write("Static source hints only. No gameplay offline patch verified.\n")
               out.write("No original APK, SO, DEX or decompiled Java uploaded.\n")
           assert d["jadx"].get("decompiled_sources_found",0) > 0
+          PY
+
+      - name: Extract login and startup method topology from decompiled first-party Java
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/inspect_login_flow.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/first_party_login_summary.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## Login/launch method graph\n")
+              f.write(f"- First-party Java files found: {d['source_path_found']} / {d['source_path_count']}\n")
+              f.write(f"- Candidate methods indexed: {d['methods_indexed']}\n")
+              f.write("- Static callback structure only; not yet a proven local offline session implementation.\n")
+          assert d["source_path_found"]>=10, "Insufficient real Java first-party paths recovered"
           PY
 
       - name: Upload derived metadata only
