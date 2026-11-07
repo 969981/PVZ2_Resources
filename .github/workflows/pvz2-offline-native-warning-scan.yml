@@ -1,0 +1,52 @@
+name: PVZ2 CHN 4.2.8 original native warning references static scan
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-native-warning-scan.yml"
+      - "scripts/offline/find_native_warning_refs.py"
+      - "tests/test_offline_native_warning_refs.py"
+permissions:
+  contents: read
+jobs:
+  native-reference-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          filter: blob:none
+          sparse-checkout: |
+            ROMS/CHN/V4.2.8
+            scripts/offline/find_native_warning_refs.py
+            tests/test_offline_native_warning_refs.py
+      - name: Synthetic tests
+        run: python3 -m unittest discover -s tests -p 'test_offline_native_warning_refs.py' -v
+      - name: Recover source APK, strictly SHA-locked, and scan without binary export
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/restore" "$RUNNER_TEMP/scan"
+          7z x ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001 "-o$RUNNER_TEMP/restore" -y
+          apk="$(find "$RUNNER_TEMP/restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          echo "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4  $apk" | sha256sum -c -
+          python3 scripts/offline/find_native_warning_refs.py \
+            --apk "$apk" \
+            --out "$RUNNER_TEMP/scan/native_warning_key_refs.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-original-native-warning-refs
+          path: ${{ runner.temp }}/scan/*.json
+          retention-days: 2
+          if-no-files-found: warn
