@@ -175,10 +175,7 @@ def export(src:Path,out:Path,expected:int=26774):
             raise ValueError("source asset row count mismatch")
         if statuses!=Counter(summary["parser_status_counts"]):
             raise ValueError("parser statuses differ from source SUMMARY")
-        # Full source corpus has fixed proven stage counts; the same exporter
-        # also accepts small synthetic fixtures for regression testing.
-        full_stage_counts=Counter({"Internal":14869,"Media":11905})
-        if expected==sum(full_stage_counts.values()) and by_stage!=full_stage_counts:
+        if expected==26774 and by_stage!=Counter({"Internal":14869,"Media":11905}):
             raise ValueError("unexpected per-stage source counts")
 
         with temp_index.open("w",encoding="utf-8-sig",newline="") as f:
