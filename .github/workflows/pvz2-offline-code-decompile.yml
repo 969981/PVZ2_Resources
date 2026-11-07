@@ -12,6 +12,8 @@ on:
       - "tests/test_offline_bridge_site_index.py"
       - "scripts/offline/inspect_native_callbacks.py"
       - "tests/test_offline_native_callbacks.py"
+      - "scripts/offline/login_schema_index.py"
+      - "tests/test_offline_login_schema_index.py"
   workflow_dispatch:
 
 permissions:
@@ -66,6 +68,9 @@ jobs:
 
       - name: Validate native SDK login callback declaration parser
         run: python3 -m unittest discover -s tests -p test_offline_native_callbacks.py -v
+
+      - name: Validate local login result Java model schema scanner
+        run: python3 -m unittest discover -s tests -p test_offline_login_schema_index.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -167,6 +172,24 @@ jobs:
               f.write("- These are types/arity only. No actual callback payload, account or payment data.\n")
           assert d["available_files"] >= 6
           assert d["has_native_sdk_login_end_declaration"]
+          PY
+
+      - name: Index actual SDK login model fields and callback parameter types
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/login_schema_index.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/login_model_schema_summary.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["model_java_files"]>=2
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## SDK login JSON data model static field inventory\n\n")
+              f.write("Models: "+str(d["model_java_files"])+"; fields: "+str(d["field_declarations"])+"\n")
+              f.write("Field names and method types only, no source body or credentials.\n")
           PY
 
       - name: Upload derived metadata only
