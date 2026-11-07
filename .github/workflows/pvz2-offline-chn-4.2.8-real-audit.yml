@@ -1,0 +1,114 @@
+name: PVZ2 CHN 4.2.8 offline M0 real APK audit
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-offline-chn-4.2.8-real-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn-428-offline-static-audit
+  cancel-in-progress: false
+
+jobs:
+  real-apk-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - name: Checkout offline scripts and original 88 split volumes
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            scripts
+            ROMS/CHN/V4.2.8
+          sparse-checkout-cone-mode: true
+
+      - name: Prepare runner disk and 7-Zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          count="$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)"
+          test "$count" -eq 88
+
+      - name: Restore original APK and verify source SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/restore-pvz2"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/restore-pvz2" -y
+          apk="$(find "$RUNNER_TEMP/restore-pvz2" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv -- "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore-pvz2" ROMS .git/objects
+          df -h .
+
+      - name: Detect Android Build Tools aapt2
+        shell: bash
+        run: |
+          set -euo pipefail
+          aapt2=""
+          if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME/build-tools" ]; then
+            aapt2="$(find "$ANDROID_HOME/build-tools" -type f -name aapt2 | sort -V | tail -1)"
+          fi
+          if [ -n "$aapt2" ]; then
+            echo "AAPT2=$aapt2" >> "$GITHUB_ENV"
+            "$aapt2" version
+          else
+            echo "AAPT2=disabled" >> "$GITHUB_ENV"
+            echo "::warning::aapt2 not found; binary Manifest version remains unverified"
+          fi
+
+      - name: Audit real APK with bounded static host inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/audit_apk.py "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            --expected-sha256 "$SOURCE_SHA" --scan-mib 32 --aapt "$AAPT2" \
+            --out "$RUNNER_TEMP/pvz2-offline-static-audit" \
+            > "$RUNNER_TEMP/offline-audit-stdout.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "pvz2-offline-static-audit" / "static_audit.json"
+          data = json.loads(path.read_text(encoding="utf-8"))
+          assert data["rsb_smf_count"] == 33, "unexpected RSB count"
+          assert data["rton_smf_count"] == 18, "unexpected direct RTON count"
+          assert data["source_sha256"] == os.environ["SOURCE_SHA"], "SHA mismatch"
+          print("package / version:", data["badging"])
+          print("ABI:", data["abi"])
+          print("candidate hosts:", len(data["candidate_hosts"]))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
+              stream.write("## CHN 4.2.8 real APK static audit\n\n")
+              stream.write(f"- SHA256: {data['source_sha256']}\n")
+              stream.write(f"- ZIP entries: {data['zip_entries']}\n")
+              stream.write(f"- Manifest: {data['manifest_format']}\n")
+              stream.write(f"- Package/version from aapt2: {data['badging']}\n")
+              stream.write(f"- Native ABI: {', '.join(data['abi'])}\n")
+              stream.write(f"- Candidate hosts (bounded strings, **not runtime requests**): {len(data['candidate_hosts'])}\n")
+              stream.write("- No APK or copyrighted resource bytes are uploaded.\n")
+          PY
+
+      - name: Upload JSON/CSV metadata only (no APK)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-offline-m0-real-audit
+          path: ${{ runner.temp }}/pvz2-offline-static-audit/
+          if-no-files-found: warn
+          retention-days: 7
