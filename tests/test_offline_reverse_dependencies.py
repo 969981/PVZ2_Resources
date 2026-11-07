@@ -47,7 +47,7 @@ class ReverseIndexTests(unittest.TestCase):
         self.assertEqual(rows[0][2], "loginServer")
 
     def test_invalid_dex(self):
-        self.assertIsNone(dex_string_entries(b"wrongfile"))
+        self.assertEqual(list(dex_string_entries(b"wrongfile")), [])
 
     def test_native_ascii_metadata(self):
         with tempfile.TemporaryDirectory() as temp:
