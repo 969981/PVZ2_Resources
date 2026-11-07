@@ -149,9 +149,10 @@ def source_token_index(records):
         stem=Path(rec["source"]).stem.upper()
         for token in alias_tokens(rec["aliases"]):
             ids[token].append(rec)
-            if stem in ("PROPERTYSHEETS","SKILLTYPES","PLANTTYPES","ZOMBIETYPES"):
+            if stem in ("PROPERTYSHEETS","SKILLTYPES","PLANTTYPES","ZOMBIETYPES","PROJECTILETYPES"):
                 scope={"PROPERTYSHEETS":"PropertySheets","SKILLTYPES":"SkillTypes",
-                       "PLANTTYPES":"PlantTypes","ZOMBIETYPES":"ZombieTypes"}[stem]
+                       "PLANTTYPES":"PlantTypes","ZOMBIETYPES":"ZombieTypes",
+                       "PROJECTILETYPES":"ProjectileTypes"}[stem]
                 ids[token+"@"+scope].append(rec)
                 ids[token+"@$"+scope].append(rec)
     return ids
@@ -554,7 +555,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                         "entity_id":eid,"kind":kind,"relation":"property-nested-skill-or-projectile-RTID",
                         "field_path":path,"source_reference":token,"target_type":"",
                         "target_id":"","target_source_file":"","target_object_index":"",
-                        "status":"unresolved-static-skill-ref",
+                        "status":"unresolved-static-ability-or-projectile-ref",
                         "evidence":"original-nested-property-RTID-no-target"})
                 for v in target:
                     tables["links"].append({
@@ -562,7 +563,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                         "field_path":path,"source_reference":token,"target_type":v["class"],
                         "target_id":entity_key("skill_or_projectile",v["source"],v["index"]),
                         "target_source_file":v["source"],"target_object_index":v["index"],
-                        "status":"exact-static-skill-ref" if len(target)==1 else "ambiguous-static-skill-ref",
+                        "status":"exact-static-ability-or-projectile-ref" if len(target)==1 else "ambiguous-static-ability-or-projectile-ref",
                         "evidence":"original-RTID-and-exact-source-alias-no-runtime-activation"})
 
         # Resource groups are resolved using exported RTON group ID, preserving ambiguous IDs.
