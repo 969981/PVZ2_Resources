@@ -1,0 +1,95 @@
+name: PVZ2 CHN 4.2.8 visual gameplay evidence catalog
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-visual-semantic-catalog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pvz2-chs428-visual-semantic-catalog
+  cancel-in-progress: false
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/build_visual_semantics.py
+            tests/test_build_visual_semantics.py
+            Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip
+            Catalog/CHN/V4.2.8/parsed/object_classes.csv
+            Catalog/CHN/V4.2.8/recovery/Media-06/files.csv
+            Catalog/CHN/V4.2.8/shards/*/files.csv
+            Images/CHN/V4.2.8/Media/*/PNG-MANIFEST.csv
+            Catalog/CHN/V4.2.8/semantic_assets/
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and test source-backed indexing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/catalog/build_visual_semantics.py
+          python -m unittest discover -s tests -p test_build_visual_semantics.py -v
+
+      - name: Produce real source-backed PNG PAM and game config catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/catalog/build_visual_semantics.py \
+            --repo-root . \
+            --out Catalog/CHN/V4.2.8/semantic_assets
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('Catalog/CHN/V4.2.8/semantic_assets/SUMMARY.json')
+          x=json.loads(p.read_text())
+          assert x['format_counts']=={'PNG':1520,'PAM_JSON':3847,'PAM':3847},x['format_counts']
+          assert x['gameplay_categories']['plant_types']==381,x['gameplay_categories']
+          assert x['gameplay_categories']['zombie_types']==1265,x['gameplay_categories']
+          assert x['gameplay_categories']['skills']==857,x['gameplay_categories']
+          print('REAL_VISUAL_ASSET_INDEX_VALIDATED',x['format_counts'])
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chs428-visual-evidence-index
+          path: Catalog/CHN/V4.2.8/semantic_assets/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Commit audit CSV/JSON, not game source payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "visual-index-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/semantic_assets
+          if git diff --cached --quiet; then
+            echo "No new audit records"
+            exit 0
+          fi
+          git commit -m "data(chn-4.2.8): real plant zombie animation and gameplay field search index"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "VISUAL_CATALOG_COMMITTED"
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
