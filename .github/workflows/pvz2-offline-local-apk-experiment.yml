@@ -24,10 +24,17 @@ jobs:
   isolate-build-and-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 95
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "init0-login1", init: "0", login: "1" }
+          - { name: "init1-login0", init: "1", login: "0" }
+          - { name: "init1-login1", init: "1", login: "1" }
     env:
       SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
-      LOCAL_TRIAL_INIT_STATUS: "0"
-      LOCAL_TRIAL_LOGIN_STATUS: "0"
+      LOCAL_TRIAL_INIT_STATUS: ${{ matrix.init }}
+      LOCAL_TRIAL_LOGIN_STATUS: ${{ matrix.login }}
     steps:
       - name: Checkout only offline scripts, synthetic tests and original 88 7z volumes
         uses: actions/checkout@v4
@@ -84,7 +91,7 @@ jobs:
             "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
             "$RUNNER_TEMP/private-patched-apk" \
             "$LOCAL_TRIAL_LOGIN_STATUS" "$LOCAL_TRIAL_INIT_STATUS"
-          test -s "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_0_0.apk"
+          test -s "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_${LOCAL_TRIAL_INIT_STATUS}_${LOCAL_TRIAL_LOGIN_STATUS}.apk"
           python3 - <<'PY'
           import json,os,pathlib
           p=pathlib.Path(os.environ["RUNNER_TEMP"])/"private-patched-apk/local_trial_build_result.json"
@@ -126,9 +133,9 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
           script: >-
             "$RUNNER_TEMP/visual-venv/bin/python" scripts/offline/local_trial_gameplay_probe.py
-            --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_0_0.apk"
+            --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_${LOCAL_TRIAL_INIT_STATUS}_${LOCAL_TRIAL_LOGIN_STATUS}.apk"
             --out "$RUNNER_TEMP/trial-qa-screens"
-            --times 10,30,60,120
+            --times 10,30,60,120,360,600
 
       - name: State precise end-to-end verification results
         if: always()
@@ -170,7 +177,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pvz2-chn428-private-apk-experiment-qa
+          name: pvz2-chn428-private-apk-experiment-qa-${{ matrix.name }}
           path: |
             ${{ runner.temp }}/private-patched-apk/*.json
             ${{ runner.temp }}/private-patched-apk/*.txt
