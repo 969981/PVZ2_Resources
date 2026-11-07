@@ -54,6 +54,51 @@ POLICY_PALETTE = (
 )
 
 
+# A second real 2340x1080 screenshot of the SAME original privacy dialog
+# uses a narrower layout: body unchanged, buttons displaced ~40 px down.
+# This is an actual screenshot signature, not a generic click-any-popup rule.
+COMPACT_POLICY_PALETTE = (
+    (800, 188, (89, 154, 17)),
+    (1400, 188, (89, 154, 17)),
+    (900, 300, (203, 186, 153)),
+    (1500, 300, (203, 186, 153)),
+    (950, 920, (82, 224, 82)),
+    (1400, 920, (82, 224, 82)),
+)
+
+
+
+# A third real 2340x1080 screenshot (signed APK, Frida control #42357013767)
+# differs only in the center header green. Text body and both buttons are
+# independently identical to the known original, not a loose popup detector.
+DARK_HEADER_POLICY_PALETTE = (
+    (800, 188, (149, 204, 48)),
+    (1100, 192, (77, 145, 10)),
+    (1400, 192, (77, 145, 10)),
+    (900, 300, (203, 186, 153)),
+    (1500, 300, (203, 186, 153)),
+    (820, 880, (78, 224, 78)),
+    (1300, 880, (80, 224, 80)),
+    (1600, 850, (239, 231, 198)),
+)
+
+
+def privacy_dark_header_palette_matches(read_pixel, tolerance: int = 24) -> int:
+    return sum(
+        all(abs(actual-expected) <= tolerance
+            for actual, expected in zip(read_pixel((x, y)), rgb))
+        for x, y, rgb in DARK_HEADER_POLICY_PALETTE
+    )
+
+
+def privacy_compact_palette_matches(read_pixel, tolerance: int = 24) -> int:
+    return sum(
+        all(abs(actual-expected)<=tolerance
+            for actual,expected in zip(read_pixel((x,y)),rgb))
+        for x,y,rgb in COMPACT_POLICY_PALETTE
+    )
+
+
 def privacy_palette_matches(read_pixel, tolerance: int = 24) -> int:
     """Count reference privacy-dialog samples matching in all RGB channels."""
     return sum(
@@ -76,8 +121,11 @@ def screen_is_privacy_visual(frame: dict, images_dir: Path) -> tuple[bool, int]:
             if image.size != (2340, 1080):
                 return False, 0
             rgb = image.convert("RGB")
-            hits = privacy_palette_matches(rgb.getpixel)
-            return hits >= 7, hits
+            original_hits = privacy_palette_matches(rgb.getpixel)
+            compact_hits = privacy_compact_palette_matches(rgb.getpixel)
+            dark_hits = privacy_dark_header_palette_matches(rgb.getpixel)
+            return (original_hits >= 7 or compact_hits >= 5 or dark_hits >= 7,
+                    max(original_hits, compact_hits, dark_hits))
     except (OSError, ValueError, ImportError):
         return False, 0
 
