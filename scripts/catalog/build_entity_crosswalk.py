@@ -266,7 +266,8 @@ def safe_csv_sqlite(out: Path, table_rows: dict[str,list[dict]]):
 
 
 def entity_key(kind,src,index):
-    return f"{kind}:{hashlib.sha256((src+'\\0'+str(index)).encode()).hexdigest()[:18]}"
+    token=src+"\\0"+str(index)
+    return kind+":"+hashlib.sha256(token.encode()).hexdigest()[:18]
 
 
 def trim_json(value,limit=8192):
@@ -300,12 +301,11 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
     refs=source_token_index(gameplay+native)
     asset_list=list(read_csv(root/"Catalog/CHN/V4.2.8/semantic_assets/asset_paths.csv"))
     assets_by_group=defaultdict(list)
-    assets_by_basename=defaultdict(list)
+    assets_by_group_key=defaultdict(list)
     for x in asset_list:
         if x["format"] not in ("PNG","PAM_JSON"):continue
         assets_by_group[(x["bundle"].casefold(),x["group_key"])].append(x)
-        basename=Path(x["source_path"]).name.casefold().replace(".pam.json","").replace(".png","")
-        assets_by_basename[normalized(basename)].append(x)
+        assets_by_group_key[normalized(x["group_key"])].append(x)
 
     entities=[r for r in gameplay if r["category"] in ("plant_types","zombie_types")]
     if Counter(x["category"] for x in entities)!=Counter({"plant_types":381,"zombie_types":1265}):
@@ -353,8 +353,6 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
                 "skill_icon_json":trim_json(r["data"].get("SkillIconImage")),
                 "status":"real-SkillPropertySheet"})
     expected=set()
-    all_prop={k:v for k,v in enumerate(gameplay) if v["category"] in
-              ("plant_properties","zombie_properties","skills","projectiles")}
     # Following links use exact original symbolic references, not token similarity.
     for r in entities:
         kind="plant" if r["category"]=="plant_types" else "zombie"
@@ -460,7 +458,8 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
                         "match_status":"exact-resource-group-id" if len(match)==1 else "ambiguous-group-id"})
                     # Group names can align with atlas filenames, but this is NOT a verified image_id.
                     norm=re.sub(r"(?i)_(?:common|1200)$","",gid).casefold()
-                    for asset in assets_by_group.get((asset_bundle_from_group(gid),norm),()):
+                    for asset in assets_by_group_key.get(normalized(norm),()):
+                        if asset["family"]!=kind:continue
                         k=(asset["format"],asset["source_path"],asset["shard"])
                         if k in seen_assets:continue
                         seen_assets.add(k)
@@ -483,8 +482,10 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
         if name:
             candidate_names.append((("Plant" if kind=="plant" else "Zombie")+name,"$.TypeName"))
         for v,field in candidate_names:
-            for term in filter(None,[normalized(symbol(v))]):
-                found=assets_by_basename.get(term,[])  # exact normalized basename only
+            terms=[normalized(symbol(v))]
+            if kind=="zombie":terms.append(normalized(symbol(v)+"Group"))
+            for term in filter(None,terms):
+                found=[x for x in assets_by_group_key.get(term,[]) if x["family"]==kind]
                 for asset in found[:15]:
                     k=(asset["format"],asset["source_path"],asset["shard"])
                     if k in seen_assets:continue
@@ -545,12 +546,6 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
                                              "resource_group_status_counts",
                                              "asset_candidate_status_counts")},ensure_ascii=False))
     return metrics
-
-
-def asset_bundle_from_group(gid: str):
-    # No guessed bundle: the grouping is unknown when resource group IDs lack location.
-    # An empty bundle intentionally does not match a materialized PNG/PAM path.
-    return ""
 
 
 def main():
