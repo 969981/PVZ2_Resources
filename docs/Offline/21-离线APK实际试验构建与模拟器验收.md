@@ -32,12 +32,12 @@ tags: [pvz2, offline, apk, smali, android, save, test]
 | 文件 | 目的 |
 | --- | --- |
 | `scripts/offline/patch_tw_local_trial.py` | 严格校验目标 Smali 类、`run()V`、原生方法签名与字段；只替换初始化/登录流程为明确的**离线沙盒试验分支** |
-| `scripts/offline/build_private_local_trial.sh` | 原始 APK SHA→SMALI 3.0.10 严格固定版本/哈希→DEX 重组→APK 对齐/试验密钥签名→校验 |
+| `scripts/offline/build_private_local_trial.sh` | 原始 APK SHA→Apktool 2.12.1 严格固定版本/哈希→DEX 重组→APK 对齐/试验密钥签名→校验 |
 | `scripts/offline/local_trial_gameplay_probe.py` | 真实 Android 11 飞行模式安装、确认隐私协议后点击同意、捕获屏幕、登录 UI 判定、重启、文件清单 |
 | `tests/test_offline_tw_local_trial.py` | 合成 Smali 的失败关闭与单方法改动测试 |
 | `.github/workflows/pvz2-offline-local-apk-experiment.yml` | **实际生成**私有测试 APK 并尝试安装运行，而非只用解释性脚本 |
 
-工具版本从官方 [baksmali/smali v3.0.10](https://github.com/baksmali/smali/releases/tag/v3.0.10) 固定并执行下载文件 SHA256 核对。
+首次工作流尝试从 Smali release 下载失败（404），已改为官方 [Apktool 2.12.1](https://apktool.org/blog/apktool-2.12.1/)（SHA256 `66cf4524a4a45a7f56567d08b2c9b6ec237bcdd78cee69fd4a59c8a0243aeafa`）。构建脚本只创建单 DEX 最小 APK 供反汇编/重汇编，不展开完整游戏资源。
 
 ## 安全与还原
 
@@ -52,7 +52,7 @@ tags: [pvz2, offline, apk, smali, android, save, test]
 
 真实 Actions：
 
-[CHN 4.2.8 离线本地登录试验 APK 构建与 Android 实测 #42351580970](https://github.com/969981/PVZ2_Resources/actions/runs/42351580970)
+首次 [Actions #42351580970](https://github.com/969981/PVZ2_Resources/actions/runs/42351580970) 只通过源包还原，随后工具下载 404，**未构建 APK**；已替换 Apktool 后的实测以对应的新 Actions 记录为准。
 
 | 目标 | 本次开始时状态 | 完成标准 |
 | --- | --- | --- |
