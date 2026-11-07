@@ -1,0 +1,62 @@
+name: Export PvZ2 CN 4.2.8 original keyed Chinese strings
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-lawnstrings-export.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+          persist-credentials: true
+      - name: Restore verified original LawnStrings from Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/internal"
+      - name: Export all original Chinese string ID mappings as SQLite and CSV
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/export_lawnstrings.py "$RUNNER_TEMP/internal" \
+            --out "$RUNNER_TEMP/names" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_lawnstrings.zip
+          python3 - <<'PY'
+          import json,zipfile
+          with zipfile.ZipFile('Database/CHN/V4.2.8/pvz2_chs428_lawnstrings.zip') as z:
+              s=json.loads(z.read('SUMMARY.json'))
+          assert s['source_lines']==94291
+          assert s['records']>25000
+          print('VALIDATED',s['records'],'key/value entries')
+          PY
+      - name: Git-commit exact keyed Chinese names
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c chs428-keyed-names
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_lawnstrings.zip
+          git commit -m "data(chn-4.2.8): exact LawnStrings keyed Chinese localizations"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
