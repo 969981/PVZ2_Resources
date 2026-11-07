@@ -1,4 +1,5 @@
 name: Publish 26774 independent parsed metadata files
+# Validate all production source counts while allowing small synthetic fixtures.
 on:
   push:
     branches: [master]
