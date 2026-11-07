@@ -44,3 +44,20 @@ tags: [pvz2, offline, emulator, arm64, android]
 - 此轮不能确认是否进入主界面，也没有完成关卡/存档验证。已针对摘要脚本进行修复，并加入前台 Activity 与截图有效性（只保存宽高和 SHA，不保存图片）的探针。
 
 证据等级：真实模拟器安装与进程存活已验证；画面/关卡/离线完整性未验证。
+
+## 2026-11-07 第二轮：模拟器完整工作流成功
+
+- [Actions #42327496740](https://github.com/969981/PVZ2_Resources/actions/runs/42327496740)：**workflow success**；修复了上轮脚本 shell 分行问题，所有步骤完成。
+- Android 11 / API 30；`sdk_gphone_x86_64`，ARM ABI 通过 `libndk_translation.so` 兼容。
+- 原 APK SHA256 再次匹配；Android 安装 4.2.8 / 1895 成功，约 56.1 秒。
+- 飞行模式开启；关闭移动数据与 Wi-Fi 命令成功；原始游戏应用的启动事件已注入。
+- 25 秒观察后：`process_alive=true`、`foreground_activity_package_detected=true`。
+- 从设备成功截获有效 PNG 截图，分辨率 2340×1080；只存储图像 SHA256 和尺寸，不上传图片本体。
+- Java fatal / native fatal / native linker error / 常见网络异常均为 0（仅本次 5000 条 logcat 采样，不是所有潜在错误都不存在）。
+- [Actions Artifact](https://github.com/969981/PVZ2_Resources/actions/runs/42327496740) 保存匿名化 `emulator_smoke.json`，有效期 7 天。
+
+> [!important] 证据界限
+> **已验证**：原始 APK 可在 ARM 转译的 Android 11 Google APIs 模拟器上安装，飞行模式下能够启动为前台 Activity，25 秒后进程存活并截获有效画面。
+> **未验证**：画面是否进入主菜单，是否卡在网络登录/更新，具体显示文本、可进入关卡、完整结算、存档持久化。
+
+下一步若要闭合 M1，需要隔离环境 UI 的真实截图审核（可只在本地临时保存，不入 Git）、观察更长时间并记录首屏状态；然后安排主线首关进入/退出/存档重启的实际 UI 测试。
