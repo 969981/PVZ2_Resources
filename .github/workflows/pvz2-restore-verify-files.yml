@@ -1,0 +1,188 @@
+name: PVZ2 CHN 4.2.8 restore and validate all indexed individual files
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-restore-verify-files.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: pvz2-chn-428-restore-verify
+  cancel-in-progress: false
+
+jobs:
+  restore_validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - stage: Internal
+            shard: "00"
+          - stage: Internal
+            shard: "01"
+          - stage: Internal
+            shard: "02"
+          - stage: Internal
+            shard: "03"
+          - stage: Internal
+            shard: "04"
+          - stage: Internal
+            shard: "05"
+          - stage: Internal
+            shard: "06"
+          - stage: Internal
+            shard: "07"
+          - stage: Media
+            shard: "00"
+          - stage: Media
+            shard: "01"
+          - stage: Media
+            shard: "02"
+          - stage: Media
+            shard: "03"
+          - stage: Media
+            shard: "04"
+          - stage: Media
+            shard: "05"
+          - stage: Media
+            shard: "07"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/archive/restore_git_shard.py
+            scripts/catalog/verify_materialized.py
+            Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+          persist-credentials: false
+      - name: Install zstd and compile independent validation script
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq zstd
+          fi
+          python3 -m py_compile scripts/catalog/verify_materialized.py \
+            scripts/archive/restore_git_shard.py
+      - name: Restore real source files from SHA256-verified Git parts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/archive/restore_git_shard.py \
+            "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}" \
+            --out "$RUNNER_TEMP/materialized"
+      - name: Independently hash every file and validate JSON, PNG and WEM headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/verify_materialized.py \
+            --root "$RUNNER_TEMP/materialized" \
+            --catalog "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/files.csv" \
+            --out "$RUNNER_TEMP/validation"
+          rm -rf "$RUNNER_TEMP/materialized"
+      - name: Preserve complete individual-file verification evidence (metadata only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-ch428-verified-${{ matrix.stage }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/validation/
+          if-no-files-found: warn
+          retention-days: 7
+
+  merge:
+    needs: restore_validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            Catalog/CHN/V4.2.8/
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pvz2-ch428-verified-*
+          merge-multiple: false
+          path: ${{ runner.temp }}/per-shard
+      - name: Reconcile 15 actual shard audits and create Git-readable CSV, SQLite, JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import collections,csv,json,os,sqlite3
+          root=Path(os.environ['RUNNER_TEMP'])/'per-shard'
+          out=Path('Catalog/CHN/V4.2.8/validation')
+          out.mkdir(parents=True,exist_ok=True)
+          reports=[json.loads(p.read_text()) for p in sorted(root.rglob('summary.json'))]
+          assert len(reports)==15,('expected 15 real verified reports',len(reports))
+          indexed={(r['stage'],int(r['shard'])) for r in reports}
+          expected={(s,i) for s in ('Internal','Media') for i in range(8) if not(s=='Media' and i==6)}
+          assert indexed==expected,(sorted(indexed),sorted(expected))
+          count=0
+          statuses=collections.Counter()
+          formats=collections.Counter()
+          db=sqlite3.connect(out/'files.sqlite')
+          db.execute('CREATE TABLE files(stage TEXT,shard INTEGER,original_path TEXT,format TEXT,category TEXT,bytes INTEGER,sha256 TEXT,verification TEXT,decoded_kind TEXT,detail TEXT,json_game_objects INTEGER,png_width INTEGER,png_height INTEGER,PRIMARY KEY(stage,shard,original_path))')
+          db.execute('CREATE INDEX format_idx ON files(format)')
+          db.execute('CREATE INDEX verification_idx ON files(verification)')
+          db.execute('CREATE INDEX sha_idx ON files(sha256)')
+          fields=['stage','shard','original_path','format','category','bytes','sha256','verification','decoded_kind','detail','json_game_objects','png_width','png_height']
+          with (out/'files.csv').open('w',encoding='utf-8-sig',newline='') as stream:
+            writer=csv.DictWriter(stream,fieldnames=fields);writer.writeheader()
+            for report in sorted(reports,key=lambda x:(x['stage'],int(x['shard']))):
+              assert report['files_indexed']==report['files_sha256_verified']
+              stage,shard=report['stage'],int(report['shard'])
+              src=root/f'pvz2-ch428-verified-{stage}-{shard:02d}'/'files.csv'
+              n=0
+              with src.open('r',encoding='utf-8-sig',newline='') as f:
+                for row in csv.DictReader(f):
+                  vals={**row,'stage':stage,'shard':shard}
+                  writer.writerow(vals)
+                  db.execute('INSERT INTO files VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                    (stage,shard,row['original_path'],row['format'],row['category'],int(row['bytes']),row['sha256'],row['verification'],row['decoded_kind'],row['detail'],int(row['json_game_objects']),int(row['png_width']) if row['png_width'] else None,int(row['png_height']) if row['png_height'] else None))
+                  statuses[row['verification']]+=1
+                  formats[row['format']]+=1
+                  n+=1;count+=1
+              assert n==report['files_indexed'],(stage,shard,n)
+              db.commit()
+          assert count==26774,count
+          assert statuses['format-error']==0,statuses
+          report={'region':'CHN','version':'4.2.8','covered_shards':15,'expected_files':26774,
+             'files_individually_sha256_verified':count,
+             'status_counts':dict(statuses),'formats':dict(formats),
+             'missing_shards':['Media-06'],
+             'limitations':['No full WAV decoding in this run','No PAM animation playback','No POPFX rendering','Unrestored Media-06 remains missing','No original game bytes re-published']}
+          (out/'SUMMARY.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
+          db.close()
+          print('ALL_INDEXED_FILES_RESTORED_AND_VERIFIED',json.dumps(report,ensure_ascii=False),flush=True)
+          PY
+      - name: Commit independent source-restoration proof and queryable audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c verified-individual-files-428
+          git add --sparse -f Catalog/CHN/V4.2.8/validation/
+          git commit -m "data(audit): verify 26774 separately restored source files with SHA256 and format checks"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 6
+          done
+          exit 1
