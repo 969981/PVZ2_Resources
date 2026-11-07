@@ -10,14 +10,14 @@ permissions:
   contents: read
 jobs:
   arm64-emulator-capability:
-    runs-on: ubuntu-24.04-arm
+    runs-on: macos-15
     timeout-minutes: 20
     steps:
       - name: Confirm runner CPU architecture and virtualization capability
         shell: bash
         run: |
           set -euo pipefail
-          test "$(uname -m)" = "aarch64"
+          test "$(uname -m)" = "arm64"
           echo "host_arch=$(uname -m)"
           if [ -e /dev/kvm ]; then
             ls -l /dev/kvm
@@ -35,10 +35,5 @@ jobs:
           heap-size: 512M
           disk-size: 8192M
           emulator-boot-timeout: 480
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -no-accel
-          script: adb shell getprop ro.product.cpu.abi
-      - name: Confirm native execution target
-        shell: bash
-        run: |
-          test "$(adb shell getprop ro.product.cpu.abi | tr -d '\r')" = "arm64-v8a"
-          echo "NATIVE_ARM64_EMULATOR_AVAILABLE"
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: bash -c 'adb shell getprop ro.product.cpu.abi | grep -q arm64-v8a && echo NATIVE_ARM64_EMULATOR_AVAILABLE'
