@@ -297,8 +297,33 @@ def run(apk: Path, out: Path, scratch: Path, jadx: str | None, timeout: int):
             jadx_result = {
                 "status": "completed" if p.returncode == 0 else "failed",
                 "return_code": p.returncode,
-                "stderr_tail": p.stderr[-800:] if p.returncode else "",
+                "attempt_mode": "multiple_dex_files",
+                "stdout_tail": p.stdout[-3000:] if p.returncode else "",
+                "stderr_tail": p.stderr[-3000:] if p.returncode else "",
             }
+            # Jadx versions can differ in multi-DEX command-line handling.
+            # Retry the exact same original DEX bytes in a private ZIP bundle.
+            # Never publish this ZIP (it contains copyrighted program bytes).
+            if p.returncode and not (target / "sources").is_dir():
+                bundle = scratch / "multidex-private.zip"
+                with zipfile.ZipFile(bundle, "w", zipfile.ZIP_STORED) as pkg:
+                    for dex in dex_files:
+                        pkg.write(dex, dex.name)
+                shutil.rmtree(target, ignore_errors=True)
+                second_command = [jadx, "--no-res", "-j", "2", "-d",
+                                  str(target), str(bundle)]
+                second = subprocess.run(second_command, capture_output=True, text=True,
+                                        errors="replace", timeout=timeout, check=False, env=env)
+                jadx_result["first_return_code"] = p.returncode
+                jadx_result["first_stdout_tail"] = jadx_result["stdout_tail"]
+                jadx_result["first_stderr_tail"] = jadx_result["stderr_tail"]
+                jadx_result.update({
+                    "status": "completed" if second.returncode == 0 else "failed",
+                    "return_code": second.returncode,
+                    "attempt_mode": "private_zip_fallback",
+                    "stdout_tail": second.stdout[-3000:] if second.returncode else "",
+                    "stderr_tail": second.stderr[-3000:] if second.returncode else "",
+                })
         except (OSError, subprocess.TimeoutExpired) as exc:
             jadx_result = {"status": "failed", "error_type": type(exc).__name__}
         sources = target / "sources"
