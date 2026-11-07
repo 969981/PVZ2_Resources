@@ -61,3 +61,46 @@ tags: [pvz2, offline, android, twpurchase, login, jni, ghidra]
 - **隔离**：不冒充联网账号、充值或在线权益，不生成对远端服务器有效的 token。
 
 返回 [[13-解压完成后的拓维登录阻塞]] · [[14-登录到原生引擎的桥接追踪]] · [[12-Ghidra原生调用图与离线分支]]
+
+## 2026-11-07：真实 JNI 连接点已进一步缩小
+
+[Actions #42337879073](https://github.com/969981/PVZ2_Resources/actions/runs/42337879073) **成功**。同一 SHA256 的 4.2.8 APK 在一次性 GitHub Runner 中完成 6 DEX + 28 SO 解析与 JADX，新增 `twpurchase_bridge_contract.py` 的真实审计：
+
+| 检验项 | 实测 |
+| --- | --- |
+| 本轮针对的 Java 类 | 8/8 实际找到 |
+| 结构化 Java/JNI 记录 | 193 |
+| JNI 方法声明 | 27 |
+| Java → Native 调用候选 | 28 |
+| Java → SDK 调用候选 | 121 |
+| 回调分派线索 | 17 |
+| ARM64 直接命名 JNI 导出 | 0（不能排除 `RegisterNatives`） |
+
+**已从源码行号确认的事件顺序**：
+
+```text
+TWPurchase.run()
+  :145 Native_SDKInitStart(...)
+  :146 TwOfflineSDK.init(...)
+        ↓ 回调 onResponse
+  :154 Native_SDKInitEnd(...)
+  :155 Native_SDKLoginStart(...)
+  :156 TwOfflineSDK.login(...)
+        ↓ 回调 onResponse 内的多个路径
+  :169 / :173 / :177 / :180 / :185 Native_SDKLoginEnd(...)
+```
+
+对应静态 JNI 方法类型（来自 [Actions #42336710982](https://github.com/969981/PVZ2_Resources/actions/runs/42336710982)）：
+
+- `TWPurchase.Native_SDKInitStart(long): void`
+- `TWPurchase.Native_SDKInitEnd(long,int): void`
+- `TWPurchase.Native_SDKLoginStart(long): void`
+- `TWPurchase.Native_SDKLoginEnd(long,int,String): void`
+- `TwOfflineCallback.onResponse(int,String): void`
+- `CallbackManager.onLoginCallBack(int,String,String,String): void`
+
+这些声明/调用站点是**实际版本的 Java 静态证据**；哪条 `onResponse` 分支属于成功、`String` 内容是什么、`long` 是否为原生对象指针、是否能用本地档案替代，仍需严格验证。特别不能把在线用户 token 或在线身份直接替换为虚假的“登录成功”。
+
+原生 ELF 中另有 `Native_SDKLoginEnd` 的字符串 RVA `0x1654227`，以及 `TWPurchase` 类名字符串 RVA `0x16331f7`（[Actions #42336321650](https://github.com/969981/PVZ2_Resources/actions/runs/42336321650)）。**它们是字符串而非函数地址**，可作为查询 `RegisterNatives` 映射表的起点。下一步应确定该映射表的函数指针，并在飞行模式下记录真实 native 命中，之后才讨论本地会话接入。
+
+证据包在 GitHub Actions 短期 Artifact `pvz2-chn428-offline-code-dependency-index` 内；脚本位于 `scripts/offline/twpurchase_bridge_contract.py`。没有将商业游戏 APK、原生库、源码或账号凭据提交到仓库。
