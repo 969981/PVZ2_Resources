@@ -11,9 +11,9 @@ class DetailedMappingTests(unittest.TestCase):
                          ("skill:001","[PEA_SKILL]","IMAGE_PEA","exact-static-SkillTypes-alias"))
 
     def test_no_guess_for_unknown_or_multiple(self):
-        self.assertEqual(resolve("RTID(missing@SkillTypes)",{} )[3],"unresolved-SkillTypes-alias")
+        self.assertEqual(resolve("RTID(missing@SkillTypes)",{} )[3],"unresolved-SkillTypes-ref")
         self.assertEqual(resolve("RTID(x@OtherNamespace)",{} )[3],"invalid-or-non-SkillTypes-ref")
-        self.assertEqual(resolve("RTID(x@SkillTypes)",{"x":[{},{}]})[3],"ambiguous-SkillTypes-alias")
+        self.assertEqual(resolve("RTID(x@SkillTypes)",{"x":[{},{}]})[3],"ambiguous-SkillTypes-ref")
         self.assertEqual(resolve(None,{})[3],"no-explicit-skill-ref")
 
     def test_entity_filename_stable(self):
