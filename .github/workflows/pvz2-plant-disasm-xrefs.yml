@@ -1,0 +1,105 @@
+name: Disassemble native PvZ2 CHN 4.2.8 plant combat field XREF neighborhoods
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-plant-disasm-xrefs.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-plant-disasm
+  cancel-in-progress: false
+jobs:
+  native-disassembly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+      SO_SHA: b216b12e0e17a6429d993f380a7e6bbd9b99704906ec20a445d59952681b10ba
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          persist-credentials: true
+          submodules: false
+          sparse-checkout: |
+            scripts
+            ROMS/CHN/V4.2.8
+            Catalog/CHN/V4.2.8/native_combat_xrefs
+            Catalog/CHN/V4.2.8/native_combat_disassembly
+      - name: Prepare disassembler and restore source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq p7zip-full
+          fi
+          python3 -m pip install --disable-pip-version-check capstone==5.0.5
+          python3 -m py_compile scripts/offline/disassemble_combat_xrefs.py
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/source-apk" "$RUNNER_TEMP/private-so"
+          7z x ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001 "-o$RUNNER_TEMP/source-apk" -y >/dev/null
+          apk="$(find "$RUNNER_TEMP/source-apk" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          python3 - <<'PY'
+          import os, pathlib, shutil, zipfile
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          with zipfile.ZipFile(root/"PVZ2_4.2.8.apk") as z:
+            with z.open("lib/arm64-v8a/libSrc.so") as src, (root/"private-so/libSrc.so").open("wb") as dst:
+              shutil.copyfileobj(src,dst,4*1024*1024)
+          PY
+          echo "$SO_SHA  $RUNNER_TEMP/private-so/libSrc.so" | sha256sum -c -
+      - name: Decode all 98 source-verified fields' native instructions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/disassemble_combat_xrefs.py \
+            --so "$RUNNER_TEMP/private-so/libSrc.so" \
+            --xrefs Catalog/CHN/V4.2.8/native_combat_xrefs/native_field_xrefs.csv \
+            --out Catalog/CHN/V4.2.8/native_combat_disassembly
+          python3 - <<'PY'
+          import json, pathlib, os
+          path=pathlib.Path("Catalog/CHN/V4.2.8/native_combat_disassembly/SUMMARY.json")
+          s=json.loads(path.read_text())
+          assert s["source_so_sha256"]==os.environ["SO_SHA"]
+          assert s["xref_sites"]==98, s
+          assert s["unique_field_labels"]==25,s
+          assert s["disassembled_instruction_rows"]>1000,s
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("## Verified libSrc.so bounded ARM64 disassembly\n\n")
+            f.write(f"- Source XREFs: {s['xref_sites']}\n")
+            f.write(f"- Decoded instructions: {s['disassembled_instruction_rows']}\n")
+            f.write(f"- Shared-field neighborhood groups: {len(s['nearby_field_groups'])}\n")
+            f.write("- Decoded code is static: no claim of runtime RNG, poison damage or actual battle.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-plant-native-code-disassembly
+          path: Catalog/CHN/V4.2.8/native_combat_disassembly/
+          retention-days: 14
+      - name: Publish only derived addresses and instructions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "plant-disasm-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/native_combat_disassembly/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(chn428): verified ARM64 instruction windows for plant combat field references"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "NATIVE_COMBAT_DISASSEMBLY_PUBLISHED"
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
