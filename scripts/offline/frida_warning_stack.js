@@ -8,13 +8,29 @@
 Java.perform(function () {
   const Log = Java.use('android.util.Log');
   const Exception = Java.use('java.lang.Exception');
+  // Bounded relative code addresses from the same live native thread.
+  // No instruction bytes, binary images, certificates or strings are exported.
+  function nativeBacktrace() {
+    try {
+      const m = Process.findModuleByName('libSrc.so');
+      if (m === null) return {status: 'LIBSRC_NOT_MAPPED', frames: []};
+      const end = m.base.add(m.size);
+      const addresses = Thread.backtrace(undefined, Backtracer.ACCURATE);
+      const frames = addresses.filter(a => a.compare(m.base) >= 0 && a.compare(end) < 0)
+        .slice(0, 24).map(a => '0x' + a.sub(m.base).toString(16));
+      return {status: 'OBSERVED', module: 'libSrc.so', frames: frames};
+    } catch (e) {
+      return {status: 'BACKTRACE_UNAVAILABLE', frames: []};
+    }
+  }
   function observe(label, message) {
     try {
       const s = message === null ? '' : message.toString();
       if (s.indexOf('盗版游戏') === -1 && s.indexOf('请使用正版游戏') === -1) return;
       const stack = Log.getStackTraceString(Exception.$new()).toString()
         .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
-      send({type: 'INTEGRITY_WARNING_STACK', source: label, frames: stack});
+      send({type: 'INTEGRITY_WARNING_STACK', source: label, frames: stack,
+            native_trace: nativeBacktrace()});
     } catch (e) {
       send({type: 'TRACE_HOOK_ERROR', source: label, error_kind: 'capture_exception'});
     }
@@ -53,7 +69,8 @@ Java.perform(function () {
         const trace = Log.getStackTraceString(Exception.$new()).toString()
           .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
         send({type: 'INTEGRITY_ALERT_REQUEST', source: 'AndroidGameApp.UI_ShowAlertDialog',
-              exit_requested: Boolean(exitApp), frames: trace});
+              exit_requested: Boolean(exitApp), frames: trace,
+              native_trace: nativeBacktrace()});
       }
       return show.call(this, title, message, okay, exitApp);
     };
@@ -63,7 +80,7 @@ Java.perform(function () {
       const trace = Log.getStackTraceString(Exception.$new()).toString()
         .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
       send({type: 'GAME_EXIT_REQUEST', source: 'AndroidGameApp.Device_ExitApp',
-            frames: trace});
+            frames: trace, native_trace: nativeBacktrace()});
       return exit.call(this);
     };
   } catch (e) {
@@ -79,7 +96,7 @@ Java.perform(function () {
         const trace = Log.getStackTraceString(Exception.$new()).toString()
           .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
         send({type: 'GAME_EXIT_REQUEST', source: 'Process.killProcess',
-              frames: trace});
+              frames: trace, native_trace: nativeBacktrace()});
       }
       return kill.call(this, pid);
     };
