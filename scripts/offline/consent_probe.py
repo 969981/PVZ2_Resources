@@ -58,7 +58,7 @@ def privacy_palette_matches(read_pixel, tolerance: int = 24) -> int:
     """Count reference privacy-dialog samples matching in all RGB channels."""
     return sum(
         all(abs(observed - expected) <= tolerance
-            for observed, expected in zip(read_pixel(x, y), rgb))
+            for observed, expected in zip(read_pixel((x, y)), rgb))
         for x, y, rgb in POLICY_PALETTE
     )
 
