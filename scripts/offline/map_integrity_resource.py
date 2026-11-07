@@ -40,7 +40,7 @@ def discover_named_candidate(smali_root: Path, field="check_sign_failed") -> lis
     if not p.is_file():
         return []
     regex = re.compile(
-        r"(?m)^\\.field public static final " + re.escape(field) +
+        r"(?m)^\.field public static final " + re.escape(field) +
         r":I = (0x[0-9a-fA-F]{8})$")
     matches = regex.findall(p.read_text(encoding="utf-8"))
     if len(matches) != 1:
