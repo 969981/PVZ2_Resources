@@ -1,0 +1,52 @@
+{
+  "schema": "pvz2-independent-parsed-records-manifest-v1",
+  "version": "CHN 4.2.8",
+  "file_records": 26774,
+  "independent_json_files": 26774,
+  "total_generated_json_bytes": 47984570,
+  "stage_counts": {
+    "Internal": 14869,
+    "Media": 11905
+  },
+  "format_counts": {
+    "BNK": 511,
+    "BNK_JSON": 505,
+    "INI": 39,
+    "JSON": 8133,
+    "Lua": 43,
+    "PAM": 3847,
+    "PAM_JSON": 3621,
+    "PNG": 1345,
+    "POPFX": 10,
+    "PTX": 1522,
+    "TTF": 4,
+    "TXT": 6,
+    "WEM": 7186,
+    "XML": 2
+  },
+  "parser_status_counts": {
+    "bnk-chunks-parsed": 508,
+    "bnk-partial": 1,
+    "opaque-preserved": 5379,
+    "parsed-json": 12259,
+    "png-decoded": 1345,
+    "riff-partial": 245,
+    "riff-structural": 6941,
+    "sfnt-directory": 4,
+    "text-structure": 89,
+    "unresolved": 2,
+    "xml-partial": 1
+  },
+  "missing_source_shards": [
+    "Media-06"
+  ],
+  "source_catalog_sha256": {
+    "assets": "d19ab784ab921a020b7ed832e7be0bde2c6e049df530bb179e81cad20d13dd24",
+    "classes": "55c8f59e70b741344212b97ff61c5114e99b5d2cbd39f7b13d63298fe64e1444",
+    "rtid_samples": "80ff5ce49063f1c6dae41dfab44bbadffdf863bc843d519eec48bdf51a73baff"
+  },
+  "source_summary_sha256": "6f8fd0e5e33d4b1f4ba1d6a5068c00f287a1db8668e65a220d62db529a0e36ed",
+  "object_class_rows": 75608,
+  "rtid_sample_rows": 153939,
+  "disclaimer": "Per-file parsed metadata only; no original PNG/WEM/PTX/PAM/media payload republished"
+}
