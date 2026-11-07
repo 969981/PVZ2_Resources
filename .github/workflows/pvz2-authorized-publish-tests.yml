@@ -19,8 +19,29 @@ jobs:
           sparse-checkout: |
             scripts/catalog/prepare_authorized_files.py
             tests/test_authorized_file_plan.py
+            Catalog/CHN/V4.2.8/validation/files.csv
           sparse-checkout-cone-mode: false
       - name: Ensure all tests use only synthetic self-authored files
         run: |
           python3 -m py_compile scripts/catalog/prepare_authorized_files.py
           python3 -m unittest discover -s tests -p 'test_authorized_file_plan.py' -v
+      - name: Audit actual 26,774 source rows without granting redistribution permission
+        run: |
+          python3 scripts/catalog/prepare_authorized_files.py \
+            --catalog Catalog/CHN/V4.2.8/validation/files.csv \
+            --report "$RUNNER_TEMP/publication-plan.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'publication-plan.json'
+          plan=json.loads(p.read_text())
+          assert plan['catalog_rows']==26774,plan['catalog_rows']
+          assert plan['authorized_files']==0
+          assert plan['skipped']['redistribution-permission-not-established']==26774
+          assert plan['stage_performed'] is False
+          print('VERIFIED_NO_PUBLIC_REDISTRIBUTION',plan['catalog_rows'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-publication-plan-no-permission
+          path: ${{ runner.temp }}/publication-plan.json
+          retention-days: 7
