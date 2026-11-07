@@ -23,7 +23,7 @@ resource 0x7f130322 com.popcap.pvz2cthdbk:string/other
             p = root / "smali/com/popcap/pvz2cthdbk/R$string.smali"
             p.parent.mkdir(parents=True)
             p.write_text(
-                ".field public static final check_sign_failed:I = 0x7f0f01d6\\n",
+                ".field public static final check_sign_failed:I = 0x7f0f01d6\n",
                 encoding="utf-8"
             )
             result = discover_named_candidate(root)
