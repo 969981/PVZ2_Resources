@@ -1,0 +1,52 @@
+name: PvZ2 CHN verified entity to Chinese name crosswalk
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-names-joined.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: |
+            scripts
+            Database/CHN/V4.2.8
+          persist-credentials: true
+      - name: Join authentic gameplay records and keyed Chinese translations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/join_entity_names.py Database/CHN/V4.2.8 \
+            --out "$RUNNER_TEMP/named" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_localized_entities.zip
+          python3 - <<'PY'
+          import json,zipfile
+          with zipfile.ZipFile('Database/CHN/V4.2.8/pvz2_chs428_localized_entities.zip') as z:
+            c=json.loads(z.read('SUMMARY.json'))['counts']
+          for name,expected in [('plants',381),('zombies',1265),('skills',857),('levels',6636)]:
+            assert c[name+'_records']==expected,(name,c.get(name+'_records'))
+          print('VALIDATED',c)
+          PY
+      - name: Commit accurate localized CSV and SQLite tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c pvz2-cn-named-entities
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_localized_entities.zip
+          git commit -m "data(chn-4.2.8): exact bilingual game entity/string ID crosswalk"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
