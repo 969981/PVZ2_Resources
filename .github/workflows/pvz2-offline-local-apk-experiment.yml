@@ -1,0 +1,187 @@
+name: PVZ2 CHN 4.2.8 offline local APK experimental build and Android QA
+
+on:
+  push:
+    branches:
+      - master
+      - experiment/chn428-local-login-apk-smali-build
+    paths:
+      - ".github/workflows/pvz2-offline-local-apk-experiment.yml"
+      - "scripts/offline/patch_tw_local_trial.py"
+      - "tests/test_offline_tw_local_trial.py"
+      - "scripts/offline/build_private_local_trial.sh"
+      - "scripts/offline/local_trial_gameplay_probe.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-offline-local-apk-test
+  cancel-in-progress: false
+
+jobs:
+  isolate-build-and-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "init0-login1", init: "0", login: "1" }
+          - { name: "init1-login0", init: "1", login: "0" }
+          - { name: "init1-login1", init: "1", login: "1" }
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+      LOCAL_TRIAL_INIT_STATUS: ${{ matrix.init }}
+      LOCAL_TRIAL_LOGIN_STATUS: ${{ matrix.login }}
+    steps:
+      - name: Checkout only offline scripts, synthetic tests and original 88 7z volumes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          submodules: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+
+      - name: Validate the trial patch strictly against synthetic smali layout
+        run: python3 -m unittest discover -s tests -p test_offline_tw_local_trial.py -v
+
+      - name: Clean runner without deleting Android build-tools or JDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Restore exact original APK SHA before all modification
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pvz2-restore"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/pvz2-restore" -y
+          apk="$(find "$RUNNER_TEMP/pvz2-restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/pvz2-restore" ROMS .git/objects
+          "$JAVA_HOME/bin/java" -version
+          df -h .
+
+      - name: Build test-signed offline-mode APK privately; never commit or upload the game APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/private-patched-apk"
+          TMPDIR="$RUNNER_TEMP" bash scripts/offline/build_private_local_trial.sh \
+            "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            "$RUNNER_TEMP/private-patched-apk" \
+            "$LOCAL_TRIAL_LOGIN_STATUS" "$LOCAL_TRIAL_INIT_STATUS"
+          test -s "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_${LOCAL_TRIAL_INIT_STATUS}_${LOCAL_TRIAL_LOGIN_STATUS}.apk"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"private-patched-apk/local_trial_build_result.json"
+          d=json.loads(p.read_text())
+          assert d["source_sha256"]==os.environ["SOURCE_SHA"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write("## Experimental offline-only APK built, NOT verified playable\n\n")
+              out.write(f"- Patched dex: {d['patched_dex_entry']}\n")
+              out.write(f"- Private APK SHA: {d['patched_sha256']}\n")
+              out.write("- Original commercial APK and game assets **NOT** uploaded to public repository.\n")
+          PY
+
+      - name: Prepare private screenshot decoder
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/visual-venv"
+          "$RUNNER_TEMP/visual-venv/bin/python" -m pip install --disable-pip-version-check Pillow==11.3.0
+
+      - name: Enable hardware KVM when available
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          fi
+
+      - name: Install privately signed trial on clean Android 11 and probe menu gate in flight mode
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: >-
+            "$RUNNER_TEMP/visual-venv/bin/python" scripts/offline/local_trial_gameplay_probe.py
+            --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_${LOCAL_TRIAL_INIT_STATUS}_${LOCAL_TRIAL_LOGIN_STATUS}.apk"
+            --out "$RUNNER_TEMP/trial-qa-screens"
+            --times 10,30,60,120,360,600
+
+      - name: State precise end-to-end verification results
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          p=root/"trial-qa-screens/local_trial_ui_qa.json"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              if not p.exists():
+                  f.write("No full Android QA result; see failed build or emulator logs.\n")
+              else:
+                  d=json.loads(p.read_text(encoding="utf-8"))
+                  f.write("\n## Real offline gameplay acceptance\n\n")
+                  f.write("- Android QA status: **"+d["status"]+"**\n")
+                  f.write("- APK installed: "+str(d["install_success"])+"\n")
+                  f.write("- Airplane mode: "+str(d.get("airplane_mode_after"))+"\n")
+                  for item in d["frames"]:
+                      f.write(f"- {item['name']}: {item.get('visual_classification','unknown')}\n")
+                  f.write("- Main menu **verified**: "+str(d["actual_main_menu_verified"])+"\n")
+                  f.write("- First level **completed**: "+str(d["first_level_completed"])+"\n")
+                  f.write("- Original save **reloaded**: "+str(d["original_game_save_reloaded"])+"\n")
+          PY
+
+      - name: Fail unless native main menu, first level, and original save were actually verified
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"trial-qa-screens/local_trial_ui_qa.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["actual_main_menu_verified"], "OFFLINE_MAIN_MENU_NOT_VERIFIED"
+          assert d["first_level_completed"], "FIRST_LEVEL_NOT_COMPLETED"
+          assert d["original_game_save_reloaded"], "ORIGINAL_SAVE_NOT_RELOADED"
+          PY
+
+      - name: Upload only screenshots, bounded metadata and verification evidence, not private APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-private-apk-experiment-qa-${{ matrix.name }}
+          path: |
+            ${{ runner.temp }}/private-patched-apk/*.json
+            ${{ runner.temp }}/private-patched-apk/*.txt
+            ${{ runner.temp }}/trial-qa-screens/*.json
+            ${{ runner.temp }}/trial-qa-screens/*.png
+          if-no-files-found: warn
+          retention-days: 1
