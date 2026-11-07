@@ -48,7 +48,7 @@ jobs:
           - stage: Media
             shard: "05"
           - stage: Media
-            shard: "06"
+            shard: "07"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -145,7 +145,7 @@ jobs:
           j=json.loads(pathlib.Path('Catalog/CHN/V4.2.8/summary/SUMMARY.json').read_text())
           assert j['coverage']['Internal']['shards']==8,j
           assert j['coverage']['Media']['shards']==7,j
-          assert j['missing_expected_shards']==['Media-07'],j
+          assert j['missing_expected_shards']==['Media-06'],j
           print('MERGED_CATALOG',j['coverage'])
           PY
       - name: Commit browsable SQLite/CSV metadata only

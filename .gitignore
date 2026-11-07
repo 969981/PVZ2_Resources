@@ -8,6 +8,7 @@
 audit/local/
 Unpack/
 Extracted/
+Readable/
 Database/generated/
 *_stage1/
 *_audit/
