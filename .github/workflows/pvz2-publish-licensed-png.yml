@@ -1,0 +1,125 @@
+name: Publish individually browseable licensed PvZ2 CHN 4.2.8 PNG
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-publish-licensed-png.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: pvz2-chn-4.2.8-licensed-png-publication
+  cancel-in-progress: false
+
+jobs:
+  publish_png:
+    name: Publish PNG shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - { shard: "06", expected_png: 175 }
+          - { shard: "00", expected_png: 72 }
+          - { shard: "01", expected_png: 367 }
+          - { shard: "02", expected_png: 168 }
+          - { shard: "03", expected_png: 227 }
+          - { shard: "04", expected_png: 173 }
+          - { shard: "05", expected_png: 133 }
+          - { shard: "07", expected_png: 205 }
+
+    steps:
+      - name: Checkout original archive parts, scripts, and source SHA256 index
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/archive/restore_git_shard.py
+            scripts/catalog/materialize_readable.py
+            scripts/catalog/restore_media06_local.py
+            scripts/media/verify_publish_png.py
+            scripts/media/publish_png_batches.py
+            Catalog/CHN/V4.2.8/shards/Media-${{ matrix.shard }}/
+            Catalog/CHN/V4.2.8/recovery/Media-06/
+            Unpack/CHN/V4.2.8/Media/shard-${{ matrix.shard }}/
+            Images/CHN/V4.2.8/Media/shard-${{ matrix.shard }}/
+          persist-credentials: true
+
+      - name: Free unused runner disk and install image decode dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd python3-pil
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config gc.auto 0
+          git switch -c "publish-png-${{ matrix.shard }}-${GITHUB_RUN_ID}"
+
+      - name: Recover real PNG by immutable source SHA256
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          shard="${{ matrix.shard }}"
+          mkdir -p "$RUNNER_TEMP/restored" "Images/CHN/V4.2.8"
+          if [[ "$shard" == "06" ]]; then
+            # Source Artifact #13552674620 expires 2026-11-10 UTC.
+            gh run download 42321977158 -R "$GITHUB_REPOSITORY" \
+              -n pvz2-chn-4.2.8-media-6 -D "$RUNNER_TEMP/media06"
+            python3 scripts/catalog/restore_media06_local.py \
+              --artifact "$RUNNER_TEMP/media06" \
+              --catalog Catalog/CHN/V4.2.8/recovery/Media-06/files.csv \
+              --extensions .png --expected-count 501 \
+              --out Images/CHN/V4.2.8 --copy
+            catalog="Catalog/CHN/V4.2.8/recovery/Media-06/files.csv"
+          else
+            python3 scripts/archive/restore_git_shard.py \
+              "Unpack/CHN/V4.2.8/Media/shard-$shard" \
+              --out "$RUNNER_TEMP/restored"
+            python3 scripts/catalog/materialize_readable.py \
+              --restored "$RUNNER_TEMP/restored" \
+              --catalog "Catalog/CHN/V4.2.8/shards/Media-$shard/files.csv" \
+              --out Images/CHN/V4.2.8 \
+              --extensions .png --copy \
+              --report "$RUNNER_TEMP/materialized.json"
+            catalog="Catalog/CHN/V4.2.8/shards/Media-$shard/files.csv"
+          fi
+          echo "PNG_CATALOG=$catalog" >> "$GITHUB_ENV"
+
+      - name: Verify every recovered original SHA256 and fully decode every PNG pixel
+        shell: bash
+        run: |
+          set -euo pipefail
+          shard="${{ matrix.shard }}"
+          target="Images/CHN/V4.2.8/Media/shard-$shard"
+          python3 scripts/media/verify_publish_png.py \
+            --root "$target" \
+            --catalog "$PNG_CATALOG" \
+            --shard "$shard" \
+            --expected ${{ matrix.expected_png }} \
+            --out "$target/PNG-MANIFEST.csv"
+
+      - name: Push original individual PNG files in bounded batches, manifest last
+        shell: bash
+        run: |
+          set -euo pipefail
+          shard="${{ matrix.shard }}"
+          target="Images/CHN/V4.2.8/Media/shard-$shard"
+          python3 scripts/media/publish_png_batches.py \
+            --root "$target/PNG" --manifest "$target/PNG-MANIFEST.csv" \
+            --max-files 60 --max-batch-mib 300
+          echo "PUBLISHED_PNG_SHARD=$shard COUNT=${{ matrix.expected_png }}"
+
+      - name: Print local disk usage after publication
+        if: always()
+        run: df -h . || true
