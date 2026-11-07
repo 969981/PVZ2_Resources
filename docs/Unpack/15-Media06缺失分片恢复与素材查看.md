@@ -50,11 +50,12 @@ python3 scripts/catalog/export_all_local.py \
   --source Unpack/CHN/V4.2.8 \
   --catalog Catalog/CHN/V4.2.8 \
   --stages Media \
+  --extensions .png,.wem \
   --out Readable/CHN/V4.2.8 \
   --report audit/local/CHN-4.2.8/media-local-export.json
 ```
 
-按 SHA256 校验源文件，再还原到 `Readable/CHN/V4.2.8/Media/shard-XX/` 中的 `PNG/`、`WEM/`、`PAM_JSON/` 等目录；缺失的 Media-06 标记为 `missing`。这些恢复文件不会被脚本上传，且 `Readable/` 已在 Git 忽略配置中。
+上例只复制 PNG/WEM 两种类型；不加 `--extensions` 则复制该阶段全部可恢复文件。程序即使只选择部分后缀，也会校验压缩归档完整性，并根据源 CSV 的后缀实际数量核对输出，不会把 7/8 误报成 8/8。按 SHA256 校验源文件，再还原到 `Readable/CHN/V4.2.8/Media/shard-XX/` 中的 `PNG/`、`WEM/`、`PAM_JSON/` 等目录；缺失的 Media-06 标记为 `missing`。这些恢复文件不会被脚本上传，且 `Readable/` 已在 Git 忽略配置中。
 
 - PNG 可用系统图片查看器直接打开。
 - WEM 使用 Wwise 媒体容器，播放/转 WAV 需要进一步识别 codec，并使用支持该 codec 的播放器/转换器（如 vgmstream）。

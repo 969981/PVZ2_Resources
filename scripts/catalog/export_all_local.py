@@ -7,6 +7,7 @@ zero-length or a success. Each file is verified against the committed CSV.
 """
 from __future__ import annotations
 import argparse
+import csv
 import json
 from pathlib import Path
 import subprocess
@@ -28,8 +29,12 @@ def run(args):
     if not 1<=args.max_file_mib<=95:
         raise ValueError("max-file-mib must be 1..95")
     stages=args.stages
+    selected_extensions={e.strip().lower() for e in args.extensions.split(",") if e.strip()}
+    if any(not e.startswith(".") for e in selected_extensions):
+        raise ValueError("extensions must be dot-prefixed, e.g. .png,.wem")
     results=[]
     total=0
+    planned_total=0
     for stage in stages:
         for shard in range(8):
             name=f"{stage}-{shard:02d}"
@@ -49,9 +54,27 @@ def run(args):
                 or summary["archive_sha256"]!=meta["archive_sha256"]
                 or summary["file_count"]!=meta["source_file_count"]):
                 raise ValueError("archive/catalog disagreement: "+name)
+            expected_selected=summary["git_size_eligible"]
+            expected_oversize=summary["git_size_ineligible"]
+            expected_filtered=0
+            if selected_extensions or args.max_file_mib!=95:
+                expected_selected=expected_oversize=expected_filtered=0
+                with (index/"files.csv").open("r",encoding="utf-8-sig",newline="") as csv_file:
+                    for row in csv.DictReader(csv_file):
+                        size=int(row["size_bytes"])
+                        if size>=args.max_file_mib*MIB:
+                            expected_oversize+=1
+                        elif selected_extensions and row["suffix"].lower() not in selected_extensions:
+                            expected_filtered+=1
+                        else:
+                            expected_selected+=1
+                if expected_selected+expected_oversize+expected_filtered!=summary["file_count"]:
+                    raise ValueError("source CSV count does not match summary: "+name)
+            planned_total+=expected_selected
             if args.dry_run:
                 results.append({"stage":stage,"shard":shard,"status":"planned",
-                    "expected_files":summary["file_count"],"expected_bytes":summary["total_size_bytes"]})
+                    "source_files":summary["file_count"],
+                    "would_export_files":expected_selected,"source_bytes":summary["total_size_bytes"]})
                 continue
             with tempfile.TemporaryDirectory(prefix="pvz2-"+name+"-",dir=args.temporary) as td:
                 temp=Path(td)
@@ -61,16 +84,20 @@ def run(args):
                     str(origin),"--out",str(recovered)
                 ],check=True)
                 report=temp/"files-verified.json"
-                subprocess.run([
+                command=[
                     sys.executable,str(ROOT/"scripts/catalog/materialize_readable.py"),
                     "--restored",str(recovered),"--catalog",str(index/"files.csv"),
                     "--out",str(output),"--max-file-mib",str(args.max_file_mib),
                     "--report",str(report),"--copy",
-                ],check=True,stdout=subprocess.DEVNULL)
+                ]
+                if selected_extensions:
+                    command.extend(["--extensions",",".join(sorted(selected_extensions))])
+                subprocess.run(command,check=True,stdout=subprocess.DEVNULL)
                 actual=json.loads(report.read_text(encoding="utf-8"))
                 if (actual["files_indexed"]!=summary["file_count"]
-                    or actual["excluded_by_size"]!=summary["git_size_ineligible"]
-                    or actual["copied_or_verified"]!=summary["git_size_eligible"]):
+                    or actual["excluded_by_size"]!=expected_oversize
+                    or actual["excluded_by_extension"]!=expected_filtered
+                    or actual["copied_or_verified"]!=expected_selected):
                     raise ValueError("copied file verification mismatch "+name)
                 record={"stage":stage,"shard":shard,"status":"verified",
                         "source_files":summary["file_count"],
@@ -81,7 +108,8 @@ def run(args):
                 results.append(record)
                 print("VERIFIED",name,record["exported_files"],flush=True)
     report={"game":"PVZ2","version":"CHN 4.2.8","mode":"dry-run" if args.dry_run else "local-file-export",
-            "total_exported_files":total,"missing_shards":[f"{x['stage']}-{x['shard']:02d}" for x in results if x["status"]=="missing"],
+            "total_exported_files":total,"total_planned_files":planned_total,
+            "extensions":sorted(selected_extensions),"missing_shards":[f"{x['stage']}-{x['shard']:02d}" for x in results if x["status"]=="missing"],
             "shards":results,
             "note":"Local SHA256-verified restoration only; no public game-asset publication."}
     target=args.report.resolve()
@@ -101,6 +129,7 @@ def main():
     p.add_argument("--temporary",type=Path,default=None)
     p.add_argument("--stages",nargs="+",choices=("Internal","Media"),default=["Internal","Media"])
     p.add_argument("--max-file-mib",type=int,default=95)
+    p.add_argument("--extensions",default="",help="Optional comma-separated suffixes, e.g. .png,.wem")
     p.add_argument("--dry-run",action="store_true")
     p.add_argument("--require-all",action="store_true",
                    help="Fail if any of the eight stage shards is absent")
