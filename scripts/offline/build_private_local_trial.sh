@@ -3,7 +3,7 @@
 # remains untouched; only test-signed APK created outside the public Git tree.
 set -euo pipefail
 if [[ $# -lt 3 ]]; then echo "Usage: build_private_local_trial.sh original.apk outdir 0_or_1 [init_status]"; exit 2; fi
-APK="$1"; OUT="$2"; LOGIN_TRIAL="$3"; INIT_TRIAL="${4:-1}"
+APK="$1"; OUT="$2"; LOGIN_TRIAL="$3"; INIT_TRIAL="${4:-0}"
 [[ "$LOGIN_TRIAL" == "0" || "$LOGIN_TRIAL" == "1" ]] || exit 2
 [[ "$INIT_TRIAL" == "0" || "$INIT_TRIAL" == "1" ]] || exit 2
 APK="$(realpath "$APK")"
@@ -53,7 +53,9 @@ PY
     [[ -z "$target" ]] || { echo "Duplicate TWPurchase class"; exit 3; }
     target="$ENTRY"
     python3 "$ROOT/scripts/offline/patch_tw_local_trial.py" \
-      --smali "$ORIGINAL" --output "$WORK/changed/TWPurchase.smali" \
+      --smali "$ORIGINAL" \
+      --super-smali "$WORK/apktool-src/smali/com/popcap/pvz2cthddev/ThirdpartyPurchaseDriver.smali" \
+      --output "$WORK/changed/TWPurchase.smali" \
       --summary "$OUT/local_trial_patch_summary.json" \
       --init-status "$INIT_TRIAL" --login-status "$LOGIN_TRIAL"
     cp "$WORK/changed/TWPurchase.smali" "$ORIGINAL"
