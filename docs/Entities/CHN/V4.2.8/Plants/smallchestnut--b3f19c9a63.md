@@ -24,13 +24,29 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| PlantLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 1 | {"AttackLevel":1.5,"HitPointsLevel":1.5} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 2 | {"AttackLevel":2,"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 3 | {"AttackLevel":2.5,"HitPointsLevel":2.5} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 4 | {"AttackLevel":4,"HitPointsLevel":4} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 5 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 750 | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 1 | {"AttackLevel":1.5,"HitPointsLevel":1.5} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 2 | {"AttackLevel":2,"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 3 | {"AttackLevel":2.5,"HitPointsLevel":2.5} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 4 | {"AttackLevel":4,"HitPointsLevel":4} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 5 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 750 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | SmallChestnutDefault@PropertySheets | PropertySheet |  | unresolved |
-| property-reference | SmallChestnutDefault@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | SmallChestnutDefault@PropertySheets | PlantPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
+| property-reference | SmallChestnutDefault@PropertySheets | PlantPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

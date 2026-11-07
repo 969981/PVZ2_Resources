@@ -27,16 +27,38 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| ZombieLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 1 | {"AttackLevel":2,"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 2 | {"AttackLevel":3,"HitPointsLevel":3} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 3 | {"AttackLevel":4.5,"HitPointsLevel":4.5} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 4 | {"AttackLevel":5,"HitPointsLevel":5} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness7"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed3"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 3600 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.24 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 0 | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 1 | {"AttackLevel":2,"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 2 | {"AttackLevel":3,"HitPointsLevel":3} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 3 | {"AttackLevel":4.5,"HitPointsLevel":4.5} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 4 | {"AttackLevel":5,"HitPointsLevel":5} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness7"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed3"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 3600 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.24 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 0 | source-exact-property-alias-no-runtime-formula |
+
+本页仅展示前 20 条；完整 50 条请查看 SQLite/CSV。
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieParkourGargantuar@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieParkourGargantuar@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieParkourGargantuar@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieParkourGargantuar@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieParkourGargantuar@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieParkourGargantuar@CurrentLevel | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_13_N.json | exact-source-property-alias |
+| property-reference | ZombieParkourGargantuar@CurrentLevel | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_14_N.json | exact-source-property-alias |
+| property-reference | ZombieParkourGargantuar@CurrentLevel | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_15_N.json | exact-source-property-alias |
+| property-reference | ZombieParkourGargantuar@CurrentLevel | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_16_N.json | exact-source-property-alias |
+| property-reference | ZombieParkourGargantuar@PropertySheets | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

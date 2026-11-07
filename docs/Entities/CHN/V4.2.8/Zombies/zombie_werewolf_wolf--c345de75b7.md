@@ -23,12 +23,20 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| ZombieLevelStats | 0 | {"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 1 | {"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 2 | {"HitPointsLevel":3} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 3 | {"HitPointsLevel":4.5} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 4 | {"HitPointsLevel":5} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 1500 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.19 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieWerewolfWolf@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieWerewolfWolf@PropertySheets | ZombieWerewolfWolfProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

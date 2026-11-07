@@ -23,12 +23,25 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| PlantLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 1 | {"AdvancedSkillType":"RTID(Chomper_Skill1_Level1@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(Plant_PropertyUp_Level1@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 2 | {"AdvancedSkillType":"RTID(Chomper_Skill1_Level2@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(Plant_PropertyUp_Level2@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 3 | {"AdvancedSkillType":"RTID(plant_wakeup_level1@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(Plant_PropertyUp_Level3@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 4 | {"AdvancedSkillType":"RTID(Chomper_SuperSkill@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(Plant_PropertyUp_Level4@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 0 | {"Type":"area","Value":"single"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 1 | {"Type":"range","Value":"close"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 2 | {"Type":"recharge","Value":"recharge4"} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 500 | source-exact-property-alias-no-runtime-formula |
+| Cost | 0 | 150 | source-exact-property-alias-no-runtime-formula |
+| PacketCooldown | 0 | 10 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ParallelChomperDefault@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ParallelChomperDefault@PropertySheets | ChomperProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

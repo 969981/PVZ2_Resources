@@ -23,12 +23,17 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness4"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed2"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 2500 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.185 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieRomanMemo2Ballista@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieRomanMemo2Ballista@PropertySheets | ZombieRomanBallistaProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

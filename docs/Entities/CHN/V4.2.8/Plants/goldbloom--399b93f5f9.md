@@ -23,12 +23,25 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| PlantLevelStats | 0 | {"AdvancedSkillType":"RTID(SunflowerLevel1Skill@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(SunflowerLevel1Avatar@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 1 | {"AdvancedSkillType":"RTID(SunflowerLevel2Skill@SkillTypes)","AttackLevel":1.5,"HitPointsLevel":1.5,"PropertySkillType":"RTID(SunflowerLevel2Avatar@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 2 | {"AdvancedSkillType":"RTID(SunflowerLevel3Skill@SkillTypes)","AttackLevel":2,"HitPointsLevel":2,"PropertySkillType":"RTID(SunflowerLevel3Avatar@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 3 | {"AdvancedSkillType":"RTID(plant_wakeup_level1@SkillTypes)","AttackLevel":2.5,"HitPointsLevel":2.5,"PropertySkillType":"RTID(Plant_PropertyUp_Level3@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 4 | {"AdvancedSkillType":"RTID(plant_wakeup_level2@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(SunflowerLevel5Avatar@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 0 | {"Type":"armor","Value":"armor0"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 1 | {"Type":"recharge","Value":"recharge0"} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 100.0 | source-exact-property-alias-no-runtime-formula |
+| Cost | 0 | 0 | source-exact-property-alias-no-runtime-formula |
+| PacketCooldown | 0 | 75.0 | source-exact-property-alias-no-runtime-formula |
+| PowerCost | 0 | 2 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | GoldbloomDefault@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | GoldbloomDefault@PropertySheets | GoldbloomProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

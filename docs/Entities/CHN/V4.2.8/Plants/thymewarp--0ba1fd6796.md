@@ -23,12 +23,25 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| PlantLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 1 | {"AdvancedSkillType":"RTID(Thymewarp_Skill_Level1@SkillTypes)","AttackLevel":1.5,"HitPointsLevel":1.5,"PropertySkillType":"RTID(Plant_PropertyUp_Level1@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 2 | {"AdvancedSkillType":"RTID(Thymewarp_Skill_Level2@SkillTypes)","AttackLevel":2,"HitPointsLevel":2,"PropertySkillType":"RTID(Plant_PropertyUp_Level2@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 3 | {"AdvancedSkillType":"RTID(plant_wakeup_level1@SkillTypes)","AttackLevel":2.5,"HitPointsLevel":2.5,"PropertySkillType":"RTID(Plant_PropertyUp_Level3@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantLevelStats | 4 | {"AdvancedSkillType":"RTID(plant_wakeup_level2@SkillTypes)","AttackLevel":1,"HitPointsLevel":1,"PropertySkillType":"RTID(SunflowerLevel5Avatar@SkillTypes)"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 0 | {"Type":"area","Value":"fullboard"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 1 | {"Type":"recharge","Value":"recharge0"} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 3 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 300 | source-exact-property-alias-no-runtime-formula |
+| Cost | 0 | 75 | source-exact-property-alias-no-runtime-formula |
+| PacketCooldown | 0 | 60 | source-exact-property-alias-no-runtime-formula |
+| PowerCost | 0 | 6 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ThymeWarpDefault@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ThymeWarpDefault@PropertySheets | ThymeWarpProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

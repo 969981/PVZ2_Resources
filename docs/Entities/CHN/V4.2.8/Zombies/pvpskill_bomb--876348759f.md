@@ -23,12 +23,16 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| Hitpoints | 0 | 270 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.22 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
+| AttackDPS | 0 | 1000 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombiePVPSkillDefault@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombiePVPSkillDefault@PropertySheets | ZombiePVPSkillProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

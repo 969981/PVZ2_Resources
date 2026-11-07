@@ -29,18 +29,40 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| ZombieLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 1 | {"AttackLevel":2,"HitPointsLevel":2} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 2 | {"AttackLevel":3,"HitPointsLevel":3} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 3 | {"AttackLevel":4.5,"HitPointsLevel":4.5} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 4 | {"AttackLevel":5,"HitPointsLevel":5} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness5"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed0"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 24000 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 2 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 1 | {"AttackLevel":2,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 2 | {"AttackLevel":3,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 3 | {"AttackLevel":4.5,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieLevelStats | 4 | {"AttackLevel":5,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness5"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed0"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 20000 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.5 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
+
+本页仅展示前 20 条；完整 70 条请查看 SQLite/CSV。
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieEliteSkycityElectricDefault@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieGeneralCaesarElite@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieGeneralCaesarPhase3@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieGeneralCaesarElite@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieGeneralCaesarElite@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieEliteSkycityElectricDefault@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieGeneralCaesarPhase3@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieEliteSkycityElectricDefault@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_16_H.json | exact-source-property-alias |
+| property-reference | ZombieGeneralCaesarElite@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_16_N.json | exact-source-property-alias |
+| property-reference | ZombieGeneralCaesarPhase3@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_4_N.json | exact-source-property-alias |
+| property-reference | ZombieGeneralCaesarElite@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S32_62_N.json | exact-source-property-alias |
+| property-reference | ZombieGeneralCaesarElite@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S32_8_H.json | exact-source-property-alias |
+| property-reference | ZombieEliteSkycityElectricDefault@CurrentLevel | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S33_4_H.json | exact-source-property-alias |
+| property-reference | ZombieGeneralCaesarPhase3@PropertySheets | ZombieGeneralCaesarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

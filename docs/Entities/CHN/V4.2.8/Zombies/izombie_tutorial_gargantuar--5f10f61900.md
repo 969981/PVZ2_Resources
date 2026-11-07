@@ -28,7 +28,8 @@ status: static-source-mapping-runtime-unverified
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieIZombieTutorialGargantuar@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieIZombieTutorialGargantuar@PropertySheets | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | ambiguous-alias |
+| property-reference | ZombieIZombieTutorialGargantuar@PropertySheets | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | ambiguous-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

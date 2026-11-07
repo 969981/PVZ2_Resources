@@ -24,13 +24,23 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness5"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed0"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 300 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.5 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 100 | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 0 | {"Type":"toughness","Value":"toughness7"} | source-exact-property-alias-no-runtime-formula |
+| ZombieStats | 1 | {"Type":"speed","Value":"speed3"} | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 3600 | source-exact-property-alias-no-runtime-formula |
+| Speed | 0 | 0.16 | source-exact-property-alias-no-runtime-formula |
+| EatDPS | 0 | 0 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | ZombieSportzballGargantuarDefault@CurrentLevel | PropertySheet |  | unresolved |
-| property-reference | ZombieSportzballGargantuar@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | ZombieSportzballGargantuarDefault@CurrentLevel | ZombieCakeTankProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_60_N.json | exact-source-property-alias |
+| property-reference | ZombieSportzballGargantuar@PropertySheets | ZombieSportzballGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 

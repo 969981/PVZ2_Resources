@@ -23,12 +23,21 @@ status: static-source-mapping-runtime-unverified
 
 | 原字段 | 索引 | 原始值 | 证据状态 |
 | --- | --- | --- | --- |
+| PlantLevelStats | 0 | {"AttackLevel":1,"HitPointsLevel":1} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 0 | {"Type":"armor","Value":"armor0"} | source-exact-property-alias-no-runtime-formula |
+| PlantStats | 1 | {"Type":"recharge","Value":"recharge4"} | source-exact-property-alias-no-runtime-formula |
+| MinLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| MaxLevel | 0 | 1 | source-exact-property-alias-no-runtime-formula |
+| Hitpoints | 0 | 300 | source-exact-property-alias-no-runtime-formula |
+| Cost | 0 | 25 | source-exact-property-alias-no-runtime-formula |
+| PacketCooldown | 0 | 20 | source-exact-property-alias-no-runtime-formula |
+| PowerCost | 0 | 2 | source-exact-property-alias-no-runtime-formula |
 
 ## 直接源引用与未闭合的外键
 
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
-| property-reference | GroundCherry@PropertySheets | PropertySheet |  | unresolved |
+| property-reference | GroundCherry@PropertySheets | GroundCherryPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 
 ## 已公开 PNG 图集候选（可点击）
 
