@@ -1,0 +1,1925 @@
+{
+  "scope": "Original source config fields only; not observed runtime damage or DPS",
+  "version": "CHN 4.2.8",
+  "source_verification": "individual SHA256 and byte count against Internal-05 inventory; restored archive manifest also verified",
+  "source_files": [
+    {
+      "file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+      "sha256": "7564cc46eaa436984b5a4f98e2c40b3df18d2d7a37b83e2c98105ffe1d76c59b",
+      "bytes": 1067420,
+      "objects": 386
+    },
+    {
+      "file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+      "sha256": "c4902eacafe4ba6bfd3721ffdc9e3d783c81b1c6a8b329af0cd21f2108ad93a7",
+      "bytes": 7714639,
+      "objects": 2028
+    },
+    {
+      "file": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "sha256": "6e4f95b2b3b03f76c2816532829a58d85235a4714506623c250bda300177c7d5",
+      "bytes": 2212760,
+      "objects": 987
+    },
+    {
+      "file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "sha256": "4337efe46cfc043268358593cd2ae0f32339ccc19a2f949fcd6c595d9cd09422",
+      "bytes": 347050,
+      "objects": 857
+    }
+  ],
+  "records": [
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+      "object_index": 204,
+      "objclass": "PlantType",
+      "aliases": [
+        "convallariachemist"
+      ],
+      "matching_name": "convallariachemist planttype convallariachemist ",
+      "combat_fields": [
+        {
+          "path": "$.Attribute.SpecialTags[0].MinLevel",
+          "value": 1
+        },
+        {
+          "path": "$.TypeName",
+          "value": "convallariachemist"
+        },
+        {
+          "path": "$.PlantFramework",
+          "value": "PlantConvallariaChemist"
+        },
+        {
+          "path": "$.Properties",
+          "value": "RTID(ConvallariaChemistDefault@PropertySheets)"
+        },
+        {
+          "path": "$.AnimRigClass",
+          "value": "PlantAnimRig_ConvallariaChemist"
+        },
+        {
+          "path": "$.PopAnim",
+          "value": "POPANIM_PLANT_CONVALLARIACHEMIST"
+        },
+        {
+          "path": "$.PlantPieceImageName",
+          "value": "IMAGE_UI_FRAGMENT_PIECES_PACKETS_CONVALLARIACHEMIST"
+        },
+        {
+          "path": "$.AvatarPieceImageName",
+          "value": "IMAGE_UI_FRAGMENT_AVATAR_AVATAR_CONVALLARIACHEMIST"
+        }
+      ],
+      "source_field_count": 40
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+      "object_index": 206,
+      "objclass": "PlantType",
+      "aliases": [
+        "mulberry"
+      ],
+      "matching_name": "mulberry planttype mulberry ",
+      "combat_fields": [
+        {
+          "path": "$.Attribute.SpecialTags[0].MinLevel",
+          "value": 5
+        },
+        {
+          "path": "$.Attribute.SpecialTags[1].MinLevel",
+          "value": 5
+        },
+        {
+          "path": "$.TypeName",
+          "value": "mulberry"
+        },
+        {
+          "path": "$.PlantFramework",
+          "value": "PlantMulberry"
+        },
+        {
+          "path": "$.PlantResourceGroups[0]",
+          "value": "PlantMulberry"
+        },
+        {
+          "path": "$.PlantResourceGroups[1]",
+          "value": "PlantMulberryAudio"
+        },
+        {
+          "path": "$.Properties",
+          "value": "RTID(MulberryDefault@PropertySheets)"
+        },
+        {
+          "path": "$.AnimRigClass",
+          "value": "PlantAnimRig_Mulberry"
+        },
+        {
+          "path": "$.PopAnim",
+          "value": "POPANIM_PLANT_MULBERRY"
+        },
+        {
+          "path": "$.PlantPieceImageName",
+          "value": "IMAGE_UI_FRAGMENT_PIECES_PACKETS_MULBERRY"
+        },
+        {
+          "path": "$.AvatarPieceImageName",
+          "value": "IMAGE_UI_FRAGMENT_AVATAR_AVATAR_MULBERRY"
+        }
+      ],
+      "source_field_count": 51
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+      "object_index": 237,
+      "objclass": "ConvallariaChemistProps",
+      "aliases": [
+        "ConvallariaChemistDefault"
+      ],
+      "matching_name": "convallariachemistdefault convallariachemistprops  ",
+      "combat_fields": [
+        {
+          "path": "$.SoudacheAttackScale",
+          "value": 1.0
+        },
+        {
+          "path": "$.SoudacheHealthScale",
+          "value": 1.0
+        },
+        {
+          "path": "$.Cost",
+          "value": 175
+        },
+        {
+          "path": "$.PowerCost",
+          "value": 7
+        },
+        {
+          "path": "$.MinLevel",
+          "value": 1
+        },
+        {
+          "path": "$.MaxLevel",
+          "value": 5
+        },
+        {
+          "path": "$.Hitpoints",
+          "value": 300
+        },
+        {
+          "path": "$.PacketCooldown",
+          "value": 20
+        },
+        {
+          "path": "$.PlantFoodPlayCount",
+          "value": 1
+        },
+        {
+          "path": "$.PlantfoodPineconeCount",
+          "value": 20
+        },
+        {
+          "path": "$.Level5Rate",
+          "value": 0.5
+        },
+        {
+          "path": "$.ProjectileLobHeight",
+          "value": 350
+        },
+        {
+          "path": "$.ProjectileTimeOfFlight",
+          "value": 1.2
+        },
+        {
+          "path": "$.Actions[0].Projectile",
+          "value": "RTID(ConvallariaChemistDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[0].InitialMinCooldownTime",
+          "value": 1
+        },
+        {
+          "path": "$.Actions[0].CooldownTimeMin",
+          "value": 2.85
+        },
+        {
+          "path": "$.Actions[0].CooldownTimeMax",
+          "value": 3
+        },
+        {
+          "path": "$.Actions[1].Projectile",
+          "value": "RTID(ConvallariaChemistPlantfoodDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[2].Projectile",
+          "value": "RTID(ConvallariaChemistAvatarDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[3].Projectile",
+          "value": "RTID(ConvallariaChemistSuperDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[3].InitialMinCooldownTime",
+          "value": 1
+        },
+        {
+          "path": "$.Actions[3].CooldownTimeMin",
+          "value": 2.85
+        },
+        {
+          "path": "$.Actions[3].CooldownTimeMax",
+          "value": 3
+        },
+        {
+          "path": "$.PlantLevelStats[0].AttackLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[0].HitPointsLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[1].AttackLevel",
+          "value": 1.5
+        },
+        {
+          "path": "$.PlantLevelStats[1].HitPointsLevel",
+          "value": 1.5
+        },
+        {
+          "path": "$.PlantLevelStats[1].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[1].AdvancedSkillType",
+          "value": "RTID(ConvallariaChemist_Skill_Level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[2].AttackLevel",
+          "value": 2
+        },
+        {
+          "path": "$.PlantLevelStats[2].HitPointsLevel",
+          "value": 2
+        },
+        {
+          "path": "$.PlantLevelStats[2].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level2@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[2].AdvancedSkillType",
+          "value": "RTID(ConvallariaChemist_Skill_Level2@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[3].AttackLevel",
+          "value": 2.5
+        },
+        {
+          "path": "$.PlantLevelStats[3].HitPointsLevel",
+          "value": 2.5
+        },
+        {
+          "path": "$.PlantLevelStats[3].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level3@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[3].AdvancedSkillType",
+          "value": "RTID(plant_wakeup_level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[4].AttackLevel",
+          "value": 3
+        },
+        {
+          "path": "$.PlantLevelStats[4].HitPointsLevel",
+          "value": 3
+        },
+        {
+          "path": "$.PlantLevelStats[4].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level4@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[4].AdvancedSkillType",
+          "value": "RTID(ConvallariaChemist_SuperSkill@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[5].AttackLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[5].HitPointsLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[5].PropertySkillType",
+          "value": "RTID(SunflowerLevel5Avatar@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[5].AdvancedSkillType",
+          "value": "RTID(plant_wakeup_level2@SkillTypes)"
+        },
+        {
+          "path": "$.DetailProps.Damages[0]",
+          "value": 30
+        },
+        {
+          "path": "$.DetailProps.Damages[1]",
+          "value": 45
+        },
+        {
+          "path": "$.DetailProps.Damages[2]",
+          "value": 60
+        },
+        {
+          "path": "$.DetailProps.Damages[3]",
+          "value": 75
+        },
+        {
+          "path": "$.DetailProps.Damages[4]",
+          "value": 90
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[0]",
+          "value": 2.9
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[1]",
+          "value": 2.9
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[2]",
+          "value": 2.9
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[3]",
+          "value": 2.9
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[4]",
+          "value": 2.9
+        },
+        {
+          "path": "$.DisplayActions",
+          "value": "RTID(ConvallariaChemistDefault@DisplayActions)"
+        },
+        {
+          "path": "$.DisplayAvatarActions",
+          "value": "RTID(ConvallariaChemistDefault@DisplayAvatarActions)"
+        }
+      ],
+      "source_field_count": 101
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+      "object_index": 238,
+      "objclass": "MulberryProps",
+      "aliases": [
+        "MulberryDefault"
+      ],
+      "matching_name": "mulberrydefault mulberryprops  ",
+      "combat_fields": [
+        {
+          "path": "$.SoudacheAttackScale",
+          "value": 0.6
+        },
+        {
+          "path": "$.SoudacheHealthScale",
+          "value": 0.6
+        },
+        {
+          "path": "$.Cost",
+          "value": 150
+        },
+        {
+          "path": "$.PowerCost",
+          "value": 7
+        },
+        {
+          "path": "$.MinLevel",
+          "value": 1
+        },
+        {
+          "path": "$.MaxLevel",
+          "value": 5
+        },
+        {
+          "path": "$.Hitpoints",
+          "value": 300
+        },
+        {
+          "path": "$.SplitGrenadeRate",
+          "value": 0.1
+        },
+        {
+          "path": "$.ImprovedGrenadeBonus",
+          "value": 1.0
+        },
+        {
+          "path": "$.Level5AttackRate",
+          "value": 0.2
+        },
+        {
+          "path": "$.PlasmaSection",
+          "value": 0.2
+        },
+        {
+          "path": "$.FlashSection",
+          "value": 0.6
+        },
+        {
+          "path": "$.PacketCooldown",
+          "value": 20
+        },
+        {
+          "path": "$.PlantFoodPlayCount",
+          "value": 1
+        },
+        {
+          "path": "$.PlantfoodPineconeCount",
+          "value": 20
+        },
+        {
+          "path": "$.ProjectileLobHeight",
+          "value": 350
+        },
+        {
+          "path": "$.ProjectileTimeOfFlight",
+          "value": 1.2
+        },
+        {
+          "path": "$.Actions[0].Projectile",
+          "value": "RTID(MulberryDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[0].CooldownTimeMin",
+          "value": 5.0
+        },
+        {
+          "path": "$.Actions[0].CooldownTimeMax",
+          "value": 5.0
+        },
+        {
+          "path": "$.Actions[1].Projectile",
+          "value": "RTID(MulberryAdvancedDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[1].CooldownTimeMin",
+          "value": 5.0
+        },
+        {
+          "path": "$.Actions[1].CooldownTimeMax",
+          "value": 5.0
+        },
+        {
+          "path": "$.Actions[2].Projectile",
+          "value": "RTID(GiantPlasmaGrenade@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[2].TriggerType",
+          "value": "manual"
+        },
+        {
+          "path": "$.Actions[3].Projectile",
+          "value": "RTID(GiantFlashGrenade@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[3].TriggerType",
+          "value": "manual"
+        },
+        {
+          "path": "$.Actions[4].Projectile",
+          "value": "RTID(GiantGasGrenade@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[4].TriggerType",
+          "value": "manual"
+        },
+        {
+          "path": "$.Actions[5].Projectile",
+          "value": "RTID(MulberryPlantfoodDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.Actions[6].Projectile",
+          "value": "RTID(MulberryAvatarDefault@ProjectileTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[0].AttackLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[0].HitPointsLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[1].AttackLevel",
+          "value": 1.5
+        },
+        {
+          "path": "$.PlantLevelStats[1].HitPointsLevel",
+          "value": 1.5
+        },
+        {
+          "path": "$.PlantLevelStats[1].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[1].AdvancedSkillType",
+          "value": "RTID(Mulberry_Skill_Level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[2].AttackLevel",
+          "value": 2
+        },
+        {
+          "path": "$.PlantLevelStats[2].HitPointsLevel",
+          "value": 2
+        },
+        {
+          "path": "$.PlantLevelStats[2].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level2@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[2].AdvancedSkillType",
+          "value": "RTID(Mulberry_Skill_Level2@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[3].AttackLevel",
+          "value": 2.5
+        },
+        {
+          "path": "$.PlantLevelStats[3].HitPointsLevel",
+          "value": 2.5
+        },
+        {
+          "path": "$.PlantLevelStats[3].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level3@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[3].AdvancedSkillType",
+          "value": "RTID(plant_wakeup_level1@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[4].AttackLevel",
+          "value": 3
+        },
+        {
+          "path": "$.PlantLevelStats[4].HitPointsLevel",
+          "value": 3
+        },
+        {
+          "path": "$.PlantLevelStats[4].PropertySkillType",
+          "value": "RTID(Plant_PropertyUp_Level4@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[4].AdvancedSkillType",
+          "value": "RTID(Mulberry_SuperSkill@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[5].AttackLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[5].HitPointsLevel",
+          "value": 1
+        },
+        {
+          "path": "$.PlantLevelStats[5].PropertySkillType",
+          "value": "RTID(SunflowerLevel5Avatar@SkillTypes)"
+        },
+        {
+          "path": "$.PlantLevelStats[5].AdvancedSkillType",
+          "value": "RTID(plant_wakeup_level2@SkillTypes)"
+        },
+        {
+          "path": "$.DetailProps.Damages[0]",
+          "value": 200
+        },
+        {
+          "path": "$.DetailProps.Damages[1]",
+          "value": 300
+        },
+        {
+          "path": "$.DetailProps.Damages[2]",
+          "value": 400
+        },
+        {
+          "path": "$.DetailProps.Damages[3]",
+          "value": 500
+        },
+        {
+          "path": "$.DetailProps.Damages[4]",
+          "value": 600
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[0]",
+          "value": 5
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[1]",
+          "value": 5
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[2]",
+          "value": 5
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[3]",
+          "value": 5
+        },
+        {
+          "path": "$.DetailProps.AttackInterval[4]",
+          "value": 5
+        },
+        {
+          "path": "$.DisplayActions",
+          "value": "RTID(MulberryDefault@DisplayActions)"
+        },
+        {
+          "path": "$.DisplayAvatarActions",
+          "value": "RTID(MulberryDefault@DisplayAvatarActions)"
+        }
+      ],
+      "source_field_count": 118
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 626,
+      "objclass": "ConvallariaChemistProjectileProps",
+      "aliases": [
+        "ConvallariaChemistDefault"
+      ],
+      "matching_name": "convallariachemistdefault convallariachemistprojectileprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "ConvallariaChemistProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 30
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 0
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.MaximumStackLevel",
+          "value": 3.0
+        },
+        {
+          "path": "$.MaximumStacksPerLevel",
+          "value": 3.0
+        },
+        {
+          "path": "$.BasicVenomRate",
+          "value": 0.2
+        },
+        {
+          "path": "$.AdvancedVenomRate",
+          "value": 0.3
+        },
+        {
+          "path": "$.VenomItemName",
+          "value": "venom"
+        },
+        {
+          "path": "$.StacksToAdd",
+          "value": 1.0
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDamage",
+          "value": 1.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDamage",
+          "value": 2.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDamage",
+          "value": 3.0
+        },
+        {
+          "path": "$.RotateToMatchVelocity",
+          "value": true
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[2]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET_HIT"
+        }
+      ],
+      "source_field_count": 58
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 627,
+      "objclass": "ConvallariaChemistPlantfoodProjectileProps",
+      "aliases": [
+        "ConvallariaChemistPlantfoodDefault"
+      ],
+      "matching_name": "convallariachemistplantfooddefault convallariachemistplantfoodprojectileprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "ConvallariaChemistPlantfoodProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 300
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 0
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.ExplodeDamage",
+          "value": 300.0
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDamage",
+          "value": 1.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDamage",
+          "value": 2.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDamage",
+          "value": 3.0
+        },
+        {
+          "path": "$.RotateToMatchVelocity",
+          "value": true
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[2]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET_HIT"
+        }
+      ],
+      "source_field_count": 53
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 628,
+      "objclass": "ConvallariaChemistPlantfoodProjectileProps",
+      "aliases": [
+        "ConvallariaChemistAvatarDefault"
+      ],
+      "matching_name": "convallariachemistavatardefault convallariachemistplantfoodprojectileprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "ConvallariaChemistAvatarProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 450
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 0
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.ExplodeDamage",
+          "value": 650.0
+        },
+        {
+          "path": "$.MaximumStackLevel",
+          "value": 3.0
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDamage",
+          "value": 1.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDamage",
+          "value": 2.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDamage",
+          "value": 3.0
+        },
+        {
+          "path": "$.RotateToMatchVelocity",
+          "value": true
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[2]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET_HIT"
+        }
+      ],
+      "source_field_count": 54
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 629,
+      "objclass": "ConvallariaChemistProjectileProps",
+      "aliases": [
+        "ConvallariaChemistSuperDefault"
+      ],
+      "matching_name": "convallariachemistsuperdefault convallariachemistprojectileprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "ConvallariaChemistSuperProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 200
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 0
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.MaximumStackLevel",
+          "value": 3.0
+        },
+        {
+          "path": "$.MaximumStacksPerLevel",
+          "value": 3.0
+        },
+        {
+          "path": "$.BasicVenomRate",
+          "value": 0.2
+        },
+        {
+          "path": "$.AdvancedVenomRate",
+          "value": 0.3
+        },
+        {
+          "path": "$.VenomItemName",
+          "value": "venom"
+        },
+        {
+          "path": "$.StacksToAdd",
+          "value": 1.0
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[0].PoisonDamage",
+          "value": 1.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[1].PoisonDamage",
+          "value": 2.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDuration",
+          "value": 5.0
+        },
+        {
+          "path": "$.PoisonInfos[2].PoisonDamage",
+          "value": 3.0
+        },
+        {
+          "path": "$.RotateToMatchVelocity",
+          "value": true
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[2]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_CONVALLARIACHEMIST_BULLET_HIT"
+        }
+      ],
+      "source_field_count": 58
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 630,
+      "objclass": "ProjectilePropertySheet",
+      "aliases": [
+        "MulberryDefault"
+      ],
+      "matching_name": "mulberrydefault projectilepropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "MulberryProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 200
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 500
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "hits_submerged"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 200.0
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 200.0
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 0.0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_PROJECTILE"
+        },
+        {
+          "path": "$.AttachedPAMAnimRigClass",
+          "value": "PlantAnimRig_Mulberry"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        }
+      ],
+      "source_field_count": 35
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 631,
+      "objclass": "ProjectilePropertySheet",
+      "aliases": [
+        "MulberryAdvancedDefault"
+      ],
+      "matching_name": "mulberryadvanceddefault projectilepropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "MulberryProjectile"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 200
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 500
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 2.0736
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "hits_submerged"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 200.0
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 200.0
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 0.0
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 0.0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ADV_PROJECTILE"
+        },
+        {
+          "path": "$.AttachedPAMAnimRigClass",
+          "value": "PlantAnimRig_Mulberry"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        }
+      ],
+      "source_field_count": 35
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 632,
+      "objclass": "MulberryPlasmaGrenadeProps",
+      "aliases": [
+        "GiantPlasmaGrenade"
+      ],
+      "matching_name": "giantplasmagrenade mulberryplasmagrenadeprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "MulberryPlasmaGrenade"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 2500
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "shooter"
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "lightning"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 200
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 220
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_PLASMA"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        },
+        {
+          "path": "$.TossSpeed",
+          "value": 500
+        }
+      ],
+      "source_field_count": 36
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 633,
+      "objclass": "MulberryFlashGrenadeProps",
+      "aliases": [
+        "GiantFlashGrenade"
+      ],
+      "matching_name": "giantflashgrenade mulberryflashgrenadeprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "MulberryFlashGrenade"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 40
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "lightning"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "shooter"
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "lightning"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 200
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 220
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_FLASH"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        },
+        {
+          "path": "$.StunDuration",
+          "value": 2.0
+        }
+      ],
+      "source_field_count": 33
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 634,
+      "objclass": "MulberryGasGrenadeProps",
+      "aliases": [
+        "GiantGasGrenade"
+      ],
+      "matching_name": "giantgasgrenade mulberrygasgrenadeprops  ",
+      "combat_fields": [
+        {
+          "path": "$.ClassName",
+          "value": "MulberryGasGrenade"
+        },
+        {
+          "path": "$.BaseDamage",
+          "value": 100
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "shooter"
+        },
+        {
+          "path": "$.DamageType[0]",
+          "value": "poison"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 200
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 220
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 0
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_GAS"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        },
+        {
+          "path": "$.PoisonDuration",
+          "value": 10.0
+        },
+        {
+          "path": "$.PoisonDamage",
+          "value": 20.0
+        }
+      ],
+      "source_field_count": 34
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 635,
+      "objclass": "ProjectilePropertySheet",
+      "aliases": [
+        "MulberryPlantfoodDefault"
+      ],
+      "matching_name": "mulberryplantfooddefault projectilepropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.BaseDamage",
+          "value": 270
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 270
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 1
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 1
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 20
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_PROJECTILE"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        }
+      ],
+      "source_field_count": 42
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",
+      "object_index": 636,
+      "objclass": "ProjectilePropertySheet",
+      "aliases": [
+        "MulberryAvatarDefault"
+      ],
+      "matching_name": "mulberryavatardefault projectilepropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.BaseDamage",
+          "value": 350
+        },
+        {
+          "path": "$.SplashDamage",
+          "value": 350
+        },
+        {
+          "path": "$.SplashRadius",
+          "value": 2.0736
+        },
+        {
+          "path": "$.DamageFlags[0]",
+          "value": "lobbed"
+        },
+        {
+          "path": "$.DamageFlags[1]",
+          "value": "catapult"
+        },
+        {
+          "path": "$.InitialVelocity[0].Min",
+          "value": 290
+        },
+        {
+          "path": "$.InitialVelocity[0].Max",
+          "value": 310
+        },
+        {
+          "path": "$.InitialVelocity[1].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialVelocity[1].Max",
+          "value": 10
+        },
+        {
+          "path": "$.InitialVelocity[2].Min",
+          "value": 500
+        },
+        {
+          "path": "$.InitialVelocity[2].Max",
+          "value": 700
+        },
+        {
+          "path": "$.InitialAcceleration[0].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[0].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Min",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[1].Max",
+          "value": 0
+        },
+        {
+          "path": "$.InitialAcceleration[2].Min",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAcceleration[2].Max",
+          "value": -10
+        },
+        {
+          "path": "$.InitialAngularVelocity.Min",
+          "value": 1
+        },
+        {
+          "path": "$.InitialAngularVelocity.Max",
+          "value": 20
+        },
+        {
+          "path": "$.AttachedPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_AVATAR_PROJECTILE"
+        },
+        {
+          "path": "$.ImpactPAM",
+          "value": "POPANIM_EFFECTS_MULBERRY_ALL_HIT"
+        }
+      ],
+      "source_field_count": 42
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 424,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "ConvallariaChemist_Skill_Level1"
+      ],
+      "matching_name": "convallariachemist_skill_level1 skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL1]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL1_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_CONVALLARIACHEMIST_SKILL_LEVEL1"
+        }
+      ],
+      "source_field_count": 3
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 425,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "ConvallariaChemist_Skill_Level2"
+      ],
+      "matching_name": "convallariachemist_skill_level2 skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL2]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL2_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_CONVALLARIACHEMIST_SKILL_LEVEL2"
+        }
+      ],
+      "source_field_count": 3
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 426,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "ConvallariaChemist_SuperSkill"
+      ],
+      "matching_name": "convallariachemist_superskill skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL5]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[CONVALLARIACHEMIST_SKILL_LEVEL5_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_CONVALLARIACHEMIST_SKILL_LEVEL5"
+        }
+      ],
+      "source_field_count": 3
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 427,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "Mulberry_Skill_Level1"
+      ],
+      "matching_name": "mulberry_skill_level1 skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[MULBERRY_SKILL_LEVEL1]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[MULBERRY_SKILL_LEVEL1_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_MULBERRY_SKILL_LEVEL1"
+        }
+      ],
+      "source_field_count": 3
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 428,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "Mulberry_Skill_Level2"
+      ],
+      "matching_name": "mulberry_skill_level2 skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[MULBERRY_SKILL_LEVEL2]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[MULBERRY_SKILL_LEVEL2_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_MULBERRY_SKILL_LEVEL2"
+        }
+      ],
+      "source_field_count": 3
+    },
+    {
+      "source": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+      "object_index": 429,
+      "objclass": "SkillPropertySheet",
+      "aliases": [
+        "Mulberry_SuperSkill"
+      ],
+      "matching_name": "mulberry_superskill skillpropertysheet  ",
+      "combat_fields": [
+        {
+          "path": "$.SkillName",
+          "value": "[MULBERRY_SKILL_LEVEL5]"
+        },
+        {
+          "path": "$.SkillDescription",
+          "value": "[MULBERRY_SKILL_LEVEL5_DES]"
+        },
+        {
+          "path": "$.SkillIconImage",
+          "value": "IMAGE_UI_LEVELUP_MULBERRY_SKILL_LEVEL5"
+        }
+      ],
+      "source_field_count": 3
+    }
+  ]
+}
