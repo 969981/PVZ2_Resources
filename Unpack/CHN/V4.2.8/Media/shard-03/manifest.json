@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "game": "PvZ2",
+  "region": "CHN",
+  "version_label": "4.2.8",
+  "stage": "Media",
+  "shard": 3,
+  "source_actions_run_id": 42322830660,
+  "source_file_count": 3273,
+  "source_total_bytes": 1942166950,
+  "archive_filename": "archive.tar.zst",
+  "archive_bytes": 743706613,
+  "archive_sha256": "95f948290c630972e5be8ea67b9cdd71d212a14a3c82b4b17865144f99571b47",
+  "chunk_size_bytes": 67108864,
+  "parts": [
+    {
+      "file": "archive.tar.zst.part-000",
+      "bytes": 67108864,
+      "sha256": "a6995fc3ba759373b025596125effc2a52c124dc3d1d6f87d07967691f6be36d"
+    },
+    {
+      "file": "archive.tar.zst.part-001",
+      "bytes": 67108864,
+      "sha256": "d2c624724a86113142a01202cc594d3fdea0084aa94d7beabc1cac3b329962ab"
+    },
+    {
+      "file": "archive.tar.zst.part-002",
+      "bytes": 67108864,
+      "sha256": "fd5e94cea3abab6c672d6237c585a76f6c2803b22b4bc14772ee4d7aa7b0a905"
+    },
+    {
+      "file": "archive.tar.zst.part-003",
+      "bytes": 67108864,
+      "sha256": "588c8b2ef515c7d9b0c35be87d34e8e2c422e432497c6867d7465cf3fb59f25f"
+    },
+    {
+      "file": "archive.tar.zst.part-004",
+      "bytes": 67108864,
+      "sha256": "665982454e019dec3873dad95d91f848c8d1b71398a106d7e0e91b79f6c36dc6"
+    },
+    {
+      "file": "archive.tar.zst.part-005",
+      "bytes": 67108864,
+      "sha256": "35dabd1e8d40df92455a4676f65610de9ae2af306871f67af7bddc62c8bc622c"
+    },
+    {
+      "file": "archive.tar.zst.part-006",
+      "bytes": 67108864,
+      "sha256": "7ffa300085b240d39fc30ee9263e9088b84288e7ffe4b379dde7a6ccdc8ee0ad"
+    },
+    {
+      "file": "archive.tar.zst.part-007",
+      "bytes": 67108864,
+      "sha256": "d1909841c356a3c945835179b8d47ba7c3ca7c7df1ace54934e3218032ac1e96"
+    },
+    {
+      "file": "archive.tar.zst.part-008",
+      "bytes": 67108864,
+      "sha256": "da64e53356ec775977002684820c291bff2815c17a23c584ffe47e36bd6d63d1"
+    },
+    {
+      "file": "archive.tar.zst.part-009",
+      "bytes": 67108864,
+      "sha256": "2ed4df75efbd539d257b52df09d6dc5dc211fe4ef36d6b641780f27789cea204"
+    },
+    {
+      "file": "archive.tar.zst.part-010",
+      "bytes": 67108864,
+      "sha256": "720a496ed48ef2a004b43b53f29e5d172969a7173304b66e9895ff944b6d30b1"
+    },
+    {
+      "file": "archive.tar.zst.part-011",
+      "bytes": 5509109,
+      "sha256": "aa9de8149334d745f3b4e748b341ab6efd01cc7bef12b1ba45a05dc1cc69c903"
+    }
+  ],
+  "created_utc": "2026-11-07T01:34:41.694893+00:00",
+  "scope_note": "Git objects contain compressed original Actions artifact contents. Restore and verify before use."
+}
