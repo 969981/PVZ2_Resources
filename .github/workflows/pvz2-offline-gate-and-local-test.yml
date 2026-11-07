@@ -150,6 +150,8 @@ jobs:
               "game_modified":d.get("game_modified"),
               "android_consent_clicked":d.get("consent_clicked"),
               "airplane_mode_after":d.get("offline_after_consent"),
+              "any_integrity_warning":any(f.get("integrity_warning_seen") for f in frames),
+              "android_exit_info":d.get("android_exit_info",{}).get("relevant_lines",[])[:10],
               "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
                   d.get("logcat",{}).get("counts",{}).get("activity_anr",0)>0,
               "process_alive_at_checkpoints":[f.get("process_alive") for f in frames],
@@ -159,10 +161,10 @@ jobs:
               "true_offline_playable_apk":False,
               "ci_runtime_gate_passed":not failed and bool(frames),
           }
-          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\\n")
+          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\n")
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
-              f.write("## Android offline runtime evidence\\n\\n")
-              for k,v in result.items(): f.write(f"- {k}: {v}\\n")
+              f.write("## Android offline runtime evidence\n\n")
+              for k,v in result.items(): f.write(f"- {k}: {v}\n")
           print(json.dumps(result))
           if failed:
               print("::error::APK failed Android offline runtime: ANR or process exit")
