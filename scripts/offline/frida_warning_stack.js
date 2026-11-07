@@ -41,5 +41,52 @@ Java.perform(function () {
   } catch (e) {
     send({type: 'TRACE_HOOK_ERROR', source: 'AlertDialog', error_kind: 'install_failed'});
   }
+  // Native game code requests this Java UI bridge before the UI-thread runnable.
+  // Keep all arguments and the original method semantics unchanged.
+  try {
+    const App = Java.use('com.popcap.pvz2cthddev.AndroidGameApp');
+    const show = App.UI_ShowAlertDialog.overload(
+      'java.lang.String', 'java.lang.String', 'java.lang.String', 'boolean');
+    show.implementation = function (title, message, okay, exitApp) {
+      const content = message === null ? '' : message.toString();
+      if (content.indexOf('盗版游戏') !== -1 || content.indexOf('请使用正版游戏') !== -1) {
+        const trace = Log.getStackTraceString(Exception.$new()).toString()
+          .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
+        send({type: 'INTEGRITY_ALERT_REQUEST', source: 'AndroidGameApp.UI_ShowAlertDialog',
+              exit_requested: Boolean(exitApp), frames: trace});
+      }
+      return show.call(this, title, message, okay, exitApp);
+    };
+
+    const exit = App.Device_ExitApp.overload();
+    exit.implementation = function () {
+      const trace = Log.getStackTraceString(Exception.$new()).toString()
+        .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
+      send({type: 'GAME_EXIT_REQUEST', source: 'AndroidGameApp.Device_ExitApp',
+            frames: trace});
+      return exit.call(this);
+    };
+  } catch (e) {
+    send({type: 'TRACE_HOOK_ERROR', source: 'AndroidGameApp',
+          error_kind: 'install_failed'});
+  }
+
+  try {
+    const Proc = Java.use('android.os.Process');
+    const kill = Proc.killProcess.overload('int');
+    kill.implementation = function (pid) {
+      if (pid === Proc.myPid()) {
+        const trace = Log.getStackTraceString(Exception.$new()).toString()
+          .split('\n').map(x => x.trim()).filter(x => x.indexOf('at ') === 0).slice(0, 24);
+        send({type: 'GAME_EXIT_REQUEST', source: 'Process.killProcess',
+              frames: trace});
+      }
+      return kill.call(this, pid);
+    };
+  } catch (e) {
+    send({type: 'TRACE_HOOK_ERROR', source: 'Process.killProcess',
+          error_kind: 'install_failed'});
+  }
+
   send({type: 'TRACE_HOOKS_INSTALLED'});
 });
