@@ -11,7 +11,10 @@ import json
 from pathlib import Path
 import time
 
-from emulator_ui_capture import run_probe, sample, adb
+try:
+    from scripts.offline.emulator_ui_capture import run_probe, sample, adb
+except ModuleNotFoundError:
+    from emulator_ui_capture import run_probe, sample, adb
 
 
 def privacy_gate_present(frame):
