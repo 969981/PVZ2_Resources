@@ -1,0 +1,182 @@
+{
+  "source": "source-SHA256-verified real ARM64 instruction windows",
+  "total_xref_sites": 98,
+  "sites_with_w3_immediate_and_followup_call": 66,
+  "target_clusters": {
+    "other": 83,
+    "chemist_projectile_config": 8,
+    "mulberry_plant_config": 5,
+    "mulberry_gas_projectile_config_candidate": 2
+  },
+  "target_field_parser_candidates": [
+    {
+      "field": "MaximumStackLevel",
+      "string_xref_site": "0x3e251b4",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x280",
+      "w3_value_dec": "640",
+      "w3_relative_to_string_xref": "88",
+      "nearby_call_rva": "0x3e25210",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "MaximumStacksPerLevel",
+      "string_xref_site": "0x3e25234",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x284",
+      "w3_value_dec": "644",
+      "w3_relative_to_string_xref": "92",
+      "nearby_call_rva": "0x3e25294",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "StacksToAdd",
+      "string_xref_site": "0x3e252b8",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x288",
+      "w3_value_dec": "648",
+      "w3_relative_to_string_xref": "96",
+      "nearby_call_rva": "0x3e2531c",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "PoisonInfos",
+      "string_xref_site": "0x3e25340",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x290",
+      "w3_value_dec": "656",
+      "w3_relative_to_string_xref": "124",
+      "nearby_call_rva": "0x3e253c0",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "VenomItemName",
+      "string_xref_site": "0x3e253e4",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x2a8",
+      "w3_value_dec": "680",
+      "w3_relative_to_string_xref": "120",
+      "nearby_call_rva": "0x3e25460",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "BasicVenomRate",
+      "string_xref_site": "0x3e25484",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x2c0",
+      "w3_value_dec": "704",
+      "w3_relative_to_string_xref": "92",
+      "nearby_call_rva": "0x3e254e4",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "AdvancedVenomRate",
+      "string_xref_site": "0x3e25508",
+      "candidate_parser_cluster": "chemist_projectile_config",
+      "w3_value_hex": "0x2c4",
+      "w3_value_dec": "708",
+      "w3_relative_to_string_xref": "88",
+      "nearby_call_rva": "0x3e25564",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "SplitGrenadeRate",
+      "string_xref_site": "0x3e29988",
+      "candidate_parser_cluster": "mulberry_plant_config",
+      "w3_value_hex": "0x2e8",
+      "w3_value_dec": "744",
+      "w3_relative_to_string_xref": "84",
+      "nearby_call_rva": "0x3e299e0",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "ImprovedGrenadeBonus",
+      "string_xref_site": "0x3e29a04",
+      "candidate_parser_cluster": "mulberry_plant_config",
+      "w3_value_hex": "0x2ec",
+      "w3_value_dec": "748",
+      "w3_relative_to_string_xref": "96",
+      "nearby_call_rva": "0x3e29a68",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "Level5AttackRate",
+      "string_xref_site": "0x3e29a8c",
+      "candidate_parser_cluster": "mulberry_plant_config",
+      "w3_value_hex": "0x2f0",
+      "w3_value_dec": "752",
+      "w3_relative_to_string_xref": "84",
+      "nearby_call_rva": "0x3e29ae4",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "PlasmaSection",
+      "string_xref_site": "0x3e29b08",
+      "candidate_parser_cluster": "mulberry_plant_config",
+      "w3_value_hex": "0x2f4",
+      "w3_value_dec": "756",
+      "w3_relative_to_string_xref": "92",
+      "nearby_call_rva": "0x3e29b68",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "FlashSection",
+      "string_xref_site": "0x3e29b8c",
+      "candidate_parser_cluster": "mulberry_plant_config",
+      "w3_value_hex": "0x2f8",
+      "w3_value_dec": "760",
+      "w3_relative_to_string_xref": "96",
+      "nearby_call_rva": "0x3e29bf0",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "PoisonDuration",
+      "string_xref_site": "0x3e2df58",
+      "candidate_parser_cluster": "mulberry_gas_projectile_config_candidate",
+      "w3_value_hex": "0x280",
+      "w3_value_dec": "640",
+      "w3_relative_to_string_xref": "92",
+      "nearby_call_rva": "0x3e2dfb8",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    },
+    {
+      "field": "PoisonDamage",
+      "string_xref_site": "0x3e2dfdc",
+      "candidate_parser_cluster": "mulberry_gas_projectile_config_candidate",
+      "w3_value_hex": "0x284",
+      "w3_value_dec": "644",
+      "w3_relative_to_string_xref": "96",
+      "nearby_call_rva": "0x3e2e040",
+      "nearby_call_kind": "blr",
+      "evidence_status": "static-argument-before-indirect-call",
+      "not_verified": "W3 semantic type, target object base, executing gameplay branch"
+    }
+  ],
+  "caution": "Do not call W3 immediate a verified struct offset until callee interface and object lifetime are confirmed."
+}
