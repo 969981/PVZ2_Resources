@@ -10,11 +10,15 @@ on:
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/consent_probe.py"
       - "scripts/offline/find_integrity_warning.py"
+      - "scripts/offline/map_integrity_resource.py"
+      - "scripts/offline/trace_signature_read.py"
       - "scripts/offline/emulator_ui_capture.py"
       - "tests/test_offline_smali_gate_index.py"
       - "tests/test_offline_tw_local_trial.py"
       - "tests/test_offline_runtime_diagnostics.py"
       - "tests/test_offline_integrity_warning_location.py"
+      - "tests/test_offline_integrity_resource_map.py"
+      - "tests/test_offline_signature_trace.py"
 permissions:
   contents: read
 concurrency:
@@ -50,7 +54,9 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_integrity_warning_location.py' -v
-          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/find_integrity_warning.py
+          python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_signature_trace.py' -v
+          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
           bash -n scripts/offline/build_from_committed_smali.sh
       - name: Scan all six real Smali DEX sources, metadata only
         run: |
@@ -92,6 +98,16 @@ jobs:
           python3 scripts/offline/find_integrity_warning.py \
             --apk "$RUNNER_TEMP/PVZ2_4.2.8_original.apk" \
             --out "$RUNNER_TEMP/offline-gate-report/integrity_warning_source.json"
+      - name: Identify resource ID and Smali callsites of integrity warning
+        shell: bash
+        run: |
+          set -euo pipefail
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          python3 scripts/offline/map_integrity_resource.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8_original.apk" \
+            --aapt2 "$BT/aapt2" \
+            --smali-root "$SMALI_SOURCE" \
+            --out "$RUNNER_TEMP/offline-gate-report/integrity_resource_callsites.json"
       - name: Build local-only JNI experiment APK from temp Smali copy
         shell: bash
         run: |
@@ -106,6 +122,11 @@ jobs:
             --summary "$RUNNER_TEMP/offline-gate-report/local_patch_report.json" \
             --init-status 0 --login-status 0
           cp "$RUNNER_TEMP/temporary-TWPurchase-1.smali" "$base/TWPurchase\$1.smali"
+          python3 scripts/offline/trace_signature_read.py \
+            --source "$base/TWPurchase.smali" \
+            --output "$RUNNER_TEMP/TWPurchase-signature-traced.smali" \
+            --report "$RUNNER_TEMP/offline-gate-report/signature_trace_patch.json"
+          cp "$RUNNER_TEMP/TWPurchase-signature-traced.smali" "$base/TWPurchase.smali"
           bash scripts/offline/build_from_committed_smali.sh \
             "$RUNNER_TEMP/PVZ2_4.2.8_original.apk" \
             "$RUNNER_TEMP/offline-smali" \
@@ -161,6 +182,7 @@ jobs:
               "android_consent_clicked":d.get("consent_clicked"),
               "airplane_mode_after":d.get("offline_after_consent"),
               "any_integrity_warning":any(f.get("integrity_warning_seen") for f in frames),
+              "signature_trace":d.get("signature_trace",{}),
               "android_exit_info":d.get("android_exit_info",{}).get("relevant_lines",[])[:10],
               "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
                   d.get("logcat",{}).get("counts",{}).get("activity_anr",0)>0,
