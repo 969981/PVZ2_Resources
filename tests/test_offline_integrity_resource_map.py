@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 import unittest
 
-from scripts.offline.map_integrity_resource import ROOTS, parse_dump, locate_source_refs
+from scripts.offline.map_integrity_resource import ROOTS, parse_dump, locate_source_refs, discover_named_candidate
 
 
 class IntegrityResourceTests(unittest.TestCase):
@@ -16,6 +16,19 @@ resource 0x7f130322 com.popcap.pvz2cthdbk:string/other
         self.assertEqual(parse_dump(text), [
             {"id": "0x7f130321", "name": "com.popcap.pvz2cthdbk:string/piracy_alert"}
         ])
+
+    def test_named_candidate_not_falsely_claimed_as_text_mapping(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            p = root / "smali/com/popcap/pvz2cthdbk/R$string.smali"
+            p.parent.mkdir(parents=True)
+            p.write_text(
+                ".field public static final check_sign_failed:I = 0x7f0f01d6\\n",
+                encoding="utf-8"
+            )
+            result = discover_named_candidate(root)
+        self.assertEqual(result[0]["id"], "0x7f0f01d6")
+        self.assertIn("NOT_TEXT_VERIFIED", result[0]["evidence"])
 
     def test_smali_resource_reference_is_located_without_source_export(self):
         with tempfile.TemporaryDirectory() as temp:
