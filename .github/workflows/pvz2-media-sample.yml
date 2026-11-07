@@ -44,6 +44,14 @@ jobs:
             -o "$RUNNER_TEMP/decoded-dino" -j 2
           python3 scripts/media/inspect_sample.py "$RUNNER_TEMP/decoded-dino/04_JSON" \
             --out "$RUNNER_TEMP/media-audit"
+      - name: Probe RSG image dimensions and pixel formats
+        shell: bash
+        env:
+          PYTHONPATH: ${{ runner.temp }}/pvz2-tool/Resource_Tool
+        run: |
+          set -euo pipefail
+          python3 scripts/media/inspect_rsg_image_meta.py "$RUNNER_TEMP/rsb/dino.rsb" \\
+            --out "$RUNNER_TEMP/media-audit"
       - name: Publish media samples and full header inventory
         uses: actions/upload-artifact@v4
         if: always()
