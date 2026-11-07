@@ -15,6 +15,19 @@ The repository's existing ROMS/CHN/V4.2.8 multi-volume 7z archive is preserved u
 
 仓库维护者声明已取得公开发布图片的许可；这一声明未经自动化独立核验证书。其他类型的商业资源不因此自动获得公开再分发许可。
 
+## 植物、僵尸完整源对象映射（CHN 4.2.8）
+
+已按原始 PlantType/ZombieType 的 **源文件 + object_index** 建立跨格式 SQLite/CSV，并为每个不同 TypeName 生成 Obsidian 页面：381 条植物配置、1,265 条僵尸配置，静态属性/等级明细 16,913 行。
+
+- [直接查植物页面（380 个不同 TypeName）](docs/Entities/CHN/V4.2.8/Plants/INDEX.md)
+- [直接查僵尸页面（1,054 个不同 TypeName）](docs/Entities/CHN/V4.2.8/Zombies/INDEX.md)
+- [跨格式关联 CSV/SQLite](Catalog/CHN/V4.2.8/entity_map/)
+- [Obsidian 第 18 章：完整表关系与 SQL 查询](docs/Unpack/18-植物僵尸跨格式关联数据库.md)
+- [植物技能/进阶/装扮](docs/Unpack/19-植物技能等级装扮道具关系核对.md) · [僵尸属性/动作/装备](docs/Unpack/20-僵尸属性能力动画装备关系核对.md)
+- [真实 SHA256 恢复与自动关联 Actions #42356858186](https://github.com/969981/PVZ2_Resources/actions/runs/42356858186)
+
+本批数据中的 **4,760** 条技能/投射物 RTID 是静态引用匹配，不代表运行时施放验证；PNG/PAM 关联仍有命名候选，1,595 个图片标识尚未找到精确资源 ID。**不能将数据库存在当作素材全部外键闭合。**
+
 ## Updated CHN 4.2.8 unpack results (2026-11-07)
 
 The repository now records real successful Actions runs: 33/33 RSB, 2,964/2,964 RSGP groups, 14,869 internal members, 8,091 converted internal JSON, plus 18 direct RTON JSON. PTX/PAM/BNK media conversion and full structured gameplay database remain separate outstanding tasks. See [file structure](docs/文件目录与职责.md), [file formats and purpose](docs/资源格式与文件用途.md), [unpack runbook](docs/解包操作手册.md), [Actions/artifact guide](docs/工作流与Artifacts.md), and [real extraction evidence](docs/versions/CHN/4.2.8-parallel-unpack-results.md).
