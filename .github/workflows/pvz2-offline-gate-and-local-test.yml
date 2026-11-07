@@ -9,6 +9,7 @@ on:
       - "scripts/offline/smali_gate_index.py"
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/consent_probe.py"
+      - "scripts/offline/frida_warning_stack.js"
       - "scripts/offline/find_integrity_warning.py"
       - "scripts/offline/map_integrity_resource.py"
       - "scripts/offline/trace_signature_read.py"
@@ -58,6 +59,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_signature_trace.py' -v
           python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
           bash -n scripts/offline/build_from_committed_smali.sh
+          node --check scripts/offline/frida_warning_stack.js
       - name: Scan all six real Smali DEX sources, metadata only
         run: |
           set -euo pipefail
@@ -137,7 +139,7 @@ jobs:
       - name: Prepare screenshot decoder
         run: |
           python3 -m venv "$RUNNER_TEMP/qa-venv"
-          "$RUNNER_TEMP/qa-venv/bin/python" -m pip install --quiet Pillow==11.3.0
+          "$RUNNER_TEMP/qa-venv/bin/python" -m pip install --quiet Pillow==11.3.0 frida==16.7.19
       - name: Allow KVM on hosted runner
         run: |
           if [ -e /dev/kvm ]; then
@@ -157,11 +159,29 @@ jobs:
           disk-size: 16384M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
-          script: >-
-            "$RUNNER_TEMP/qa-venv/bin/python" scripts/offline/consent_probe.py
-            --apk "$RUNNER_TEMP/offline-local-apk/PVZ2_CHN_4.2.8_from_repo_smali_test.apk"
-            --out "$RUNNER_TEMP/offline-gate-report/runtime"
-            --checkpoints 5,25,60,120 --build-kind smali-local-trial
+          script: |
+            set -euo pipefail
+            adb root || true
+            adb wait-for-device
+            frida_archive="$RUNNER_TEMP/frida-server-16.7.19-android-x86_64.xz"
+            if curl -fL --retry 2 --max-time 180 \
+                 https://github.com/frida/frida/releases/download/16.7.19/frida-server-16.7.19-android-x86_64.xz \
+                 -o "$frida_archive"; then
+              xz -dc "$frida_archive" > "$RUNNER_TEMP/frida-server" &&
+              adb push "$RUNNER_TEMP/frida-server" /data/local/tmp/pvz2-frida-server &&
+              adb shell chmod 755 /data/local/tmp/pvz2-frida-server &&
+              adb shell '/data/local/tmp/pvz2-frida-server >/data/local/tmp/pvz2-frida-server.log 2>&1 &' ||
+                echo "FRIDA_SERVER_SETUP_UNAVAILABLE"
+            else
+              echo "FRIDA_SERVER_DOWNLOAD_UNAVAILABLE"
+            fi
+            "$RUNNER_TEMP/qa-venv/bin/python" scripts/offline/consent_probe.py \
+              --apk "$RUNNER_TEMP/offline-local-apk/PVZ2_CHN_4.2.8_from_repo_smali_test.apk" \
+              --out "$RUNNER_TEMP/offline-gate-report/runtime" \
+              --checkpoints 5,25,60,120 \
+              --build-kind smali-local-trial \
+              --frida-script scripts/offline/frida_warning_stack.js
+
       - name: Report gameplay gate; fail CI when ANR or process exit is observed
         if: always()
         shell: bash
@@ -183,6 +203,8 @@ jobs:
               "airplane_mode_after":d.get("offline_after_consent"),
               "any_integrity_warning":any(f.get("integrity_warning_seen") for f in frames),
               "signature_trace":d.get("signature_trace",{}),
+              "frida_status":d.get("frida_status"),
+              "frida_warning_event_count":len(d.get("frida_warning_events",[])),
               "android_exit_info":d.get("android_exit_info",{}).get("relevant_lines",[])[:10],
               "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
                   d.get("logcat",{}).get("counts",{}).get("activity_anr",0)>0,
