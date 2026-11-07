@@ -144,6 +144,21 @@ def exit_info_summary() -> dict:
         return {"status": "unavailable"}
 
 
+def signature_trace_summary() -> dict:
+    """Read only our observation tag; not the signature or its digest."""
+    try:
+        raw = adb("logcat", "-d", "-v", "brief",
+                  "-s", "PVZ2SignatureTrace:I", "*:S", timeout=20)
+        if raw.returncode:
+            return {"status": "unavailable"}
+        lines = decoded(raw).splitlines()
+        return {"status": "ok", "enter": sum("GetSignature.enter" in line for line in lines),
+                "exit": sum("GetSignature.exit" in line for line in lines),
+                "sampled_lines": len(lines)}
+    except (OSError, TimeoutError):
+        return {"status": "unavailable"}
+
+
 def classify_runtime(frames: list[dict], logcat: dict) -> str:
     if any(frame.get("integrity_warning_seen") for frame in frames):
         return "FAIL_INTEGRITY_WARNING"
@@ -203,6 +218,7 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
                 time.sleep(delay)
             frame = sample(out, f"after_consent_{seconds:03d}s")
             frame["offset_target_seconds"] = seconds
+            frame["signature_trace"] = signature_trace_summary()
             frame["privacy_policy_visible"] = screen_is_privacy_policy(frame)
             frame["integrity_warning_seen"] = any(
                 "盗版游戏" in (node.get("text", "") + node.get("content_desc", "")) or
@@ -218,6 +234,7 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
             # No further interaction with unknown screens without visual inspection.
         report["logcat"] = logcat_summary()
         report["android_exit_info"] = exit_info_summary()
+        report["signature_trace"] = signature_trace_summary()
         report["privacy_gate_still_visible"] = screen_is_privacy_policy(report["after_consent"][-1])
         report["offline_after_consent"] = (
             decoded(adb("shell", "settings", "get", "global", "airplane_mode_on")) == "1"
