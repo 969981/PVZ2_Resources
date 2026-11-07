@@ -33,3 +33,21 @@ tags: [pvz2, offline, android, smali, native, signature]
 依次证明（A）重签版在飞行模式下通过启动而不异常退出；（B）从纯本地会话进入**原版可交互主菜单**；（C）显示、运行并完成**原版第一关**；（D）结束结算产生**原版进度存档**；（E）强制停止后冷启动**原版引擎读回同一进度**。每一阶段有实际画面、进程存活、APK/BuildID、飞行模式与真实存档差异。任何失败即保留未验收标签，不能将 CI green 或静态扫描误写为完成。
 
 相关：[[18-离线单机里程碑与验收台账-2026-11-07]]、[[19-离线主菜单关卡结算重启读档验收规范]]、[[20-原生登录状态与玩家数据消费核验]]。
+
+## 2026-11-07 19:19 北京时间：Actions #42367042999 实机证据复核
+
+- 工作流 **success** 仅表示编译、模拟器脚本与上传步骤完成，不表示 APK 可玩。GitHub 产物 `pvz2-chn428-offline-gate-qa` 的 `acceptance.json` 明确为 `true_offline_playable_apk=false`。
+- Android 11 / x86_64+ARM translation / 飞行模式。修改版 APK 已安装并成功启动；`frame_030s.png` 显示原生隐私条款。
+- 点击同意后 `after_consent_005s` 的 UIAutomator 树出现 **“植物大战僵尸2 isn't responding”**、`Close app`、`Wait`；`logcat` 统计有 **1 个 ActivityManager ANR**，暂无 Java FATAL / native fatal signal 证据。
+- `after_consent_025s`、60s、120s 都 `process_alive=false`，屏幕已返回 Android 桌面。
+- 这些证据可以定位到“同意后很快出现 ANR，随后退出”，但**不能证明**原因是签名校验、JNI 同步回调、资源加载还是 Android ARM 翻译兼容问题。
+- 旧版探针的 `game_modified=false` 和 `ui_probe.json.game_unmodified=true` 是**报告元数据错误**：工作流实际传入的是重新打包的临时 Smali 改造版 APK，不能把它当原版。
+
+### 本次修复（仅测试设施，不冒充可玩补丁）
+
+1. 给模拟器探针增加显式 `--build-kind smali-local-trial`，准确标注修改版。
+2. 记录 Android 11 `dumpsys activity exit-info`、经过脱敏和截断的 ANR/进程退出日志片段，区分界面 ANR 和进程退出。
+3. 增加 ANR/进程退出合成回归测试，并让 Actions 在观察到失败时返回失败，而非继续显示绿色的“游戏测试通过”。
+4. 目前仍无原生主菜单、第一关结算、原版存档读回证据；请优先用下轮新增的诊断片段对照原版/仅重签版本，再定位真实异常分支，不应盲改游戏内所有验签函数。
+
+验收口径未变：只有在飞行模式中真实进入并操作原版主菜单、完成第一关、结算保存且冷启动读回，才能标记“离线可玩”。
