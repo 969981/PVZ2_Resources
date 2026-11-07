@@ -37,3 +37,16 @@ object_classes.csv, rtid_samples.csv and SUMMARY.json.
 
 Full Obsidian usage guide:
 docs/Unpack/13-26774素材全量解析与使用说明.md.
+
+## Verified real-data run
+
+The full 15-shard Actions run succeeded and committed 26,774 parsed file rows
+to Catalog/CHN/V4.2.8/parsed/. Results:
+12,259 parsed JSON; 1,345 PNG pixel decoded; 6,941 RIFF-structured WEM;
+245 RIFF partial; 508 standard BNK; 1 BNK partial; 1 XML partial;
+4 sfnt; 89 text structures; 5,379 opaque PTX/PAM/POPFX originals;
+2 unresolved non-BKHD copies; 0 parse errors.
+
+Found 754,178 actual RTID references and exported 153,939 bounded samples.
+There is still no Media-06 in source Git, and parsing cannot imply gameplay
+rendering or audio PCM playback. See SUMMARY.json and Obsidian runbook.

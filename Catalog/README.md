@@ -2,6 +2,8 @@
 
 A **metadata-only** inventory of original and derived game resources. No additional image/audio bytes are published through the catalog.
 
+- [Deep-parsed format, JSON classes, RTID SQLite](CHN/V4.2.8/parsed/assets.sqlite)
+- [Deep-parsed evidence summary](CHN/V4.2.8/parsed/SUMMARY.json)
 - [Full file search database (SQLite)](CHN/V4.2.8/summary/assets.sqlite)
 - [Flat CSV index](CHN/V4.2.8/summary/assets.csv)
 - [Coverage and missing-shard report](CHN/V4.2.8/summary/SUMMARY.json)
