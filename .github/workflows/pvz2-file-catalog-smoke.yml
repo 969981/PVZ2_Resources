@@ -1,0 +1,82 @@
+name: PVZ2 4.2.8 inspect and catalog real extracted file inventory
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-file-catalog-smoke.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - stage: Internal
+            shard: "05"
+          - stage: Media
+            shard: "00"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/index_git_shard.py
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+          persist-credentials: true
+      - name: Install zstd and check manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          test -f "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/manifest.json"
+          python3 -m py_compile scripts/catalog/index_git_shard.py
+      - name: Stream archive, SHA-check each original file, produce browseable CSV
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/index_git_shard.py \
+            "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}" \
+            --out "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
+      - name: Verify record count and every SHA256 format
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import csv,json, pathlib,re
+          roots=list(pathlib.Path('Catalog/CHN/V4.2.8/shards').glob('*/summary.json'))
+          assert len(roots)==1,roots
+          report=json.loads(roots[0].read_text())
+          with (roots[0].parent/'files.csv').open(encoding='utf-8-sig',newline='') as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==report['file_count']
+          assert all(re.fullmatch('[0-9a-f]{64}',row['sha256']) for row in rows)
+          assert len({r['original_path'] for r in rows})==len(rows)
+          print('VERIFIED',report['stage'],report['shard'],len(rows))
+          PY
+      - name: Upload inspectable file-level SHA catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-file-catalog-${{ matrix.stage }}-${{ matrix.shard }}
+          path: Catalog/CHN/V4.2.8/shards/
+          retention-days: 7
+      - name: Commit metadata only without duplicating proprietary media
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "catalog-${{ matrix.stage }}-${{ matrix.shard }}"
+          git add -f -- "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
+          git commit -m "data(catalog): per-file SHA256 inventory ${{ matrix.stage }} shard ${{ matrix.shard }}"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
