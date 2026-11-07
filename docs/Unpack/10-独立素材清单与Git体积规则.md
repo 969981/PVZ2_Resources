@@ -102,11 +102,31 @@ python3 scripts/catalog/materialize_readable.py \
 
 在按文件实际索引时确认：当前已归档 Media 00～05 和 07，**缺的是 Media/shard-06 而不是 Media/shard-07**。这个分片未处理意味着覆盖率 7/8；SQLite 汇总必须明确标记 Media-06 为 missing，不能记作零素材。
 
+
+## 本次全量索引实测（已提交并经过 Actions 验证）
+
+[GitHub Actions #42329143720](https://github.com/969981/PVZ2_Resources/actions/runs/42329143720) 全部 15 份扫描及合并 Job 成功：
+
+| 类型 | 分片覆盖 | 逐文件记录 | <95 MiB | >50 MiB |
+|---|---:|---:|---:|---:|
+| Internal | 8/8 | 14,869 | 14,869 | 0 |
+| Media | 7/8 | 11,905 | 11,905 | 5 |
+| 合计 | 15 | 26,774 | 26,774 | 5 |
+
+已提交的实际入口：
+- Catalog/CHN/V4.2.8/summary/assets.sqlite（可用 SQLite 检索、跨分片查询）；
+- Catalog/CHN/V4.2.8/summary/assets.csv（原始路径、格式、大小、SHA256）；
+- Catalog/CHN/V4.2.8/summary/SUMMARY.json（缺失分片明确列为 Media-06）。
+
+Media/shard-06 **尚未完成 Git 归档**。从此前真实归档工作流日志可见该分片原始媒体有 501 个文件、压缩后 14 个 64 MiB 左右分卷；失败发生在 git push 的并发 master ref 更新（cannot lock ref / rejected），不是超出 100 MiB 单文件硬限制。已有前六个压缩部件不代表全部归档成功；在 manifest 出现并通过校验以前，不能将该分片计入最终可恢复目录。
+
 ## 后续验收
 
 - [x] Internal-05 的 8,440 个来源文件和 Media-00 的 1,366 个文件已建立来源索引；
 - [x] 更正小型文本预览和 Git 单文件大小资格的混淆；
-- [ ] 将剩余 Internal/Media 已存在分片全部完成元数据索引及跨分片去重；
+- [x] 已存在的 8 个 Internal、7 个 Media 分片的逐文件清单全部完成，并汇总到 SQLite/CSV；
+- [ ] 尚未完整入 Git 的 Media-06 完成归档后再做文件级 SHA256 审计与汇总；
+- [ ] 源 PTX 与派生 PNG、源 PAM 与派生 JSON 之间的语义级去重和映射；
 - [ ] 已获公开授权的单独素材再根据 Git 体积及更新频率选择独立发布方式；
 - [ ] 将动态关卡、动画图集和音效事件引用实际素材索引。
 
