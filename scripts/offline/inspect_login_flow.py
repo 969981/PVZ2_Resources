@@ -34,6 +34,16 @@ TARGETS = (
     "com/tw/gamesdk/oneclicklogin/OneClickLoginManager.java",
     "com/tw/gamesdk/oneclicklogin/TwgameOneClickLoginUtil.java",
     "com/tw/gamesdk/ui/TwGameLoginUtil.java",
+    "com/tw/gamesdk/ui/TwgameAccountLoginUtil.java",
+    "com/tw/gamesdk/ui/TwgameLoginQuickUtil.java",
+    "com/tw/OnLinePaySdk/SdkTW/PayToolTW.java",
+    "com/tw/pay/sdk/ui/MainActivity.java",
+    "com/talkweb/twOfflineSdk/TwOfflineSDK.java",
+    "com/talkweb/twOfflineSdk/sdk/TwOfflineSDKImpl.java",
+    "com/talkweb/twOfflineSdk/callback/CallbackManager.java",
+    "com/talkweb/twOfflineSdk/TalkwebProxy.java",
+    "com/popcap/pvz2cthddev/TWPurchase.java",
+    "com/popcap/pvz2cthddev/TWGameAd.java",
 )
 DECL = re.compile(
     r"^\s*(?:(?:public|protected|private|static|final|native|synchronized|abstract|strictfp|default)\s+)"
