@@ -6,6 +6,7 @@ on:
       - experiment/chn428-original-vs-resign-ab-20261107
     paths:
       - ".github/workflows/pvz2-offline-original-vs-resign-ab.yml"
+      - "scripts/offline/consent_probe.py"
   workflow_dispatch:
 
 permissions:
