@@ -305,7 +305,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
             game.close();resource.close();loc.close()
 
     native,verified,missing,not_in_source=get_ancillary(raw_root,original_audit(root),require_raw=require_raw)
-    refs=source_token_index(gameplay+native)
+    refs=source_token_index(gameplay)  # Native raw objects duplicate exported gameplay rows; avoid false ambiguities.
     asset_list=list(read_csv(root/"Catalog/CHN/V4.2.8/semantic_assets/asset_paths.csv"))
     assets_by_group=defaultdict(list)
     assets_by_group_key=defaultdict(list)
