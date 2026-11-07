@@ -235,7 +235,7 @@ def verified_source_objects(raw_root:Path,index,relative:str):
 def current_level_scope(raw_root:Path,index,entities):
     """RTID(foo@CurrentLevel) resolves ONLY in same original level JSON."""
     wanted=sorted({e["source"] for e in entities if isinstance(e["data"].get("Properties"),str)
-                   and re.search(r"@\\?\$?CurrentLevel\)",e["data"]["Properties"],re.I)})
+                   and re.search(r"@\$?CurrentLevel\)",e["data"]["Properties"],re.I)})
     scopes=defaultdict(list)
     verified={}
     for relative in wanted:
