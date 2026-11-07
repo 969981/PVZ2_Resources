@@ -34,6 +34,22 @@ def parse_dump(data: str) -> list[dict]:
     return matches
 
 
+def discover_named_candidate(smali_root: Path, field="check_sign_failed") -> list[dict]:
+    """Exact field and ID from the app's generated R$string; NOT a text mapping."""
+    p = smali_root / "smali/com/popcap/pvz2cthdbk/R$string.smali"
+    if not p.is_file():
+        return []
+    regex = re.compile(
+        r"(?m)^\\.field public static final " + re.escape(field) +
+        r":I = (0x[0-9a-fA-F]{8})$")
+    matches = regex.findall(p.read_text(encoding="utf-8"))
+    if len(matches) != 1:
+        return []
+    return [{"id": matches[0].lower(),
+             "name": "com.popcap.pvz2cthdbk:string/" + field,
+             "evidence": "GENERATED_R_STRING_FIELD_NAME_NOT_TEXT_VERIFIED"}]
+
+
 def locate_source_refs(smali_root: Path, resources: list[dict], max_hits=300) -> dict:
     ids = {r["id"].lower() for r in resources}
     names = {r["name"].split("/")[-1] for r in resources}
@@ -66,16 +82,46 @@ def locate_source_refs(smali_root: Path, resources: list[dict], max_hits=300) ->
 
 
 def analyze(apk: Path, aapt2: Path, smali_root: Path) -> dict:
-    cmd = [str(aapt2), "dump", "resources", str(apk)]
-    completed = subprocess.run(cmd, capture_output=True, timeout=150, check=False)
-    if completed.returncode:
-        return {"status": "AAPT2_RESOURCE_DUMP_FAILED", "returncode": completed.returncode,
-                "references": [], "resource_ids": []}
-    found = parse_dump(completed.stdout.decode("utf-8", "replace"))
+    if not apk.is_file() or not aapt2.is_file():
+        raise FileNotFoundError("Original APK or AAPT2 missing")
+    commands = [
+        [str(aapt2), "dump", "resources", str(apk)],
+        [str(aapt2), "dump", "resources", "-v", str(apk)],
+    ]
+    aapt = aapt2.with_name("aapt")
+    if aapt.is_file():
+        commands.append([str(aapt), "dump", "resources", "--values", str(apk)])
+    found = []
+    observations = []
+    for cmd in commands:
+        try:
+            result = subprocess.run(cmd, capture_output=True, timeout=150, check=False)
+            output = result.stdout.decode("utf-8", "replace")
+            new_hits = parse_dump(output) if result.returncode == 0 else []
+            observations.append({
+                "tool": Path(cmd[0]).name,
+                "mode": ",".join(cmd[2:-1]),
+                "returncode": result.returncode,
+                "text_visible": "盗版游戏" in output,
+                "candidate_field_visible": "check_sign_failed" in output,
+                "mapped_warning_resources": len(new_hits),
+            })
+            found.extend(r for r in new_hits if r not in found)
+            if found:
+                break
+        except (OSError, subprocess.TimeoutExpired):
+            observations.append({"tool": Path(cmd[0]).name,
+                                 "mode": ",".join(cmd[2:-1]),
+                                 "status": "unavailable"})
+    inferred = discover_named_candidate(smali_root)
+    resources = found or inferred
     report = {"status": "STATIC_RESOURCE_REFERENCES_RUNTIME_UNVERIFIED",
-              "resource_ids": found, "wording_found_in_aapt2_dump": bool(found),
+              "resource_ids": resources,
+              "named_candidate_only": not bool(found),
+              "wording_found_in_resource_dump": bool(found),
+              "resource_dump_attempts": observations,
               "binary_resource_source_confirmed_by_prior_scan": True}
-    report.update(locate_source_refs(smali_root, found))
+    report.update(locate_source_refs(smali_root, resources))
     return report
 
 
