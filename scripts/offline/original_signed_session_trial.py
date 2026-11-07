@@ -31,7 +31,7 @@ MARKERS = (
     "LOCAL_SESSION_LOGIN_END_RETURN",
     "LOCAL_SESSION_NATIVE_CALL_FAILED",
 )
-POINTS = [5, 120, 420, 720]
+POINTS = [5, 120, 420, 600]
 
 
 def digest(path: Path) -> str:
@@ -61,7 +61,19 @@ def main():
     result = run(a.apk, a.out, POINTS, build_kind="original", frida_script=a.hook)
     log = adb("logcat", "-d", "-v", "brief",
               "-s", "PVZ2LocalTrial:I", "*:S", timeout=60)
-    counts = count_trial_markers(decoded(log) if log.returncode == 0 else "")
+    log_counts = count_trial_markers(decoded(log) if log.returncode == 0 else "")
+    runtime_events = result.get("frida_warning_events", [])
+    direct_counts = {
+        marker: sum(event.get("type") == "LOCAL_SESSION_TRACE" and
+                    event.get("stage") == marker for event in runtime_events)
+        for marker in MARKERS
+    }
+    counts = {key: max(log_counts[key], direct_counts[key]) for key in MARKERS}
+    samples = [
+        {key: event[key] for key in ("current_stage", "time_hint", "is_first_init")
+         if key in event}
+        for event in runtime_events if event.get("type") == "RESOURCE_LOADING_STAGE"
+    ]
     report = {
         "status": "OBSERVATION_NOT_GAMEPLAY_VALIDATION",
         "source_apk_signature_untouched": True,
@@ -72,6 +84,9 @@ def main():
         "frida_status": result.get("frida_status"),
         "frida_diagnostics": result.get("frida_diagnostics", {}),
         "local_trial_markers": counts,
+        "frida_direct_local_markers": direct_counts,
+        "resource_stage_samples": samples[:35],
+        "resource_stage_sample_count": len(samples),
         "process_alive_at_checkpoints": [x.get("process_alive") for x in result.get("after_consent", [])],
         "integrity_warning_at_checkpoints": [x.get("integrity_warning_seen") for x in result.get("after_consent", [])],
         "checkpoints_seconds": POINTS,
