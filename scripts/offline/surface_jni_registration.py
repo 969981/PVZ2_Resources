@@ -12,9 +12,14 @@ import json
 from pathlib import Path
 from zipfile import ZipFile
 
-from scripts.offline.jni_registration_probe import (
-    parse_elf64, scan_registration_rows, to_virtual_address,
-)
+try:
+    from scripts.offline.jni_registration_probe import (
+        parse_elf64, scan_registration_rows, to_virtual_address,
+    )
+except ModuleNotFoundError:
+    from jni_registration_probe import (
+        parse_elf64, scan_registration_rows, to_virtual_address,
+    )
 
 APK_SHA = "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4"
 ELF_SHA = "b216b12e0e17a6429d993f380a7e6bbd9b99704906ec20a445d59952681b10ba"
