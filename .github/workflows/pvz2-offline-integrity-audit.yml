@@ -1,0 +1,113 @@
+name: PVZ2 CHN 4.2.8 original APK signing and intentional exit audit
+on:
+  push:
+    branches: [experiment/chn428-original-vs-resign-ab-20261107]
+    paths:
+      - ".github/workflows/pvz2-offline-integrity-audit.yml"
+      - "scripts/offline/signing_integrity_census.py"
+      - "tests/test_offline_signing_integrity_census.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pvz2-chn428-signing-integrity-audit
+  cancel-in-progress: false
+jobs:
+  real-source-signing-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - name: Checkout only census scripts tests and 88 original volumes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          submodules: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+      - name: Run isolated signing-census synthetic regression tests
+        run: python3 -m unittest discover -s tests -p test_offline_signing_integrity_census.py -v
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Restore exact original source APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          command -v 7z >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y p7zip-full)
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/restore-original"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/restore-original" -y
+          apk="$(find "$RUNNER_TEMP/restore-original" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/original.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/original.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore-original" ROMS .git/objects
+      - name: Verify source certificate and privately extract only six DEX and ARM64 libSrc
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dex-private" "$RUNNER_TEMP/so-private" "$RUNNER_TEMP/signing-evidence"
+          bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$bt/apksigner" verify --verbose --print-certs "$RUNNER_TEMP/original.apk" > "$RUNNER_TEMP/signing-evidence/original-apk-signing.txt"
+          python3 - <<'PY'
+          import pathlib,zipfile,os,shutil
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          with zipfile.ZipFile(root/"original.apk") as f:
+            dex=["classes.dex"]+[f"classes{i}.dex" for i in range(2,7)]
+            for name in dex:
+              assert f.getinfo(name).file_size > 100
+              with f.open(name) as src,(root/"dex-private"/name).open("wb") as dest:
+                shutil.copyfileobj(src,dest)
+            with f.open("lib/arm64-v8a/libSrc.so") as src,(root/"so-private/libSrc.so").open("wb") as dest:
+              shutil.copyfileobj(src,dest)
+          PY
+          df -h .
+      - name: Obtain pinned JADX 1.5.6 and decompile only DEX
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 180 "https://github.com/skylot/jadx/releases/download/v1.5.6/jadx-1.5.6.zip" -o "$RUNNER_TEMP/jadx.zip"
+          mkdir -p "$RUNNER_TEMP/jadx"
+          unzip -q "$RUNNER_TEMP/jadx.zip" -d "$RUNNER_TEMP/jadx"
+          "$RUNNER_TEMP/jadx/bin/jadx" --version
+          "$RUNNER_TEMP/jadx/bin/jadx" -r --threads-count 4 -d "$RUNNER_TEMP/jadx-private" "$RUNNER_TEMP"/dex-private/*.dex
+      - name: Census package signing and termination candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/signing_integrity_census.py --sources "$RUNNER_TEMP/jadx-private/sources" --so "$RUNNER_TEMP/so-private/libSrc.so" --out "$RUNNER_TEMP/signing-evidence"
+          python3 - <<'PY'
+          import os,json,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"signing-evidence"
+          report=json.loads((root/"signing_candidate_summary.json").read_text())
+          assert report["java_files_scanned"]>1000, "JADX source inventory incomplete"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("## Real original 4.2.8 signing/exit callsite audit\n\n")
+            f.write("- Java sources scanned: "+str(report["java_files_scanned"])+"\n")
+            f.write("- Candidate counts: "+str(report["lexical_matches"])+"\n")
+            f.write("- Same-file signing/exit overlap: "+str(report["same_file_signature_and_exit_candidates"])+"\n")
+            f.write("- Lexical match does NOT prove runtime integrity enforcement.\n")
+            f.write("- Original menu, level and save remain unverified.\n")
+          PY
+      - name: Remove private sources and original APK before upload
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/jadx-private" "$RUNNER_TEMP/dex-private" "$RUNNER_TEMP/so-private" "$RUNNER_TEMP/original.apk" || true
+      - name: Upload derived matching identifiers and line numbers only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-signature-integrity-candidates
+          path: |
+            ${{ runner.temp }}/signing-evidence/*.json
+          if-no-files-found: warn
+          retention-days: 7
