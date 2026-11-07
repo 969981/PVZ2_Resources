@@ -1,0 +1,38 @@
+name: Inspect real LawnStrings CHN string-ID mapping
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-lawnstrings-inspect.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+      - name: Restore verified source bytes from Git history
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 --out "$RUNNER_TEMP/internal"
+      - name: Inspect authentic LawnStrings token and value layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/inspect_lawnstrings.py "$RUNNER_TEMP/internal" \
+            --out "$RUNNER_TEMP/lawnstrings_probe.json"
+      - name: Upload schema evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-cn-428-lawnstrings-probe
+          path: ${{ runner.temp }}/lawnstrings_probe.json
+          retention-days: 3
