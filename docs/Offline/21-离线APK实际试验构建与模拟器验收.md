@@ -42,7 +42,7 @@ tags: [pvz2, offline, apk, smali, android, save, test]
 ## 安全与还原
 
 - 不覆盖原版 APK；保留原始文件的 SHA256 与替换前后 DEX SHA256。实验改动只在原版单个 `TWPurchase.run()V` 中尝试按顺序调用本机 JNI 入口。
-- 本次仅用占位 `offline-local-test-only` 与状态 `init=1/login=1` 验证**离线游戏流程可否继续**，不是声称这些值具备在线认证资格；也不向任何外部服务器提交凭据。不同状态分支未验证前不任意宣称“登录成功”。
+- 本次仅用占位 `offline-local-test-only` 与状态 `init=0/login=0` 验证**离线游戏流程可否继续**，不是声称这些值具备在线认证资格；也不向任何外部服务器提交凭据。不同状态分支未验证前不任意宣称“登录成功”。
 - 修改后的 APK 仅位于 GitHub Actions 一次性临时工作目录，**不提交或公开上传**原版商业 APK、游戏资源、DLL/SO 或签名后的完整安装包。
 - 使用飞行模式、关闭 Wi-Fi 和移动数据的全新模拟器，不登录真实手机号或真实账号。
 - 试验密钥为每次构建的临时证书，与原版发行商签名不同，不保证安装更新、正版数据继承或线上功能可用。**不要安装到已有真实存档的设备上**。
@@ -74,7 +74,7 @@ export ANDROID_HOME="$HOME/Android/Sdk"  # 调整为实际 SDK 路径
 bash scripts/offline/build_private_local_trial.sh \
   /mnt/x/ROMS/Android/PVZ2/PVZ2_4.2.8/PVZ2_4.2.8.apk \
   /mnt/x/ROMS/Android/PVZ2/PVZ2_4.2.8/OfflineBuild \
-  1 1
+  0 0
 ```
 
 APK 只会出现在本机输出目录，签名是本地测试证书。**不要将此试验包认作可正式游玩的离线版。**
