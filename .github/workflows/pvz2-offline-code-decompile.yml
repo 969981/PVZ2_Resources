@@ -10,6 +10,8 @@ on:
       - "tests/test_offline_login_flow.py"
       - "scripts/offline/bridge_site_index.py"
       - "tests/test_offline_bridge_site_index.py"
+      - "scripts/offline/inspect_native_callbacks.py"
+      - "tests/test_offline_native_callbacks.py"
   workflow_dispatch:
 
 permissions:
@@ -61,6 +63,9 @@ jobs:
 
       - name: Validate game login-to-native bridge scanner
         run: python3 -m unittest discover -s tests -p test_offline_bridge_site_index.py -v
+
+      - name: Validate native SDK login callback declaration parser
+        run: python3 -m unittest discover -s tests -p test_offline_native_callbacks.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -142,6 +147,26 @@ jobs:
               stream.write("- Candidate call sites indexed: "+str(d["matching_source_sites_stored"])+"\n")
               stream.write("- No patch addresses or verified native login callback yet.\n")
           assert d["first_party_java_sources_scanned"]>50
+          PY
+
+      - name: Verify actual SDK login-to-native callback parameter type contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/inspect_native_callbacks.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/actual_login_jni_contract_summary.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## Real TWPurchase SDK->JNI method declarations\n\n")
+              f.write(f"- Actual signatures found: {d['declarations_found']}\n")
+              f.write(f"- Native_SDKLoginEnd declaration: {d['has_native_sdk_login_end_declaration']}\n")
+              f.write("- These are types/arity only. No actual callback payload, account or payment data.\n")
+          assert d["available_files"] >= 6
+          assert d["has_native_sdk_login_end_declaration"]
           PY
 
       - name: Upload derived metadata only
