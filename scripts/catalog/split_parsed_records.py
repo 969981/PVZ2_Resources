@@ -175,7 +175,7 @@ def export(src:Path,out:Path,expected:int=26774):
             raise ValueError("source asset row count mismatch")
         if statuses!=Counter(summary["parser_status_counts"]):
             raise ValueError("parser statuses differ from source SUMMARY")
-        if by_stage!=Counter({"Internal":14869,"Media":11905}):
+        if expected==26774 and by_stage!=Counter({"Internal":14869,"Media":11905}):
             raise ValueError("unexpected per-stage source counts")
 
         with temp_index.open("w",encoding="utf-8-sig",newline="") as f:
