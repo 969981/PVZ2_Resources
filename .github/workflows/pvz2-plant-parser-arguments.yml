@@ -1,0 +1,80 @@
+name: Derive PvZ2 4.2.8 native plant parser arguments from disassembly
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-plant-parser-arguments.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-plant-parser-args
+  cancel-in-progress: false
+jobs:
+  verified-instructions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/offline/derive_native_combat_parser_args.py
+            Catalog/CHN/V4.2.8/native_combat_disassembly/
+            Catalog/CHN/V4.2.8/native_combat_parser_args/
+      - name: Extract argument values from verified disassembly
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/offline/derive_native_combat_parser_args.py
+          python3 scripts/offline/derive_native_combat_parser_args.py \
+            --instructions Catalog/CHN/V4.2.8/native_combat_disassembly/native_combat_instructions.csv \
+            --out Catalog/CHN/V4.2.8/native_combat_parser_args
+          python3 - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("Catalog/CHN/V4.2.8/native_combat_parser_args/SUMMARY.json")
+          s=json.loads(p.read_text())
+          assert s["total_xref_sites"]==98,s
+          assert s["sites_with_w3_immediate_and_followup_call"]>30,s
+          def exists(group,field,offset):
+            return any(r["candidate_parser_cluster"]==group and r["field"]==field
+              and r["w3_value_hex"]==offset for r in s["target_field_parser_candidates"])
+          for group,field,offset in [
+             ("mulberry_plant_config","SplitGrenadeRate","0x2e8"),
+             ("mulberry_plant_config","ImprovedGrenadeBonus","0x2ec"),
+             ("mulberry_plant_config","Level5AttackRate","0x2f0"),
+             ("mulberry_plant_config","PlasmaSection","0x2f4"),
+             ("mulberry_plant_config","FlashSection","0x2f8"),
+             ("chemist_projectile_config","BasicVenomRate","0x2c0"),
+             ("chemist_projectile_config","AdvancedVenomRate","0x2c4")]:
+               assert exists(group,field,offset),(group,field,offset)
+          print("DERIVED_SOURCE_ARGS_ACCEPTED",s["sites_with_w3_immediate_and_followup_call"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-plant-native-parser-arg-evidence
+          path: Catalog/CHN/V4.2.8/native_combat_parser_args/
+          retention-days: 14
+      - name: Publish source-derived evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "plant-parser-args-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/native_combat_parser_args/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(chn428): combat field parser argument evidence from original ARM64"
+          for attempt in 1 2 3 4; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "PARSER_ARG_EVIDENCE_PUBLISHED"
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
