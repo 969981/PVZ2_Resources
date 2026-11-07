@@ -40,6 +40,48 @@ def screen_dimensions_ok(frame: dict) -> bool:
     info = frame.get("image_info", {})
     return info.get("width") == 2340 and info.get("height") == 1080
 
+# Verified on two independent real 2340x1080 CHN 4.2.8 privacy-policy
+# frames: distinct green header, tan body, both green buttons.
+POLICY_PALETTE = (
+    (800, 188, (150, 205, 48)),
+    (1100, 192, (149, 204, 48)),
+    (1400, 192, (149, 204, 48)),
+    (900, 300, (203, 186, 153)),
+    (1500, 300, (203, 186, 153)),
+    (820, 880, (82, 224, 82)),
+    (1300, 880, (82, 224, 82)),
+    (1600, 850, (239, 231, 198)),
+)
+
+
+def privacy_palette_matches(read_pixel, tolerance: int = 24) -> int:
+    """Count reference privacy-dialog samples matching in all RGB channels."""
+    return sum(
+        all(abs(observed - expected) <= tolerance
+            for observed, expected in zip(read_pixel(x, y), rgb))
+        for x, y, rgb in POLICY_PALETTE
+    )
+
+
+def screen_is_privacy_visual(frame: dict, images_dir: Path) -> tuple[bool, int]:
+    """Verify real PNG colors; fail closed when Pillow/image unavailable."""
+    if not screen_dimensions_ok(frame) or not frame.get("foreground"):
+        return False, 0
+    name = frame.get("screenshot")
+    if not isinstance(name, str) or not name.startswith("frame_") or "/" in name:
+        return False, 0
+    try:
+        from PIL import Image
+        with Image.open(images_dir / name) as image:
+            if image.size != (2340, 1080):
+                return False, 0
+            rgb = image.convert("RGB")
+            hits = privacy_palette_matches(rgb.getpixel)
+            return hits >= 7, hits
+    except (OSError, ValueError, ImportError):
+        return False, 0
+
+
 
 def logcat_summary() -> dict:
     try:
@@ -84,7 +126,16 @@ def run(apk: Path, out: Path, times: list[int]) -> dict:
             report["status"] = "BLOCKED_PRE_CONSENT"
             return report
         pre = base["frames"][-1]
-        if not screen_dimensions_ok(pre) or not screen_is_privacy_policy(pre):
+        ui_verified = screen_is_privacy_policy(pre)
+        visual_verified, pixel_matches = screen_is_privacy_visual(pre, out)
+        report["privacy_gate_evidence"] = {
+            "uiautomator_policy_text": ui_verified,
+            "verified_native_screen_palette": visual_verified,
+            "matched_reference_colors": pixel_matches,
+            "reference_color_count": len(POLICY_PALETTE),
+        }
+        if not screen_dimensions_ok(pre) or not pre.get("foreground") or not (
+                ui_verified or visual_verified):
             report["status"] = "BLOCKED_PRIVACY_SCREEN_NOT_CONFIRMED"
             return report
         report["status"] = "CONSENT_ACTION_PREPARED"
