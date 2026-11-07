@@ -66,6 +66,44 @@ def app_storage_manifest(limit:int=100)->dict:
         clean.append({"relative_name":fields[0][:200],"bytes":fields[1],"mtime":fields[2]})
     return {"status":"FILES_ONLY_NOT_SAVE_SCHEMA","rows":clean[:limit]}
 
+def sanitized_exit_observation()->dict:
+    """Bounded OS-only exit evidence, avoid account/token/HTTP payloads."""
+    import re
+    result={"process_exit_reason":"UNKNOWN","process_exit_description":"NOT_AVAILABLE",
+            "short_logcat_categories":{}}
+    raw=adb("shell","dumpsys","activity","exit-info",PACKAGE,timeout=30)
+    if raw.returncode==0:
+        output=decoded(raw)
+        patterns=[
+            ("crash",r"(?i)REASON_CRASH(?:_NATIVE)?"),
+            ("anr",r"(?i)REASON_ANR"),
+            ("exit_self",r"(?i)REASON_EXIT_SELF"),
+            ("user_requested",r"(?i)REASON_USER_REQUESTED"),
+            ("excessive_resource",r"(?i)REASON_EXCESSIVE_RESOURCE"),
+        ]
+        result["process_exit_reason"]=next((label for label,regex in patterns
+            if re.search(regex,output)),"UNKNOWN")
+        result["process_exit_description"]="OS_EXIT_INFO_RETURNED" if output.strip() else "OS_EXIT_INFO_EMPTY"
+    logs=adb("logcat","-d","-v","brief","-t","3000",timeout=30)
+    if logs.returncode==0:
+        text=decoded(logs)
+        # Structural counters only - never raw log lines, URL, user ID or tokens.
+        categories={
+            "process_killed":r"(?i)Killing.*com\\.popcap\\.pvz2cthdbk",
+            "force_finishing":r"(?i)Force finishing activity",
+            "fatal_exception":r"(?i)FATAL EXCEPTION",
+            "native_signal":r"(?i)Fatal signal [0-9]+",
+            "java_security_exception":r"(?i)SecurityException",
+            "android_runtime_exception":r"(?i)AndroidRuntime",
+            "activity_destroyed":r"(?i)onDestroy",
+            "sdk_login_error_hint":r"(?i)SDKLogin|LoginError|login failed",
+        }
+        result["short_logcat_categories"]={
+            label:len(re.findall(regex,text)) for label,regex in categories.items()
+        }
+    return result
+
+
 def run(apk:Path,out:Path,times:list[int])->dict:
     out.mkdir(parents=True,exist_ok=True)
     base=run_probe(apk,out,[30])
@@ -109,6 +147,7 @@ def run(apk:Path,out:Path,times:list[int])->dict:
             result["frames"].append(frame)
             if not frame.get("process_alive"):
                 result["status"]="GAME_PROCESS_EXITED"
+                result["process_exit_observation"]=sanitized_exit_observation()
                 break
         result["airplane_mode_after"]=decoded(
             adb("shell","settings","get","global","airplane_mode_on")
@@ -139,11 +178,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--apk",type=Path,required=True)
     p.add_argument("--out",type=Path,required=True)
-    p.add_argument("--times",default="120,360,600")
+    p.add_argument("--times",default="10,30,60,120,360,600")
     a=p.parse_args()
     t=[int(x) for x in a.times.split(",")]
-    if not t or t!=sorted(set(t)) or t[0]<45 or t[-1]>900:
-        p.error("Only sorted unique observation times 45..900 are permitted")
+    if not t or t!=sorted(set(t)) or t[0]<5 or t[-1]>900:
+        p.error("Only sorted unique observation times 5..900 are permitted")
     if not a.apk.is_file():p.error("Patch APK missing")
     print(json.dumps(run(a.apk,a.out,t),ensure_ascii=False,indent=2))
 

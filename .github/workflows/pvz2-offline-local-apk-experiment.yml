@@ -128,7 +128,7 @@ jobs:
             "$RUNNER_TEMP/visual-venv/bin/python" scripts/offline/local_trial_gameplay_probe.py
             --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_0_0.apk"
             --out "$RUNNER_TEMP/trial-qa-screens"
-            --times 120,360,600
+            --times 10,30,60,120
 
       - name: State precise end-to-end verification results
         if: always()
@@ -152,6 +152,18 @@ jobs:
                   f.write("- Main menu **verified**: "+str(d["actual_main_menu_verified"])+"\n")
                   f.write("- First level **completed**: "+str(d["first_level_completed"])+"\n")
                   f.write("- Original save **reloaded**: "+str(d["original_game_save_reloaded"])+"\n")
+          PY
+
+      - name: Fail unless native main menu, first level, and original save were actually verified
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"trial-qa-screens/local_trial_ui_qa.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["actual_main_menu_verified"], "OFFLINE_MAIN_MENU_NOT_VERIFIED"
+          assert d["first_level_completed"], "FIRST_LEVEL_NOT_COMPLETED"
+          assert d["original_game_save_reloaded"], "ORIGINAL_SAVE_NOT_RELOADED"
           PY
 
       - name: Upload only screenshots, bounded metadata and verification evidence, not private APK
