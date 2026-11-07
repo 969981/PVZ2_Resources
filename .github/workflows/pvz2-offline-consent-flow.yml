@@ -56,6 +56,11 @@ jobs:
           echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
           rm -rf "$RUNNER_TEMP/pvz2-restore" ROMS .git/objects
           df -h .
+      - name: Prepare isolated Pillow decoder for native UI screenshot verification
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/consent-venv"
+          "$RUNNER_TEMP/consent-venv/bin/python" -m pip install --disable-pip-version-check --quiet Pillow==11.3.0
       - name: Enable KVM permissions if present
         shell: bash
         run: |
@@ -78,7 +83,11 @@ jobs:
           disk-size: 10240M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
-          script: python3 scripts/offline/consent_probe.py --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" --out "$RUNNER_TEMP/pvz2-offline-consent-flow" --checkpoints 5,25,60,120
+          script: >-
+            "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/consent_probe.py
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+            --out "$RUNNER_TEMP/pvz2-offline-consent-flow"
+            --checkpoints 5,25,60,120
       - name: Summarize sanitized emulator results
         if: always()
         shell: bash

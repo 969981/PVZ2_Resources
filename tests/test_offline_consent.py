@@ -1,6 +1,6 @@
 """Synthetic, no-device consent flow gating tests."""
 import unittest
-from scripts.offline.consent_probe import screen_dimensions_ok, screen_is_privacy_policy, AGREE_X, AGREE_Y
+from scripts.offline.consent_probe import screen_dimensions_ok, screen_is_privacy_policy, AGREE_X, AGREE_Y, POLICY_PALETTE, privacy_palette_matches
 
 
 class ConsentGuardTest(unittest.TestCase):
@@ -21,6 +21,12 @@ class ConsentGuardTest(unittest.TestCase):
     def test_agree_coordinate_on_actual_screen(self):
         self.assertTrue(1200 <= AGREE_X <= 1600)
         self.assertTrue(850 <= AGREE_Y <= 1000)
+
+    def test_privacy_palette(self):
+        valid = {(x, y): color for x, y, color in POLICY_PALETTE}
+        self.assertEqual(privacy_palette_matches(lambda x, y: valid[(x, y)]), 8)
+        # A wrong screen must not accidentally pass the test.
+        self.assertEqual(privacy_palette_matches(lambda x, y: (0, 0, 0)), 0)
 
 
 if __name__ == "__main__":
