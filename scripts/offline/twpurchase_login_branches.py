@@ -19,6 +19,7 @@ NATIVE_CALL=re.compile(r"\bNative_SDKLoginEnd\s*\(")
 DECL=re.compile(r"\bnative\s+\w+\s+Native_SDKLoginEnd\s*\(")
 NUMBER_PREDICATE=re.compile(r"(?:==|!=|<=|>=|<|>)\s*(-?\d{1,2})\b")
 FIELDS=["java_file","source_line","argument_count_hint","argument_type_hints",
+        "integer_status_literal","native_handle_identifier","payload_identifier",
         "nearby_integer_comparisons","source_sha256"]
 
 
@@ -70,6 +71,24 @@ def argument_kind(value:str)->str:
     return "other_expression"
 
 
+def integer_status_literal(value: str) -> str:
+    """Return ONLY a small source integer literal, never Java response content."""
+    clean=value.strip()
+    # Decimal/hex constants only, without arithmetic, method calls or user data.
+    if re.fullmatch(r"-?(?:0x[0-9A-Fa-f]{1,4}|[0-9]{1,5})",clean):
+        val=int(clean,0) if clean.lstrip("-").startswith("0x") else int(clean)
+        return str(val) if -65535<=val<=65535 else ""
+    return ""
+
+
+def identifier_only(value: str) -> str:
+    """Safe class/field/variable identifier, not expression value or token data."""
+    value=value.strip()
+    if len(value)>120 or not re.fullmatch(r"[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*){0,5}",value):
+        return ""
+    return value
+
+
 def analyze_source(java_source:str,sha:str)->list[dict]:
     scrubbed=strip_literals(java_source)
     rows=[]
@@ -95,6 +114,9 @@ def analyze_source(java_source:str,sha:str)->list[dict]:
             "source_line":line,
             "argument_count_hint":len(args),
             "argument_type_hints":";".join(argument_kind(a) for a in args),
+            "integer_status_literal":integer_status_literal(args[1]) if len(args)>1 else "",
+            "native_handle_identifier":identifier_only(args[0]) if args else "",
+            "payload_identifier":identifier_only(args[2]) if len(args)>2 else "",
             "nearby_integer_comparisons":";".join(sorted(set(conditions),key=lambda x:(len(x),x)))[:100],
             "source_sha256":sha
         })
@@ -118,6 +140,7 @@ def analyze(path:Path,out:Path)->dict:
         "callsite_line_numbers":[r["source_line"] for r in rows],
         "argument_count_hints":[r["argument_count_hint"] for r in rows],
         "meaning_of_status_or_payload":"NOT_VERIFIED",
+        "source_status_literals_not_online_success_proof": sorted(set(r["integer_status_literal"] for r in rows if r["integer_status_literal"])),
         "actual_offline_gameplay":"NOT_VERIFIED",
         "privacy":"No original body, payload, literal strings, secrets or APK exported"
     }
