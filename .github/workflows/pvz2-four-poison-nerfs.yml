@@ -1,0 +1,89 @@
+name: Verify four CHN 4.2.8 poison plant source objects and RTID edges
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-four-poison-nerfs.yml
+      - scripts/catalog/audit_four_poison_nerfs.py
+      - tests/test_audit_four_poison_nerfs.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-428-four-poison-nerf-research
+  cancel-in-progress: false
+jobs:
+  source_extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/archive/restore_git_shard.py
+            scripts/catalog/audit_four_poison_nerfs.py
+            tests/test_audit_four_poison_nerfs.py
+            Catalog/CHN/V4.2.8/shards/Internal-05/files.csv
+            Unpack/CHN/V4.2.8/Internal/shard-05/
+            Catalog/CHN/V4.2.8/poison_nerf_evidence/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check synthetic RTID and source-hash guard
+        run: |
+          python -m py_compile scripts/catalog/audit_four_poison_nerfs.py
+          python -m unittest discover -s tests -p test_audit_four_poison_nerfs.py -v
+      - name: Restore SHA256 verified Internal-05
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          python scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/source"
+      - name: Extract real four-plant and mist class objects
+        run: |
+          set -euo pipefail
+          python scripts/catalog/audit_four_poison_nerfs.py \
+            --raw-root "$RUNNER_TEMP/source" \
+            --source-index Catalog/CHN/V4.2.8/shards/Internal-05/files.csv \
+            --out Catalog/CHN/V4.2.8/poison_nerf_evidence
+          python - <<'PY'
+          import pathlib,json
+          p=pathlib.Path('Catalog/CHN/V4.2.8/poison_nerf_evidence')
+          d=json.loads((p/'SOURCE_SUMMARY.json').read_text())
+          assert d['four_plants']==['convallariachemist','lotusshooter','mulberry','tigerstool'],d
+          assert d['numeric_string_field_rows']>50,d
+          assert d['RTID_edges']>0,d
+          for f in ('native_poison_fields.csv','native_poison_rtid_edges.csv','native_selected_objects.jsonl'):
+            assert (p/f).stat().st_size>20,f
+          print('FOUR_PLANT_NATIVE_POISON_EVIDENCE_ACCEPTED')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-4-2-8-four-poison-source-RTID-evidence
+          path: Catalog/CHN/V4.2.8/poison_nerf_evidence/
+          retention-days: 14
+      - name: Commit selected source config analysis, not raw commercial assets
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "poison-nerf-evidence-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/poison_nerf_evidence/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(chn428): four poison plant native source objects and source-only RTID audit"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo 'FOUR_POISON_PLANT_SOURCE_PUBLISHED'
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
