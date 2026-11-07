@@ -1,0 +1,163 @@
+name: PVZ2 CHN 4.2.8 local-only JNI APK and Android gate test
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-gate-and-local-test.yml"
+      - "scripts/offline/smali_gate_index.py"
+      - "scripts/offline/patch_tw_local_trial.py"
+      - "tests/test_offline_smali_gate_index.py"
+      - "tests/test_offline_tw_local_trial.py"
+permissions:
+  contents: read
+concurrency:
+  group: pvz2-ch428-offline-gate-experiment
+  cancel-in-progress: true
+jobs:
+  local-gate-trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+      APKTOOL_SHA: 66cf4524a4a45a7f56567d08b2c9b6ec237bcdd78cee69fd4a59c8a0243aeafa
+      SMALI_SOURCE: Reconstructed/CHN_4.2.8/SmaliProject
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            ROMS/CHN/V4.2.8
+            scripts/offline
+            tests
+            Reconstructed/CHN_4.2.8/SmaliProject
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Synthetic test and syntax preflight
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p 'test_offline_smali_gate_index.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
+          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py
+          bash -n scripts/offline/build_from_committed_smali.sh
+      - name: Scan all six real Smali DEX sources, metadata only
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/smali_gate_index.py --smali-root "$SMALI_SOURCE" --out "$RUNNER_TEMP/offline-gate-report"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"offline-gate-report/smali_gate_summary.json"
+          data=json.loads(p.read_text())
+          assert data["smali_files_scanned"] == 16375, data
+          assert not data["signature_validation_cause_verified"]
+          print("COMPLETE_SIX_DEX_GATE_SCAN_STATIC_ONLY")
+          PY
+      - name: Restore original APK with SHA and acquire pinned APKTool
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/source-restore"
+          7z x ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001 "-o$RUNNER_TEMP/source-restore" -y
+          apk="$(find "$RUNNER_TEMP/source-restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8_original.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/source-restore" ROMS
+          curl -fL --retry 3 --max-time 240 \
+            "https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar" \
+            -o "$RUNNER_TEMP/apktool.jar"
+          echo "$APKTOOL_SHA  $RUNNER_TEMP/apktool.jar" | sha256sum -c -
+      - name: Build local-only JNI experiment APK from temp Smali copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a "$SMALI_SOURCE" "$RUNNER_TEMP/offline-smali"
+          base="$RUNNER_TEMP/offline-smali/smali/com/popcap/pvz2cthddev"
+          python3 scripts/offline/patch_tw_local_trial.py \
+            --smali "$base/TWPurchase.smali" \
+            --super-smali "$base/ThirdpartyPurchaseDriver.smali" \
+            --run-smali "$base/TWPurchase\$1.smali" \
+            --output "$RUNNER_TEMP/temporary-TWPurchase-1.smali" \
+            --summary "$RUNNER_TEMP/offline-gate-report/local_patch_report.json" \
+            --init-status 0 --login-status 0
+          cp "$RUNNER_TEMP/temporary-TWPurchase-1.smali" "$base/TWPurchase\$1.smali"
+          bash scripts/offline/build_from_committed_smali.sh \
+            "$RUNNER_TEMP/PVZ2_4.2.8_original.apk" \
+            "$RUNNER_TEMP/offline-smali" \
+            "$RUNNER_TEMP/offline-local-apk" \
+            "$RUNNER_TEMP/apktool.jar"
+          cp "$RUNNER_TEMP/offline-local-apk/build_from_committed_smali_report.json" \
+            "$RUNNER_TEMP/offline-gate-report/local_build_report.json"
+      - name: Prepare screenshot decoder
+        run: |
+          python3 -m venv "$RUNNER_TEMP/qa-venv"
+          "$RUNNER_TEMP/qa-venv/bin/python" -m pip install --quiet Pillow==11.3.0
+      - name: Allow KVM on hosted runner
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          fi
+      - name: Actual Android 11 emulator airplane mode, consent and launch observation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: >-
+            "$RUNNER_TEMP/qa-venv/bin/python" scripts/offline/consent_probe.py
+            --apk "$RUNNER_TEMP/offline-local-apk/PVZ2_CHN_4.2.8_from_repo_smali_test.apk"
+            --out "$RUNNER_TEMP/offline-gate-report/runtime"
+            --checkpoints 5,25,60,120
+      - name: Summarize verification honestly
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"offline-gate-report"
+          root.mkdir(exist_ok=True,parents=True)
+          p=root/"runtime/consent_probe.json"
+          d=json.loads(p.read_text()) if p.exists() else {}
+          result={"status":"RUNTIME_OBSERVED_GAMEPLAY_NOT_VERIFIED" if p.exists() else "BLOCKED_BEFORE_RUNTIME",
+                  "android_consent_clicked":d.get("consent_clicked"),
+                  "airplane_mode_after":d.get("offline_after_consent"),
+                  "native_main_menu_verified":False,
+                  "original_level_1_completed":False,
+                  "original_game_save_reloaded":False,
+                  "true_offline_playable_apk":False}
+          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps(result))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("## Private local-only trial\n\n")
+            for key,value in result.items(): f.write(f"- {key}: {value}\n")
+          PY
+      - name: Upload redacted metadata and screenshots, never commercial APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-offline-gate-qa
+          path: |
+            ${{ runner.temp }}/offline-gate-report/*.json
+            ${{ runner.temp }}/offline-gate-report/runtime/*.json
+            ${{ runner.temp }}/offline-gate-report/runtime/*.png
+          if-no-files-found: warn
+          retention-days: 1
