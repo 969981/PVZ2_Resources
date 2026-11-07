@@ -1,0 +1,82 @@
+name: Verify PvZ2 CN 4.2.8 all 24 Git source archives SHA
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-verify-source-archives.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        stage: [RSB, RSGP, Internal]
+        shard: ["00","01","02","03","04","05","06","07"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+          persist-credentials: false
+      - name: Validate chunk-level and combined SHA256 against Git manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}"
+          python3 scripts/archive/restore_git_shard.py "$src" \
+            --verify-only --out "$RUNNER_TEMP/unused"
+          python3 - "$src" "$RUNNER_TEMP/verified.json" <<'PY'
+          import json,pathlib,sys
+          folder=pathlib.Path(sys.argv[1])
+          data=json.loads((folder/'manifest.json').read_text())
+          assert data['stage']==folder.parent.name
+          assert int(data['shard'])==int(folder.name.split('-')[-1])
+          assert data['archive_bytes']==sum(p['bytes'] for p in data['parts'])
+          assert all(0<p['bytes']<=64*1024*1024 for p in data['parts'])
+          report={'stage':data['stage'],'shard':data['shard'],
+                  'file_count':data['source_file_count'],'raw_bytes':data['source_total_bytes'],
+                  'compressed_bytes':data['archive_bytes'],'parts':len(data['parts']),
+                  'archive_sha256':data['archive_sha256'],'verified':True}
+          pathlib.Path(sys.argv[2]).write_text(json.dumps(report,indent=2))
+          print("VERIFIED",report)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-original-archive-verified-${{ matrix.stage }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/verified.json
+          retention-days: 3
+          if-no-files-found: error
+  aggregate:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pvz2-original-archive-verified-*
+          path: ${{ runner.temp }}/all
+      - name: Reconcile all 24 source shards against real extraction totals
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import collections,json,os,pathlib
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'all'
+          rows=[json.loads(p.read_text()) for p in root.rglob('verified.json')]
+          assert len(rows)==24,len(rows)
+          expected={'RSB':33,'RSGP':2964,'Internal':14869}
+          for stage,count in expected.items():
+            part=[x for x in rows if x['stage']==stage]
+            assert len(part)==8 and {x['shard'] for x in part}==set(range(8)),stage
+            got=sum(x['file_count'] for x in part)
+            assert got==count,(stage,got,count)
+            print("STAGE_VERIFIED",stage,'files',got,'archive_parts',sum(x['parts'] for x in part))
+          print("ALL_24_ARCHIVES_SHA256_VERIFIED")
+          PY
