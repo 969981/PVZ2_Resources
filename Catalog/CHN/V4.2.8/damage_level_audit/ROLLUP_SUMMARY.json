@@ -1,0 +1,710 @@
+{
+  "source_file_count": 7981,
+  "percent_field_hit_rows": 42467,
+  "distinct_fields": 4891,
+  "poison_or_health_candidate_hits": 2202,
+  "plant_static_source_candidate_hits": 128,
+  "distinct_plant_candidates": 24,
+  "level_source_profiles": 18,
+  "profile_rows": 113,
+  "poison_sample_groups": [
+    {
+      "cls": "WaveManagerProperties",
+      "field": "$.MaxNextWaveHealthPercentage",
+      "values": "[\"0.9\", \"0.4\", \"0.6\", \"0.85\", \"0.45\", \"0.5\", \"0.65\", \"0.55\"]",
+      "count": 820,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PREMIUMQUEST_POWERLILY_06.json"
+    },
+    {
+      "cls": "WaveManagerProperties",
+      "field": "$.MinNextWaveHealthPercentage",
+      "values": "[\"0.8\", \"0.35\", \"0.5\", \"0.7\", \"0.3\", \"0.4\", \"0.6\", \"0.45\"]",
+      "count": 820,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PREMIUMQUEST_POWERLILY_06.json"
+    },
+    {
+      "cls": "ZombieGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.5\", \"0.01\", \"0.65\", \"0.8\", \"0.04\", \"1\", \"0.0\", \"0.02\"]",
+      "count": 80,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombiePerfumerChallengeProps",
+      "field": "$.PoisonToClean",
+      "values": "[\"5\", \"8\", \"10\", \"3\"]",
+      "count": 24,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/RIFT_104.json"
+    },
+    {
+      "cls": "ZombieChickenFarmerProps",
+      "field": "$.ChickeningHealthPercentage",
+      "values": "[\"0.8\"]",
+      "count": 6,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiHalfStatueProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"1.0\"]",
+      "count": 6,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiHalfStatueProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.8\"]",
+      "count": 6,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiHalfStatueProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.6\"]",
+      "count": 6,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"0.9\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.75\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.6\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[3].StartAtHealthPercent",
+      "values": "[\"0.4\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[4].StartAtHealthPercent",
+      "values": "[\"0.2\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEightiesArcadeCabinetProps",
+      "field": "$.DamagePhases.Phases[5].StartAtHealthPercent",
+      "values": "[\"0\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"0.8\", \"0.9\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.6\", \"0.75\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.4\", \"0.6\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[3].StartAtHealthPercent",
+      "values": "[\"0.2\", \"0.4\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[4].StartAtHealthPercent",
+      "values": "[\"0\", \"0.2\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiStatueProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"1.0\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiStatueProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.8\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemRenaiStatueProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.6\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieZombossMechRenaiProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"1.0\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieZombossMechRenaiProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.9\", \"0.8\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieZombossMechRenaiProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.8\", \"0.6\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieZombossMechRenaiProps",
+      "field": "$.DamagePhases.Phases[3].StartAtHealthPercent",
+      "values": "[\"0.7\", \"0.4\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieZombossMechRenaiProps",
+      "field": "$.DamagePhases.Phases[4].StartAtHealthPercent",
+      "values": "[\"0.6\", \"0.2\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "WaveManagerProperties",
+      "field": "$.NextWaveHealthPercentage",
+      "values": "[\"10\", \"0\"]",
+      "count": 5,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S30_2_H.json"
+    },
+    {
+      "cls": "ZombieGargantuarMechProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.5\", \"0.01\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieWeaselHoarderEliteProps",
+      "field": "$.ChickeningHealthPercentage",
+      "values": "[\"0.2\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemBoardEntityConditionTargetProps",
+      "field": "$.DamagePhases.Phases[5].StartAtHealthPercent",
+      "values": "[\"0\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEggProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"0.9\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEggProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.65\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemEggProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.35\"]",
+      "count": 4,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieEightiesGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.5\", \"0\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieFairyTaleArmedGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.65\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBeforeFirstPoisonHeal.Min",
+      "values": "[\"1.0\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBeforeFirstPoisonHeal.Max",
+      "values": "[\"5.0\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBetweenPoisonHeal.Min",
+      "values": "[\"7.0\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBetweenPoisonHeal.Max",
+      "values": "[\"9.0\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBeforePoisonHealRecheck.Min",
+      "values": "[\"0.5\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "ZombieRomanHealerHealActionDefinition",
+      "field": "$.TimeBeforePoisonHealRecheck.Max",
+      "values": "[\"1.5\"]",
+      "count": 3,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/ZOMBIEACTIONS.json"
+    },
+    {
+      "cls": "PoisonPeashooterProjectileProps",
+      "field": "$.PoisonExplodeDamage",
+      "values": "[\"300\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[0].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[0].PoisonDamage",
+      "values": "[\"1.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[1].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[1].PoisonDamage",
+      "values": "[\"2.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[2].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistProjectileProps",
+      "field": "$.PoisonInfos[2].PoisonDamage",
+      "values": "[\"3.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[0].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[0].PoisonDamage",
+      "values": "[\"1.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[1].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[1].PoisonDamage",
+      "values": "[\"2.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[2].PoisonDuration",
+      "values": "[\"5.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ConvallariaChemistPlantfoodProjectileProps",
+      "field": "$.PoisonInfos[2].PoisonDamage",
+      "values": "[\"3.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "NightNormalBallProjectileProps",
+      "field": "$.PoisonDamage",
+      "values": "[\"90\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PrimalWallnutProps",
+      "field": "$.HPIncPercentInHomeWorld",
+      "values": "[\"50\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ShadowShroomProps",
+      "field": "$.PoisonDPS",
+      "values": "[\"45.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ShadowShroomProps",
+      "field": "$.PoisonDuration",
+      "values": "[\"30.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ShadowShroomProps",
+      "field": "$.AvatarPoisonDPS",
+      "values": "[\"54.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ShadowShroomProps",
+      "field": "$.AvatarPoisonDuration",
+      "values": "[\"30.0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ShadowShroomProps",
+      "field": "$.CannotBePoisoned[0]",
+      "values": "[\"\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[1].HealthPercentThrowImp",
+      "values": "[\"0.6\", \"0.03\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[2].HealthPercentThrowImp",
+      "values": "[\"0.4\", \"0.01\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"0.9\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0.75\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[2].StartAtHealthPercent",
+      "values": "[\"0.6\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[3].StartAtHealthPercent",
+      "values": "[\"0.4\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[4].StartAtHealthPercent",
+      "values": "[\"0.2\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemSpeakerProps",
+      "field": "$.DamagePhases.Phases[5].StartAtHealthPercent",
+      "values": "[\"0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "LunarMineHardenedShellProperties",
+      "field": "$.DamagePhases.Phases[0].StartAtHealthPercent",
+      "values": "[\"0.5\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "LunarMineHardenedShellProperties",
+      "field": "$.DamagePhases.Phases[1].StartAtHealthPercent",
+      "values": "[\"0\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemPoisonMistProps",
+      "field": "$._percentOfMaxHealth",
+      "values": "[\"0.2\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemWaterMistProps",
+      "field": "$._healthUpPercent",
+      "values": "[\"0.1\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GridItemWaterMistProps",
+      "field": "$._healthUpPercentPlantfood",
+      "values": "[\"0.2\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieFairyTaleGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.65\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "ZombieDevilsAlienGargantuarProps",
+      "field": "$.HealthThresholdToImpAmmoLayers[0].HealthPercentThrowImp",
+      "values": "[\"0.65\"]",
+      "count": 2,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodProjectileProps",
+      "field": "$.PoisonExplodeDamage",
+      "values": "[\"100\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodProjectileProps",
+      "field": "$.PoisonDPS",
+      "values": "[\"100.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodProjectileProps",
+      "field": "$.PoisonAndSlowDuration",
+      "values": "[\"5.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodAvatarProjectileProps",
+      "field": "$.PoisonExplodeDamage",
+      "values": "[\"200\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodAvatarProjectileProps",
+      "field": "$.PoisonDPS",
+      "values": "[\"100.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "PoisonPeashooterPlantFoodAvatarProjectileProps",
+      "field": "$.PoisonAndSlowDuration",
+      "values": "[\"5.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "MulberryGasGrenadeProps",
+      "field": "$.PoisonDuration",
+      "values": "[\"10.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "MulberryGasGrenadeProps",
+      "field": "$.PoisonDamage",
+      "values": "[\"20.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "CypripediumProjectileProps",
+      "field": "$.PoisonDPS",
+      "values": "[\"200.0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ViperProjectileProp",
+      "field": "$.PoisonDuration",
+      "values": "[\"5\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "ViperProjectileProp",
+      "field": "$.PoisonDamage",
+      "values": "[\"15\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.EatDuration",
+      "values": "[\"1.5\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.RegretfulDuration",
+      "values": "[\"3\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.LaneChangeDuration",
+      "values": "[\"0.6\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.StunDuration",
+      "values": "[\"0\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.IndifferenceDuration",
+      "values": "[\"1.5\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.SoundOfRegret",
+      "values": "[\"Play_Plant_Garlic_Bite_Move_Zombie\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    },
+    {
+      "cls": "GarlicProps",
+      "field": "$.FromPoisoned.SoundOfMoveUp",
+      "values": "[\"Play_Plant_Garlic_Bite_Move_Zombie_Up\"]",
+      "count": 1,
+      "source": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json"
+    }
+  ],
+  "source_linked_plant_samples": [
+    "applemortar",
+    "convallariachemist",
+    "cosmicmushroom",
+    "cypripedium",
+    "dragonbabybruit",
+    "dragonbruit",
+    "dragonroar",
+    "elaeocarpus",
+    "garlic",
+    "gumnut",
+    "hollybarrierleaf",
+    "intensivecarrot",
+    "lotusshooter",
+    "mulberry",
+    "nightcap",
+    "parallel_primalwallnut",
+    "parallel_shadowshroom",
+    "peavine",
+    "poisonpeashooter",
+    "poisonvine",
+    "primalwallnut",
+    "sarracenia",
+    "shadowshroom",
+    "wizardthorns"
+  ],
+  "notes": [
+    "Field names are hypotheses, not evidence of target max-health damage",
+    "Percentage chance and status DOT are not the same as HP percentage damage",
+    "Native level vectors are selected per game mode and can be overridden",
+    "Endless 10x100000 HP reference is NOT sourced from these 18 resource vectors",
+    "TypeName join only performed through exact static source object identity"
+  ]
+}
