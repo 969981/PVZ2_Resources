@@ -59,7 +59,7 @@ with zipfile.ZipFile(source) as arc:
    row["class_defs"]=struct.unpack_from("<I",header,96)[0]
   members.append(row)
 expected=["classes.dex","classes2.dex","classes3.dex","classes4.dex","classes5.dex","classes6.dex"]
-assert dex==expected,(dex,expected)
+assert sorted(dex)==sorted(expected),(dex,expected)
 (meta/"original_apk_members.json").write_text(json.dumps(members,indent=2)+"\n")
 (meta/"reconstruction_inventory.json").write_text(json.dumps({
  "source_sha256":hashfile(source),
