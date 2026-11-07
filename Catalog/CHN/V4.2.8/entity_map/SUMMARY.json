@@ -1,0 +1,64 @@
+{
+  "schema": "pvz2-entity-crosswalk-1",
+  "region": "CHN",
+  "version": "4.2.8",
+  "apk_sha256": "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4",
+  "entity_source": "original gameplay SQLite ZIP",
+  "raw_json_root": "SHA256-verified Internal-05 source archive",
+  "verified_raw_json_sha256": {
+    "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json": "7564cc46eaa436984b5a4f98e2c40b3df18d2d7a37b83e2c98105ffe1d76c59b",
+    "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json": "c4902eacafe4ba6bfd3721ffdc9e3d783c81b1c6a8b329af0cd21f2108ad93a7",
+    "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json": "4337efe46cfc043268358593cd2ae0f32339ccc19a2f949fcd6c595d9cd09422",
+    "04_JSON/dynamic/Packages/PACKAGES/ZOMBIETYPES.json": "6ab635b2d0326db88fc4adfb069b13f4dbe6f65a03ca7511fb19865a5d33d1e1",
+    "04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json": "05d4317e66ca51d87ed495b181a00c4ec86c6b3e0c38e036f109404559780783",
+    "04_JSON/dynamic/Packages/PACKAGES/COLLECTABLETYPES.json": "49109bb6edac0082c3f30f55940189eb744cf98347dbb05b0491d12e09c76d4c",
+    "04_JSON/dynamic/Packages/PACKAGES/PVPUPGRADE.json": "01f2c8fab82ce504b3c2519a163a37721c0f95e3ccea020453857f51acef3343",
+    "04_JSON/dynamic/Packages/PACKAGES/ARTIFACT.json": "90d03ae1a78f5ecccd27d6902fcc03b3f610ca253b6dbe23fed9513297abf5b7",
+    "04_JSON/dynamic/Packages/PACKAGES/ARTIFACTIMPROVEDPROPERTIES.json": "828ad86312f4f1973bbc6ec76f702160de30d0d59c37519adefd4c4faa24fdfa",
+    "04_JSON/dynamic/Packages/PACKAGES/ARTIFACTCULTIVATION.json": "168335482cedeb70d0df3b1edc641c689fd8ef6706173a3cb158c870eccb2f45",
+    "04_JSON/dynamic/Packages/PACKAGES/ARTIFACTDISPLAYACTIONS.json": "709c4dd1d212b1dbd9d0fc37c09db1754ec3e6e5f84d31f9f9b8eb3eeb5e6890",
+    "04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json": "6e4f95b2b3b03f76c2816532829a58d85235a4714506623c250bda300177c7d5"
+  },
+  "missing_requested_raw": [],
+  "optional_not_in_source_inventory": [],
+  "records": {
+    "entities": 1646,
+    "links": 1646,
+    "assets": 7573,
+    "level_rows": 0,
+    "avatars": 838,
+    "ancillary": 3149,
+    "ancillary_links": 953,
+    "resource_groups": 3455,
+    "skill_records": 857
+  },
+  "kinds": {
+    "zombie": 1265,
+    "plant": 381
+  },
+  "link_status_counts": {
+    "unresolved": 1646
+  },
+  "resource_group_status_counts": {
+    "unresolved-group-id": 1297,
+    "exact-resource-group-id": 2145,
+    "no-extractable-group-reference": 13
+  },
+  "asset_candidate_status_counts": {
+    "resource-group-name-candidate": 6318,
+    "filename-exact-normalized-candidate": 1255
+  },
+  "ancillary_link_status_counts": {
+    "typed-field-exact-name-candidate": 953
+  },
+  "sqlite_integrity_check": "ok",
+  "evidence_limits": [
+    "Plant/Zombie 381/1265 rows count source records, not unique species",
+    "Property references only exact alias matches; unresolved rows retained",
+    "Raw plant/zombie stats are not calibrated in-game damage or upgrade formulas",
+    "Avatars list membership and costume accessory objclass do not prove equipment slot",
+    "Resource-group ID matching does not prove PNG atlas pixel or PAM animation frame linkage",
+    "One entity can share a property sheet and contain multiple avatar references",
+    "Names in Chinese are source-string candidates unless display usage is runtime-confirmed"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "source_records": 1646,
+  "pages_by_distinct_typename": {
+    "plant": 380,
+    "zombie": 1054
+  }
+}

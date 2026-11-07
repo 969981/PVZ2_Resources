@@ -1,0 +1,114 @@
+---
+title: general_caesar_phase1 原始对象关联
+type: entity-mapping
+region: CHN
+version: 4.2.8
+tags: [PVZ2, zombie, mapping]
+status: static-source-mapping-runtime-unverified
+---
+
+# general_caesar_phase1
+
+候选中文名：尚未可靠关联。原始配置条目：6。
+
+> [!warning] 这些关联是源配置、RTID 或文件名候选。没有验证动画播放、进阶最终战斗数值和装扮装备效果。重复 TypeName 保留全部版本/关卡配置。
+
+## 原始配置记录
+
+| 源文件 | 序号 | 对象 ID | 名称来源 | Avatars 数 | PopAnim |
+| --- | --- | --- | --- | --- | --- |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S29_17_N.json | 31 | zombie:354c027fd19a834161 | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S29_18_N.json | 33 | zombie:de6797b52e23b91b0f | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S29_19_N.json | 30 | zombie:ecf74ba55705180768 | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S29_20_N.json | 34 | zombie:21d2e1e34b2479c9a4 | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S32_8_H.json | 31 | zombie:fc253d8f8e05fe1961 | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/ZOMBIETYPES.json | 580 | zombie:726d89c242b2e25375 | TypeName-string-candidate-not-found | 0 | "POPANIM_ZOMBIE_ZOMBIE_ROMAN_GENERAL_CAESAR" |
+
+## 属性与等级明细
+
+| 原字段 | 索引 | 原始值 | 证据状态 |
+| --- | --- | --- | --- |
+
+## 直接源引用与未闭合的外键
+
+| 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
+| --- | --- | --- | --- | --- |
+| property-reference | ZombieTimeStopDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieTimeStopDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieTimeStopDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieTimeStopDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieGeneralCaesarDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieGeneralCaesarDefault@PropertySheets | PropertySheet |  | unresolved |
+
+## 已公开 PNG 图集候选（可点击）
+
+| 图集 | 来源 | 证据状态 |
+| --- | --- | --- |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+| [ZOMBIEWITCHGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieWitchGroup_1200/ATLASES/ZOMBIEWITCHGROUP_1200_00.png) | $.ResourceGroups[0] | resource-group-name-candidate |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[2] | resource-group-name-candidate |
+| [ZOMBIEDARKKINGGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieDarkKingGroup_1200/ATLASES/ZOMBIEDARKKINGGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+
+## PAM JSON 动画候选（尚未渲染）
+
+| 源动画 | 来源 | 证据状态 |
+| --- | --- | --- |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING/ZOMBIE_DARK_KING.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING_ELITE/ZOMBIE_DARK_KING_ELITE.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING/ZOMBIE_DARK_KING.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING_ELITE/ZOMBIE_DARK_KING_ELITE.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING/ZOMBIE_DARK_KING.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING_ELITE/ZOMBIE_DARK_KING_ELITE.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING/ZOMBIE_DARK_KING.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING_ELITE/ZOMBIE_DARK_KING_ELITE.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieWitchGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_WITCH_EFFECT/ZOMBIE_WITCH_EFFECT.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieWitchGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_WITCH_PROJECTILE/ZOMBIE_WITCH_PROJECTILE.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieWitchGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_WITCH_SHADOW/ZOMBIE_WITCH_SHADOW.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieWitchGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_WITCH/ZOMBIE_WITCH.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[2] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING/ZOMBIE_DARK_KING.pam.json | $.ResourceGroups[2] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_DARK_KING_ELITE/ZOMBIE_DARK_KING_ELITE.pam.json | $.ResourceGroups[2] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieDarkKingGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/ZOMBIE_HAT_SWITCH_EFFECT/ZOMBIE_HAT_SWITCH_EFFECT.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+
+本页仅展示前 20 条；完整 22 条请查看 SQLite/CSV。
+
+## Avatar 装扮数组与配件配置候选
+
+Avatars 明细：0 条；外围配件原生类候选关联：0 条。
+
+| 原字段 | 原始 Avatar JSON | 证据状态 |
+| --- | --- | --- |
+
+## RTON 资源组外键
+
+| 要求资源组 | 匹配组 | 状态 |
+| --- | --- | --- |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+| ZombieWitchGroup | ZombieWitchGroup | exact-resource-group-id |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+| ZombossCommonGroup |  | unresolved-group-id |
+| ZombieCaesarGroup |  | unresolved-group-id |
+| ZombieDarkKingGroup | ZombieDarkKingGroup | exact-resource-group-id |
+| Egypt_Gravestone |  | unresolved-group-id |
+
+返回 [[Unpack/18-植物僵尸跨格式关联数据库]]。完整记录在 [entity_map SQLite/CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/SUMMARY.json)。

@@ -1,0 +1,79 @@
+---
+title: sportzball_gargantuar 原始对象关联
+type: entity-mapping
+region: CHN
+version: 4.2.8
+tags: [PVZ2, zombie, mapping]
+status: static-source-mapping-runtime-unverified
+---
+
+# sportzball_gargantuar
+
+候选中文名：足球巨人僵尸。原始配置条目：2。
+
+> [!warning] 这些关联是源配置、RTID 或文件名候选。没有验证动画播放、进阶最终战斗数值和装扮装备效果。重复 TypeName 保留全部版本/关卡配置。
+
+## 原始配置记录
+
+| 源文件 | 序号 | 对象 ID | 名称来源 | Avatars 数 | PopAnim |
+| --- | --- | --- | --- | --- | --- |
+| 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S31_60_N.json | 25 | zombie:2966736c9d33f9c669 | TypeName-string-candidate-matched | 0 | "POPANIM_ZOMBIE_ZOMBIE_SPORTZBALL_GARGANTUAR" |
+| 04_JSON/dynamic/Packages/PACKAGES/ZOMBIETYPES.json | 946 | zombie:db46c78bf6d0db1919 | TypeName-string-candidate-matched | 0 | "POPANIM_ZOMBIE_ZOMBIE_SPORTZBALL_GARGANTUAR" |
+
+## 属性与等级明细
+
+| 原字段 | 索引 | 原始值 | 证据状态 |
+| --- | --- | --- | --- |
+
+## 直接源引用与未闭合的外键
+
+| 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
+| --- | --- | --- | --- | --- |
+| property-reference | ZombieSportzballGargantuarDefault@CurrentLevel | PropertySheet |  | unresolved |
+| property-reference | ZombieSportzballGargantuar@PropertySheets | PropertySheet |  | unresolved |
+
+## 已公开 PNG 图集候选（可点击）
+
+| 图集 | 来源 | 证据状态 |
+| --- | --- | --- |
+| [ZOMBIECAKETANKGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieCakeTankGroup_1200/ATLASES/ZOMBIECAKETANKGROUP_1200_00.png) | $.ResourceGroups[0] | resource-group-name-candidate |
+| [ZOMBIESPORTZBALLGARGANTUARGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieSportzballGargantuarGroup_1200/ATLASES/ZOMBIESPORTZBALLGARGANTUARGROUP_1200_00.p | $.ResourceGroups[1] | resource-group-name-candidate |
+| [ZOMBIESPORTZBALLIMPGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieSportzballImpGroup_1200/ATLASES/ZOMBIESPORTZBALLIMPGROUP_1200_00.png) | $.ResourceGroups[2] | resource-group-name-candidate |
+| [ZOMBIESPORTZBALLGARGANTUARGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieSportzballGargantuarGroup_1200/ATLASES/ZOMBIESPORTZBALLGARGANTUARGROUP_1200_00.p | $.ResourceGroups[0] | resource-group-name-candidate |
+| [ZOMBIESPORTZBALLIMPGROUP_1200_00.png](https://github.com/969981/PVZ2_Resources/blob/master/Images/CHN/V4.2.8/Media/shard-01/PNG/zombie3/ZombieSportzballImpGroup_1200/ATLASES/ZOMBIESPORTZBALLIMPGROUP_1200_00.png) | $.ResourceGroups[1] | resource-group-name-candidate |
+
+## PAM JSON 动画候选（尚未渲染）
+
+| 源动画 | 来源 | 证据状态 |
+| --- | --- | --- |
+| PAM_JSON/zombie3/ZombieCakeTankGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/CAKE_BREAK_FX/CAKE_BREAK_FX.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieCakeTankGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/CAKE_TANK/CAKE_TANK.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballGargantuarGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_SPORTZBALL_GARGANTUAR/ZOMBIE_SPORTZBALL_GARGANTUAR.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballImpGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/SPORTZBALL_WIZARD_SHEEPENING/SPORTZBALL_WIZARD_SHEEPENING.pam.json | $.ResourceGroups[2] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballImpGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_SPORTZBALL_IMP/ZOMBIE_SPORTZBALL_IMP.pam.json | $.ResourceGroups[2] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballGargantuarGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_SPORTZBALL_GARGANTUAR/ZOMBIE_SPORTZBALL_GARGANTUAR.pam.json | $.ResourceGroups[0] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballImpGroup_Common/IMAGES/1200/ZOMBIE3/EFFECTS/SPORTZBALL_WIZARD_SHEEPENING/SPORTZBALL_WIZARD_SHEEPENING.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+| PAM_JSON/zombie3/ZombieSportzballImpGroup_Common/IMAGES/1200/ZOMBIE3/ZOMBIE/ZOMBIE_SPORTZBALL_IMP/ZOMBIE_SPORTZBALL_IMP.pam.json | $.ResourceGroups[1] | resource-group-name-candidate |
+
+## Avatar 装扮数组与配件配置候选
+
+Avatars 明细：0 条；外围配件原生类候选关联：0 条。
+
+| 原字段 | 原始 Avatar JSON | 证据状态 |
+| --- | --- | --- |
+
+## RTON 资源组外键
+
+| 要求资源组 | 匹配组 | 状态 |
+| --- | --- | --- |
+| ZombieCakeTankGroup | ZombieCakeTankGroup | exact-resource-group-id |
+| ZombieSportzballGargantuarGroup | ZombieSportzballGargantuarGroup | exact-resource-group-id |
+| ZombieSportzballImpGroup | ZombieSportzballImpGroup | exact-resource-group-id |
+| ZombieGargantuarEffects |  | unresolved-group-id |
+| ZombiePlushieCartGroup |  | unresolved-group-id |
+| PlantHypnoShroom | PlantHypnoShroom | exact-resource-group-id |
+| ZombieSportzballGargantuarGroup | ZombieSportzballGargantuarGroup | exact-resource-group-id |
+| ZombieSportzballImpGroup | ZombieSportzballImpGroup | exact-resource-group-id |
+| ZombieGargantuarEffects |  | unresolved-group-id |
+
+返回 [[Unpack/18-植物僵尸跨格式关联数据库]]。完整记录在 [entity_map SQLite/CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/SUMMARY.json)。
