@@ -1,0 +1,64 @@
+name: PvZ2 CN 4.2.8 WEM codec and playable WAV sample validation
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-wem-audio-smoke.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        origin: [original, bank-extracted]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - name: Download pinned official vgmstream r2168 Linux CLI and verify SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o "$RUNNER_TEMP/vgmstream-linux.zip" \
+            https://github.com/vgmstream/vgmstream/releases/download/r2168/vgmstream-linux.zip
+          echo "2dfdfddda68e0e36e62f20dc050a4e45f4bc3318c7efeadf8a063df646d57c84  $RUNNER_TEMP/vgmstream-linux.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/vgmstream"
+          unzip -q "$RUNNER_TEMP/vgmstream-linux.zip" -d "$RUNNER_TEMP/vgmstream"
+          cli="$(find "$RUNNER_TEMP/vgmstream" -type f -name vgmstream-cli -print -quit)"
+          test -n "$cli"
+          chmod +x "$cli"
+          echo "VGMSTREAM_CLI=$cli" >> "$GITHUB_ENV"
+      - name: Download real 4.2.8 original or derived WEM files
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.origin }}" = original ]; then
+            gh run download 42259266531 -R "$GITHUB_REPOSITORY" \
+              -n pvz2-chn-4.2.8-json-files-0 -D "$RUNNER_TEMP/audio-source"
+          else
+            gh run download 42321977158 -R "$GITHUB_REPOSITORY" \
+              -n pvz2-chn-4.2.8-media-0 -D "$RUNNER_TEMP/audio-source"
+          fi
+      - name: Probe exact WEM codecs and decode playable sample WAV
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/media/probe_wem.py "$RUNNER_TEMP/audio-source" \
+            --cli "$VGMSTREAM_CLI" \
+            --out "$RUNNER_TEMP/wem-probe" --samples 12 --decode-count 3 --workers 3
+      - name: Publish metadata and original-source WAV evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-wem-wav-samples-${{ matrix.origin }}
+          path: ${{ runner.temp }}/wem-probe/
+          if-no-files-found: warn
+          retention-days: 3
