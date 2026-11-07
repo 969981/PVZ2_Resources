@@ -57,13 +57,16 @@ class EntityCrosswalkTests(unittest.TestCase):
                  "ResourceGroups":["ZombieDarkBasicGroup_1200"],"PopAnim":"DARK_BASIC"}),
             obj("plant_properties",props,0,"PlantPropertySheet",["pea_prop@PropertySheets"],
                 {"PlantLevelStats":[{"Level":1,"Damage":20},{"Level":2,"Damage":30}],
-                 "Cost":100,"MinLevel":1,"MaxLevel":2}),
+                 "Cost":100,"MinLevel":1,"MaxLevel":2,
+                 "Actions":{"Projectile":"RTID(PeaDefault@ProjectileTypes)"}}),
             obj("zombie_properties",props,1,"ZombiePropertySheet",["zomb_prop@PropertySheets"],
                 {"ZombieLevelStats":[{"Level":1,"Hitpoints":60}],"Hitpoints":60}),
             obj("skills","04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",0,
                 "SkillPropertySheet",["pea_attack@SkillTypes"],
                 {"SkillName":"[PEA]","SkillDescription":"[PEADESC]",
-                 "SkillIconImage":"IMAGE_PEA"})]
+                 "SkillIconImage":"IMAGE_PEA"}),
+            obj("projectiles","04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json",0,
+                "PeaProjectileProps",["PeaDefault"],{"BaseDamage":20})]
         dbzip(base/"pvz2_chs428_gameplay_shard05.zip","pvz2_chs428_gameplay.sqlite",
               "CREATE TABLE game_objects(category TEXT, source_file TEXT, object_index INT, objclass TEXT, aliases_json TEXT, objdata_json TEXT);",
               ("INSERT INTO game_objects VALUES (?,?,?,?,?,?)",gameplay))
@@ -126,6 +129,9 @@ class EntityCrosswalkTests(unittest.TestCase):
             links=list(csv.DictReader((output/"links.csv").open(encoding="utf-8-sig")))
             self.assertTrue(any(x["status"]=="exact-source-property-alias" for x in links))
             self.assertTrue(any(x["status"]=="unresolved" for x in links))
+            self.assertTrue(any(x["relation"]=="property-nested-skill-or-projectile-RTID"
+                                and x["source_reference"]=="PeaDefault@ProjectileTypes"
+                                and x["status"]=="exact-static-ability-or-projectile-ref" for x in links))
             grades=list(csv.DictReader((output/"level_rows.csv").open(encoding="utf-8-sig")))
             self.assertTrue(any(x["field"]=="PlantLevelStats" for x in grades))
             icon_rows=list(csv.DictReader((output/"image_refs.csv").open(encoding="utf-8-sig")))
