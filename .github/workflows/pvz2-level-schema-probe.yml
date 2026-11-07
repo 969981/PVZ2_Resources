@@ -1,0 +1,66 @@
+name: Probe PvZ2 CN actual level wave RTID schemas
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-level-schema-probe.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+      - name: Restore and SHA verify real 8017 JSON source shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 --out "$RUNNER_TEMP/internal"
+      - name: Inspect actual class RTID and wave/level structure
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,json,collections,re
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'internal'
+          classes=collections.Counter()
+          files=list(root.rglob('*.json'))
+          sample={}
+          aliases=collections.defaultdict(list)
+          for f in files:
+              try:
+                  a=json.loads(f.read_text(encoding='utf-8'))
+              except (ValueError,UnicodeError):
+                  continue
+              for index,row in enumerate(a.get('objects',[]) if isinstance(a,dict) else []):
+                  if not isinstance(row,dict):continue
+                  kind=str(row.get('objclass',''))
+                  classes[kind]+=1
+                  for al in row.get('aliases',[]) or []:
+                      if isinstance(al,str) and kind in ('WaveManagerProperties','PlantPropertySheet','ZombiePropertySheet'):
+                          if len(aliases[kind])<6:aliases[kind].append((al,f.name,index))
+                  if kind in ('LevelDefinition','WaveManagerProperties','PlantType','ZombieType','PlantPropertySheet','ZombiePropertySheet','ZombieWaveActionProps','SpawnZombiesWaveActionProps'):
+                      if len(sample.get(kind,[]))<5:
+                          info=row.get('objdata') if isinstance(row.get('objdata'),dict) else {}
+                          sample.setdefault(kind,[]).append({'path':f.relative_to(root).as_posix(),
+                              'index':index,'aliases':row.get('aliases'), 'data':json.dumps(info,ensure_ascii=False)[:1800]})
+          report={'total_files':len(files),'class_counts':classes.most_common(65),
+                  'representatives':sample,'alias_examples':dict(aliases)}
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'level_schema_probe.json'
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('TOP_CLASSES',report['class_counts'][:28])
+          for kind,items in sample.items():
+              print('CLASS',kind, 'SAMPLES',json.dumps(items[:2],ensure_ascii=False)[:3700])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-level-wave-schema-probe
+          path: ${{ runner.temp }}/level_schema_probe.json
+          retention-days: 3
