@@ -4,7 +4,7 @@ on:
     branches: [master]
     paths:
       - ".github/workflows/pvz2-offline-extraction-monitor.yml"
-      - "scripts/offline/extraction_monitor.py"
+      - "scripts/offline/consent_probe.py"
       - "scripts/offline/emulator_ui_capture.py"
       - "tests/test_offline_consent.py"
       - "scripts/offline/extraction_monitor.py"
@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pvz2-chn428-offline-ui-capture
+  group: pvz2-chn428-offline-long-unpack
   cancel-in-progress: false
 
 jobs:
@@ -89,7 +89,7 @@ jobs:
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
           script: >-
-            "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/consent_probe.py
+            "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/extraction_monitor.py
             --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk"
             --out "$RUNNER_TEMP/pvz2-offline-extraction-monitor"
             --checkpoints 120,300,600,900
