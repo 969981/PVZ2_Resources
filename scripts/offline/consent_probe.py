@@ -225,7 +225,8 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                     typ = payload.get("type")
                     if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
                                "GAME_EXIT_REQUEST", "TRACE_HOOKS_INSTALLED",
-                               "TRACE_HOOK_ERROR"):
+                               "TRACE_HOOK_ERROR", "LOCAL_SESSION_TRACE",
+                               "RESOURCE_LOADING_STAGE"):
                         record = {"type": typ, "source": payload.get("source")}
                         if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
                                    "GAME_EXIT_REQUEST"):
@@ -237,6 +238,16 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                             record["exit_requested"] = payload.get("exit_requested") is True
                         if typ == "TRACE_HOOK_ERROR":
                             record["error_kind"] = payload.get("error_kind")
+                        if typ == "LOCAL_SESSION_TRACE":
+                            stage = payload.get("stage")
+                            if isinstance(stage, str) and len(stage) <= 96 and stage.startswith("LOCAL_SESSION_"):
+                                record["stage"] = stage
+                        if typ == "RESOURCE_LOADING_STAGE":
+                            for key in ("current_stage", "time_hint"):
+                                value = payload.get(key)
+                                if isinstance(value, int) and not isinstance(value, bool) and -1 <= value <= 100000:
+                                    record[key] = value
+                            record["is_first_init"] = payload.get("is_first_init") is True
                         output.append(record)
                 elif message.get("type") == "error":
                     output.append({"type": "FRIDA_SCRIPT_ERROR",
