@@ -44,6 +44,19 @@ def bnk_one(root,source,out):
     base=out/"WEM"/name.with_suffix("")
     row={"source":name.as_posix(),"kind":"BNK","status":"failed"}
     try:
+        with source.open("rb") as stream:
+            magic=stream.read(4)
+        if magic!=b"BKHD":
+            # Some .BNK-labelled members are not ordinary Wwise banks.
+            # Keep bytes intact and audit them without reporting a fake conversion.
+            dest=out/"UNRESOLVED_BNK"/name
+            dest.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(source,dest)
+            row.update(status="unresolved",original_magic_hex=magic.hex(),
+                       source_sha256=sha256(source),original_bytes=source.stat().st_size,
+                       output=dest.relative_to(out).as_posix(),
+                       reason="not a BKHD Wwise bank; original preserved verbatim")
+            return row
         summary=parse_bnk(source,base)
         if summary["errors"]:
             raise ValueError(";".join(summary["errors"]))
@@ -56,6 +69,7 @@ def bnk_one(root,source,out):
             if header!=b"RIFF":
                 raise ValueError(f"WEM {target} is not RIFF; preserve original without guessing codec")
         row.update(status="ok",wem=len(tracks),source_sha256=summary["sha256"],
+                   warnings=summary.get("warnings",[]),
                    output=base.relative_to(out).as_posix())
     except Exception as e:
         row["error"]=str(e)[:700]
@@ -82,7 +96,8 @@ def main():
         for f in as_completed(futures):
             result=f.result()
             results.append(result)
-            if result["status"]!="ok": print("ERROR",result,flush=True)
+            if result["status"]=="failed": print("ERROR",result,flush=True)
+            elif result["status"]=="unresolved": print("UNRESOLVED_FORMAT",result,flush=True)
     results.sort(key=lambda x:x["source"])
     counts=Counter()
     for r in results:
@@ -94,7 +109,7 @@ def main():
         {"summary":dict(counts),"entries":results,"note":"WEM not decoded to PCM"},ensure_ascii=False,indent=2),
         encoding="utf-8")
     print("SUMMARY",json.dumps(dict(counts),ensure_ascii=False),flush=True)
-    if any(r["status"]!="ok" for r in results):
+    if any(r["status"]=="failed" for r in results):
         raise SystemExit(1)
 if __name__=="__main__":
     main()

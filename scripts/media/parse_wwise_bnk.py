@@ -17,6 +17,7 @@ def parse_bnk(source:Path,out:Path,extract=True)->dict:
     chunks=[]
     sections={}
     errors=[]
+    warnings=[]
     while offset+8<=len(raw):
         magic,size=struct.unpack_from("<4sI",raw,offset)
         start=offset+8
@@ -29,7 +30,13 @@ def parse_bnk(source:Path,out:Path,extract=True)->dict:
         sections.setdefault(kind,[]).append((start,end))
         offset=end
     if offset!=len(raw):
-        errors.append(f"{len(raw)-offset} trailing bytes")
+        remaining=raw[offset:]
+        if 0<len(remaining)<=4:
+            # Preserve every byte and report the short trailer, but do not discard
+            # otherwise valid DIDX/DATA WEMs for a 2-byte appended value/padding.
+            warnings.append(f"short trailer length={len(remaining)}, hex={remaining.hex()}")
+        else:
+            errors.append(f"{len(remaining)} trailing bytes, hex={remaining[:32].hex()}")
     rows=[]
     if sections.get("DIDX") and sections.get("DATA"):
         start,stop=sections["DIDX"][0]
@@ -56,6 +63,7 @@ def parse_bnk(source:Path,out:Path,extract=True)->dict:
             rows.append(row)
     report={"source":source.name,"sha256":hashlib.sha256(raw).hexdigest(),
             "source_bytes":len(raw),"chunks":chunks,"wem":rows,"errors":errors,
+            "warnings":warnings,
             "note":"DIDX/DATA WEM extraction only, not WAV/OGG audio decoding"}
     (out/(source.stem+".bnk.json")).write_text(
         json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
