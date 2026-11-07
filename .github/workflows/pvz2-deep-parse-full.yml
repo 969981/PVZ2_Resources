@@ -1,0 +1,171 @@
+name: Parse all 26,774 verified PvZ2 CHN 4.2.8 asset records
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-deep-parse-full.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: pvz2-chn-428-deep-parse
+  cancel-in-progress: false
+jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/parse/
+            tests/test_asset_formats.py
+            tests/test_parse_shard.py
+      - run: |
+          python3 -m compileall -q scripts/parse
+          python3 -m unittest discover -s tests -p 'test_asset_formats.py' -v
+          python3 -m unittest discover -s tests -p 'test_parse_shard.py' -v
+  parse_shard:
+    needs: unit_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - stage: Internal
+            shard: "00"
+          - stage: Internal
+            shard: "01"
+          - stage: Internal
+            shard: "02"
+          - stage: Internal
+            shard: "03"
+          - stage: Internal
+            shard: "04"
+          - stage: Internal
+            shard: "05"
+          - stage: Internal
+            shard: "06"
+          - stage: Internal
+            shard: "07"
+          - stage: Media
+            shard: "00"
+          - stage: Media
+            shard: "01"
+          - stage: Media
+            shard: "02"
+          - stage: Media
+            shard: "03"
+          - stage: Media
+            shard: "04"
+          - stage: Media
+            shard: "05"
+          - stage: Media
+            shard: "07"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/parse/
+            scripts/archive/restore_git_shard.py
+            Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+          persist-credentials: false
+      - name: Install zstd and Pillow to verify real PNG pixel streams
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq zstd
+          fi
+          python3 -m pip install --quiet Pillow || echo "Pillow unavailable; PNG IHDR only"
+      - name: SHA256-verify and restore every original file in this shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/archive/restore_git_shard.py \
+            "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}" \
+            --out "$RUNNER_TEMP/restored"
+      - name: Parse, count object classes, inspect RIFF and BNK, sample RTID references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/parse/parse_shard.py \
+            --root "$RUNNER_TEMP/restored" \
+            --catalog "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/files.csv" \
+            --out "$RUNNER_TEMP/parsed" \
+            --workers 2 --max-refs-per-json 24
+          python3 - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'parsed/SUMMARY.json').read_text())
+          assert d['source_files_sha256_verified']==d['total_files']
+          assert sum(d['statuses'].values())==d['total_files']
+          print("SHARD_FULL_PARSE_COMPLETE",d['stage'],d['shard'],d['total_files'],
+                d['parse_errors'],d['unresolved'])
+          PY
+          rm -rf "$RUNNER_TEMP/restored"
+      - name: Keep actual parsing results and opaque-format diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-ch428-deep-${{ matrix.stage }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/parsed/
+          if-no-files-found: error
+          retention-days: 7
+  merge_and_commit:
+    needs: parse_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/parse/merge_parsed_reports.py
+            Catalog/CHN/V4.2.8/shards/
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pvz2-ch428-deep-*
+          path: ${{ runner.temp }}/parse-artifacts
+          merge-multiple: false
+      - name: Merge all 15 source-authenticated shards into SQLite and three CSVs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/parse/merge_parsed_reports.py \
+            "$RUNNER_TEMP/parse-artifacts" \
+            --source-catalogs Catalog/CHN/V4.2.8/shards \
+            --out Catalog/CHN/V4.2.8/parsed --expected 26774
+          python3 - <<'PY'
+          import json,pathlib
+          d=json.loads(pathlib.Path('Catalog/CHN/V4.2.8/parsed/SUMMARY.json').read_text())
+          assert d['files_processed']==26774
+          assert d['shards_processed']==15
+          assert d['missing_shards']==['Media-06']
+          print('FULL_PARSE_AUDIT',d['parser_status_counts'], 'RTID total',d['rtid_total_seen'])
+          PY
+      - name: Commit source-backed structured results; no original commercial assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c pvz2-ch428-all-asset-parsers
+          git add --sparse -f Catalog/CHN/V4.2.8/parsed/
+          git commit -m "data(chn-4.2.8): parse 26774 assets with format evidence, object classes and RTID samples"
+          for retry in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 7
+          done
+          exit 1
