@@ -1,0 +1,135 @@
+name: PVZ2 CHN 4.2.8 Ghidra ARM64 network call graph
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-offline-ghidra-callgraph.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-offline-ghidra-callgraph
+  cancel-in-progress: false
+
+jobs:
+  real-apk-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - name: Checkout offline scripts and original 88 split volumes
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+          sparse-checkout-cone-mode: true
+
+      - name: Prepare runner disk and 7-Zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          # Keep ANDROID_HOME/build-tools for aapt2 Manifest identity verification.
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          count="$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)"
+          test "$count" -eq 88
+
+      - name: Restore original APK and verify source SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/restore-pvz2"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/restore-pvz2" -y
+          apk="$(find "$RUNNER_TEMP/restore-pvz2" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv -- "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore-pvz2" ROMS .git/objects
+          df -h .
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Download and verify official Ghidra 12.1.3 binary distribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 600 \
+            "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.3_build/ghidra_12.1.3_PUBLIC_20260817.zip" \
+            -o "$RUNNER_TEMP/ghidra.zip"
+          echo "93a5d11a9ad510622acaaf908c556a7b9b764d338e78a7567f3689bf5081fd54  $RUNNER_TEMP/ghidra.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/ghidra"
+          unzip -q "$RUNNER_TEMP/ghidra.zip" -d "$RUNNER_TEMP/ghidra"
+          test -x "$JAVA_HOME/bin/java"
+          "$JAVA_HOME/bin/java" -version
+          df -h .
+
+      - name: Generate verified ARM64 XREF candidates from original libSrc.so
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/arm64_xrefs.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            --scratch "$RUNNER_TEMP/private-ghidra-input" \
+            --out "$RUNNER_TEMP/ghidra-derived"
+
+      - name: Recover actual function boundaries and caller/callee links with Ghidra
+        shell: bash
+        run: |
+          set -euo pipefail
+          GHIDRA_TOOL="$(find "$RUNNER_TEMP/ghidra" -type f -name analyzeHeadless | head -1)"
+          test -n "$GHIDRA_TOOL"
+          chmod +x "$GHIDRA_TOOL"
+          mkdir -p "$RUNNER_TEMP/ghidra-projects"
+          timeout 1800 "$GHIDRA_TOOL" \
+            "$RUNNER_TEMP/ghidra-projects" PVZ2_CHN_428 \
+            -import "$RUNNER_TEMP/private-ghidra-input/libSrc-arm64.so" \
+            -scriptPath "$GITHUB_WORKSPACE/scripts/offline/ghidra" \
+            -postScript PvZ2CodeXrefs.java \
+              "$RUNNER_TEMP/ghidra-derived/arm64_url_string_xrefs.csv" \
+              "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv" \
+            -analysisTimeoutPerFile 1000 -max-cpu 2 -deleteProject
+          test -s "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv"
+          python3 - <<'PY'
+          import csv,json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"ghidra-derived"
+          with (root/"ghidra_function_refs.csv").open(encoding="utf-8") as f:
+              records=list(csv.DictReader(f))
+          resolved=sum(r["function_name"]!="UNRESOLVED" for r in records)
+          data={"source_apk_sha256":os.environ["SOURCE_SHA"],
+                "ghidra_version":"12.1.3",
+                "xref_rows":len(records),"function_rows_resolved":resolved,
+                "not_proven":"runtime execution or safe offline patch"}
+          (root/"ghidra_function_summary.json").write_text(json.dumps(data,indent=2)+"\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## Actual CHN 4.2.8 Ghidra native callgraph\n")
+              f.write("- Candidate string refs: "+str(len(records))+"\n")
+              f.write("- Mapped to functions: "+str(resolved)+"\n")
+              f.write("- These are NOT verified live network-check branches.\n")
+              f.write("- No original SO, decompiled function bodies or APK uploaded.\n")
+          PY
+
+      - name: Upload derived Ghidra function metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-offline-ghidra-callgraph
+          path: ${{ runner.temp }}/ghidra-derived/
+          if-no-files-found: warn
+          retention-days: 7
