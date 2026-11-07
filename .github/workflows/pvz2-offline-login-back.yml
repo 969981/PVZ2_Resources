@@ -8,8 +8,6 @@ on:
       - "scripts/offline/emulator_ui_capture.py"
       - "tests/test_offline_consent.py"
       - "scripts/offline/login_back_probe.py"
-      - "tests/test_offline_extraction_monitor.py"
-      - "scripts/offline/login_back_probe.py"
       - "tests/test_offline_login_back_probe.py"
   workflow_dispatch:
 
@@ -40,6 +38,8 @@ jobs:
           sparse-checkout-cone-mode: true
       - name: Run emulator smoke synthetic unit tests
         run: python3 -m unittest discover -s tests -p test_offline_emulator.py -v
+      - name: Validate TwGame login screen detection gate
+        run: python3 -m unittest discover -s tests -p test_offline_login_back_probe.py -v
       - name: Free runner disk and ensure 7zip
         shell: bash
         run: |
