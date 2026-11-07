@@ -83,3 +83,28 @@ tags: [pvz2, offline, android, smali, native, signature]
 这条动态验证比盲目改资源或屏蔽通用 `Device_ExitApp` 更有价值：只有观测到真实警告调用者，才能考虑局部修复。**不允许以“弹窗不再出现”代替实际本地主菜单、首关、结算和原版存档验收。**
 
 当前仍标记：`offline-playable = false`。
+
+## 2026-11-07 22:00 北京时间：Frida PID 附加成功，正版提示调用栈已闭合至 Java UI 桥
+
+实测动作：Actions `#42378951401` 在飞行模式 Android 11 模拟器上安装测试 APK，Frida 16.7.19 以 ADB 的 PID **5786** 附加成功，`TRACE_HOOKS_INSTALLED` 可见。先前仅凭 `device.attach("com.popcap.pvz2cthdbk")` 得到的 `ProcessNotFoundError` 是测试定位失效，不能误归类为游戏自身退出。
+
+`after_consent_005s` 真实 UI 文字仍为“盗版游戏随时可能会崩溃，请使用正版游戏”。本次已取得的堆栈（仅方法名）：
+
+```text
+AlertDialog.Builder.setMessage
+  -> com.popcap.pvz2cthddev.AndroidGameApp$1.run(AndroidGameApp.java:778)
+  -> android.os.Handler.handleCallback
+  -> android.os.Looper.loop
+```
+
+核对原始 Smali：
+- `AndroidGameApp$1.run` 构造 Android 系统弹窗，获取 `val$i_msg`、标题及按钮文字，并调用 `AlertDialog.Builder.setMessage`。
+- `AndroidGameApp.UI_ShowAlertDialog(String title,String message,String ok,boolean exitApp)` 将请求通过 `runOnUiThread` 交给 `AndroidGameApp$1`；这个方法在 Java 层没有可见的直接调用位置，**上游来源仍待实机动态验证**，很可能经 JNI 原生回调。
+- `AndroidGameApp$1$1.onClick` 在 `exitApp=true` 时调用 `access$000`，最终通向 `Device_ExitApp`；但**本轮未点击弹窗确定按钮**，第 25 秒进程仍然退出，不能未经证据断言杀进程来自按钮动作。
+- 独立的 `AndroidGameApp.Device_ExitApp` 包含 `finish`、`Process.killProcess(myPid())`、`System.exit(0)`。与历史 SIGKILL 事件相容，尚缺实际调用证据。
+
+### 已加入下一轮只读验证
+
+在不改变返回值或游戏行为的前提下，Frida 为 `AndroidGameApp.UI_ShowAlertDialog`、`Device_ExitApp` 和 Android `Process.killProcess` 加入仅记录栈帧的方法跟踪。专门保留 `INTEGRITY_ALERT_REQUEST.exit_requested` 与 `GAME_EXIT_REQUEST` 事件，不输出帐号、证书或签名值。窗口缩短为同意后 5/25/45 秒，因既有证据已显示 25 秒进程退出。
+
+验收要点：先确认警告究竟由哪条 JNI 链调用，以及真实退出是来自弹窗按钮还是独立原生退出路径。**主菜单、第一关和保存仍然均未通过；不提供未经实机验收的“离线可玩 APK”。**
