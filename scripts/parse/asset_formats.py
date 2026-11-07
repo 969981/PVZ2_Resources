@@ -101,7 +101,16 @@ def _riff(path):
             tag,size=struct.unpack(order+"4sI",block)
             start=at+8
             end=start+size
-            if end>n:raise ValueError("RIFF chunk exceeds file")
+            if end>n:
+                return "riff-partial",{
+                    "container":head[:4].decode(),"declared_total_bytes":declared,
+                    "actual_bytes":n,"chunks":chunks[:40],"chunks_seen":len(chunks),
+                    "wave_format":fmt,
+                    "anomaly":{"offset":at,"tag_hex":tag.hex(),
+                               "declared_chunk_bytes":size,"remaining_bytes":n-start,
+                               "reason":"RIFF chunk length beyond source; Wwise variant/trailing data requires independent validation"},
+                    "note":"Do NOT call this file corrupt or claim WAV playback without Wwise-specific validation"
+                },Counter(),[]
             name=tag.decode("ascii","replace")
             chunks.append({"name":name,"bytes":size})
             if tag==b"fmt " and size>=16:
