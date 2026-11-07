@@ -76,7 +76,10 @@ def analyze_source(java_source:str,sha:str)->list[dict]:
     for m in NATIVE_CALL.finditer(scrubbed):
         line_start=scrubbed.rfind("\n",0,m.start())+1
         line=scrubbed.count("\n",0,m.start())+1
-        if DECL.search(scrubbed[line_start:m.start()+1]):
+        line_end=scrubbed.find("\n",m.start())
+        if line_end<0:
+            line_end=len(scrubbed)
+        if DECL.search(scrubbed[line_start:line_end]):
             continue
         args=parse_arguments(scrubbed,m.end()-1)
         if args is None:
