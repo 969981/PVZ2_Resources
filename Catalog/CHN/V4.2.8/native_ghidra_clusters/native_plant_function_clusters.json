@@ -1,0 +1,913 @@
+{
+  "xref_rows": 98,
+  "resolved_function_rows": 92,
+  "candidate_function_groups": 72,
+  "multi_field_groups": 8,
+  "groups": [
+    {
+      "function_entry": "03d8e9d4",
+      "function_name": "FUN_03d8e9d4",
+      "source_ref_rows": 7,
+      "field_names": [
+        "ConvallariaChemistProjectile",
+        "MulberryFlashGrenade",
+        "MulberryGasGrenade",
+        "MulberryPlasmaGrenade",
+        "MulberryProjectile",
+        "PlantConvallariaChemist",
+        "PlantMulberry"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "19",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e25140",
+      "function_name": "FUN_03e25140",
+      "source_ref_rows": 5,
+      "field_names": [
+        "MaximumStackLevel",
+        "MaximumStacksPerLevel",
+        "PoisonInfos",
+        "StacksToAdd",
+        "VenomItemName"
+      ],
+      "group_overlap": {
+        "chemist_venom": [
+          "MaximumStackLevel",
+          "MaximumStacksPerLevel",
+          "PoisonInfos"
+        ]
+      },
+      "caller_count_hint": "1",
+      "callee_count_hint": "17",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e27d28",
+      "function_name": "FUN_03e27d28",
+      "source_ref_rows": 4,
+      "field_names": [
+        "ConvallariaChemistProjectile",
+        "ConvallariaChemistSuperProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e299bc",
+      "function_name": "FUN_03e299bc",
+      "source_ref_rows": 4,
+      "field_names": [
+        "FlashSection",
+        "ImprovedGrenadeBonus",
+        "Level5AttackRate",
+        "PlasmaSection"
+      ],
+      "group_overlap": {
+        "mulberry_level5": [
+          "FlashSection",
+          "Level5AttackRate",
+          "PlasmaSection"
+        ]
+      },
+      "caller_count_hint": "1",
+      "callee_count_hint": "14",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2bf24",
+      "function_name": "FUN_03e2bf24",
+      "source_ref_rows": 3,
+      "field_names": [
+        "MulberryPlasmaGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "14",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "037796c4",
+      "function_name": "FUN_037796c4",
+      "source_ref_rows": 2,
+      "field_names": [
+        "Level5AttackRate",
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "122",
+      "callee_count_hint": "8",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e1bd14",
+      "function_name": "FUN_03e1bd14",
+      "source_ref_rows": 2,
+      "field_names": [
+        "PoisonDamage",
+        "PoisonDuration"
+      ],
+      "group_overlap": {
+        "mulberry_poison": [
+          "PoisonDamage",
+          "PoisonDuration"
+        ]
+      },
+      "caller_count_hint": "0",
+      "callee_count_hint": "6",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e25664",
+      "function_name": "FUN_03e25664",
+      "source_ref_rows": 2,
+      "field_names": [
+        "ConvallariaChemistProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "10",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e26a28",
+      "function_name": "FUN_03e26a28",
+      "source_ref_rows": 2,
+      "field_names": [
+        "ConvallariaChemistPlantfoodProjectile",
+        "ConvallariaChemistProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "16",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e29cd8",
+      "function_name": "FUN_03e29cd8",
+      "source_ref_rows": 2,
+      "field_names": [
+        "PlantMulberry"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "25",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2babc",
+      "function_name": "FUN_03e2babc",
+      "source_ref_rows": 2,
+      "field_names": [
+        "MulberryProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "11",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2d868",
+      "function_name": "FUN_03e2d868",
+      "source_ref_rows": 2,
+      "field_names": [
+        "MulberryGasGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "9",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "0414202c",
+      "function_name": "FUN_0414202c",
+      "source_ref_rows": 2,
+      "field_names": [
+        "SplashRadius",
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "41",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "025e6958",
+      "function_name": "FUN_025e6958",
+      "source_ref_rows": 1,
+      "field_names": [
+        "SplashRadius"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "029a3f68",
+      "function_name": "FUN_029a3f68",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "15",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "031a9064",
+      "function_name": "FUN_031a9064",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantConvallariaChemist"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "9",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "031a95ac",
+      "function_name": "FUN_031a95ac",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantConvallariaChemist"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "039008a4",
+      "function_name": "FUN_039008a4",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "6",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "0390dc24",
+      "function_name": "FUN_0390dc24",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "11",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03956184",
+      "function_name": "FUN_03956184",
+      "source_ref_rows": 1,
+      "field_names": [
+        "SplashRadius"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "2",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "0398d98c",
+      "function_name": "FUN_0398d98c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "19",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "0399f2b4",
+      "function_name": "FUN_0399f2b4",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "11",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "039c8c00",
+      "function_name": "FUN_039c8c00",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "55",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "039f7e74",
+      "function_name": "FUN_039f7e74",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "18",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03aa8784",
+      "function_name": "FUN_03aa8784",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03ac78ec",
+      "function_name": "FUN_03ac78ec",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "14",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03bdcd70",
+      "function_name": "FUN_03bdcd70",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDamage"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "16",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03be3084",
+      "function_name": "FUN_03be3084",
+      "source_ref_rows": 1,
+      "field_names": [
+        "Level5AttackRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "23",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03bf2388",
+      "function_name": "FUN_03bf2388",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "4",
+      "callee_count_hint": "19",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03c1a9cc",
+      "function_name": "FUN_03c1a9cc",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "6",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03cb3bb4",
+      "function_name": "FUN_03cb3bb4",
+      "source_ref_rows": 1,
+      "field_names": [
+        "SplashRadius"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "8",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03cf1918",
+      "function_name": "FUN_03cf1918",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "11",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03cf95fc",
+      "function_name": "FUN_03cf95fc",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "9",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03d2a69c",
+      "function_name": "FUN_03d2a69c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03dd05d8",
+      "function_name": "FUN_03dd05d8",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StacksToAdd"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "7",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e08c48",
+      "function_name": "FUN_03e08c48",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "16",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e22348",
+      "function_name": "FUN_03e22348",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantConvallariaChemist"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "7",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e23b4c",
+      "function_name": "FUN_03e23b4c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "ConvallariaChemistProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "10",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e24f54",
+      "function_name": "FUN_03e24f54",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDamage"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e25494",
+      "function_name": "FUN_03e25494",
+      "source_ref_rows": 1,
+      "field_names": [
+        "AdvancedVenomRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "11",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e26dc8",
+      "function_name": "FUN_03e26dc8",
+      "source_ref_rows": 1,
+      "field_names": [
+        "ConvallariaChemistProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "9",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2a0b4",
+      "function_name": "FUN_03e2a0b4",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantMulberry"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "8",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2b6e0",
+      "function_name": "FUN_03e2b6e0",
+      "source_ref_rows": 1,
+      "field_names": [
+        "MulberryProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "4",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2d10c",
+      "function_name": "FUN_03e2d10c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "MulberryFlashGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "4",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2d278",
+      "function_name": "FUN_03e2d278",
+      "source_ref_rows": 1,
+      "field_names": [
+        "MulberryFlashGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "3",
+      "callee_count_hint": "4",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2d550",
+      "function_name": "FUN_03e2d550",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "10",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2df20",
+      "function_name": "FUN_03e2df20",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "2",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e2df88",
+      "function_name": "FUN_03e2df88",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDamage"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "3",
+      "callee_count_hint": "4",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e32984",
+      "function_name": "FUN_03e32984",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e63828",
+      "function_name": "FUN_03e63828",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "2",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e87cf8",
+      "function_name": "FUN_03e87cf8",
+      "source_ref_rows": 1,
+      "field_names": [
+        "Level5AttackRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "4",
+      "callee_count_hint": "9",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03e8a9f0",
+      "function_name": "_INIT_978",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "468",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03eb8030",
+      "function_name": "FUN_03eb8030",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "7",
+      "callee_count_hint": "16",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f2223c",
+      "function_name": "FUN_03f2223c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantConvallariaChemist"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f222f0",
+      "function_name": "FUN_03f222f0",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PlantConvallariaChemist"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "3",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f250b0",
+      "function_name": "FUN_03f250b0",
+      "source_ref_rows": 1,
+      "field_names": [
+        "BasicVenomRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "7",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f25620",
+      "function_name": "FUN_03f25620",
+      "source_ref_rows": 1,
+      "field_names": [
+        "ConvallariaChemistProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "3",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f29898",
+      "function_name": "FUN_03f29898",
+      "source_ref_rows": 1,
+      "field_names": [
+        "SplitGrenadeRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "6",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "03f2db68",
+      "function_name": "FUN_03f2db68",
+      "source_ref_rows": 1,
+      "field_names": [
+        "MulberryGasGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "04001460",
+      "function_name": "FUN_04001460",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "8",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "04003da8",
+      "function_name": "FUN_04003da8",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "6",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "049b4fb0",
+      "function_name": "FUN_049b4fb0",
+      "source_ref_rows": 1,
+      "field_names": [
+        "SplashRadius"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "4",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "04f7e82c",
+      "function_name": "FUN_04f7e82c",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "04ff5678",
+      "function_name": "_INIT_1784",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "8",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "0517a2bc",
+      "function_name": "FUN_0517a2bc",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDamage"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "1",
+      "callee_count_hint": "13",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "054312dc",
+      "function_name": "FUN_054312dc",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "0",
+      "callee_count_hint": "5",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3bdcd50",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3ca4498",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "Level5AttackRate"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3e24f30",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "PoisonDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3e26d9c",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "ConvallariaChemistPlantfoodProjectile"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3e2d1bc",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "MulberryFlashGrenade"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    },
+    {
+      "function_entry": "UNRESOLVED:0x3e316b0",
+      "function_name": "UNRESOLVED",
+      "source_ref_rows": 1,
+      "field_names": [
+        "StunDuration"
+      ],
+      "group_overlap": {},
+      "caller_count_hint": "",
+      "callee_count_hint": "",
+      "candidate_only": "Fields used inside same recovered function; cannot conclude random decision or damage math"
+    }
+  ],
+  "not_proven": [
+    "actual executed code path",
+    "RNG distribution",
+    "poison damage max HP scaling",
+    "damage ticks"
+  ]
+}
