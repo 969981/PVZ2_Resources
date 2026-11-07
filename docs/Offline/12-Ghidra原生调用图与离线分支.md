@@ -3,7 +3,7 @@ title: PvZ2 国服 4.2.8 原生联网函数与调用图恢复
 type: evidence-method
 region: CHN
 version: 4.2.8
-status: ghidra-headless-runner-created-pending-real-results
+status: ghidra-21-of-21-function-bounds-verified
 updated: 2026-11-07
 tags: [pvz2, offline, ghidra, arm64, native, xref, code]
 ---
@@ -36,3 +36,25 @@ tags: [pvz2, offline, ghidra, arm64, native, xref, code]
 严禁通过返回固定成功值来模拟真实付费订单或在线权益，且不发布经修改的商业 APK。
 
 返回 [[11-ARM64原生字符串与代码引用]] · [[10-全代码反编译与离线检查点]] · [[09-隐私授权后离线解压]]
+
+
+## 2026-11-07 Ghidra 实际分析完成（首次函数边界闭合）
+
+[真实原生主程序 Ghidra 工作流 #42334189205](https://github.com/969981/PVZ2_Resources/actions/runs/42334189205) 已完成（Success），从同 SHA256 原始 ARM64 `libSrc.so` 的 21 条字符串代码引用中 **21/21 全部定位了所属函数**。不上传 SO/Ghidra 项目，只保留衍生 `ghidra_function_refs.csv` 和 `ghidra_function_summary.json`。分析版本 Ghidra 12.1.3。
+
+| 服务器类别 | 原生 ELF 函数入口 | 引用该字符串的指令 | 直接调用者数量 | 直接被调函数数量 |
+| --- | --- | --- | ---: | ---: |
+| 云服务 `cloudpvz2android.ditwan.cn` | `0x042D521C` | `0x042D526C` | 1 | 39 |
+| 测试云服务 `cloudpvz2androidbeta.ditwan.cn` | `0x042D521C` | `0x042D5280` | 1 | 39 |
+| CDN `pvz2cdn.ditwan.cn` | `0x04232F1C` | `0x0423322C` | 14 | 9 |
+| 文件广告 `filead.talkyun.com.cn` | `0x035B9CC0` | `0x035B9F08` | 1 | 22 |
+| 广告/商店域名 `pvz-shop-almost.pt.popcap.com.cn` | `0x042B2CA0` | `0x042B3604` | 2 | 24 |
+
+**重点：** 正式云服务、测试云服务和 `cloud.pvz2ios.popcap.com.cn` 被同一个 `FUN_042D521C` 读取；它的直接调用者是 `FUN_02477BD4`。这更像一个需要进一步检查的云服务 URL 配置构造入口，但**不能据此断言它就是登录结果/关卡进入检查**。
+
+CDN `FUN_04232F1C` 有 14 个静态直接调用者，可能复用于多处资源操作。它的使用条件需要用运行时断点逐一验证，不能直接 NOP。
+
+目前可以说：**函数边界已经找到**；但还没有证实“账号 SDK 登录成功 → Java 游戏桥 → C++ 玩家对象”的实际调用链，也没有取得安全可用的“无需联网进第一关”补丁地址。
+
+静态函数入口均为同一 4.2.8 构建下的 ELF 地址；重编译、重签名、不同地区 APK 不能直接沿用。必须在同一 `libSrc.so` 校验 SHA/BuildID，并区分磁盘 ELF RVA 与进程运行时装载基址（ASLR）。
+
