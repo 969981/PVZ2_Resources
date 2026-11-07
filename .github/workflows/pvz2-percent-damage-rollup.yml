@@ -1,0 +1,86 @@
+name: Summarize PvZ2 CHN 4.2.8 percent-damage plant candidates and zombie curves
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-percent-damage-rollup.yml
+      - scripts/catalog/rollup_percent_damage_candidates.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-percent-damage-rollup
+  cancel-in-progress: false
+jobs:
+  rollup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/rollup_percent_damage_candidates.py
+            Catalog/CHN/V4.2.8/entity_map/entities.csv
+            Catalog/CHN/V4.2.8/entity_map/links.csv
+            Catalog/CHN/V4.2.8/damage_level_audit/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and source-ledger rollup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/catalog/rollup_percent_damage_candidates.py
+          python scripts/catalog/rollup_percent_damage_candidates.py \
+            --source Catalog/CHN/V4.2.8/damage_level_audit \
+            --entity-map Catalog/CHN/V4.2.8/entity_map \
+            --out Catalog/CHN/V4.2.8/damage_level_audit
+          python - <<'PY'
+          import json,pathlib,csv
+          p=pathlib.Path("Catalog/CHN/V4.2.8/damage_level_audit")
+          summary=json.loads((p/"ROLLUP_SUMMARY.json").read_text())
+          assert summary["percent_field_hit_rows"]>30000
+          assert summary["level_source_profiles"]==18
+          with (p/"zombie_source_level_1_to_10_by_profile.csv").open(encoding="utf-8-sig",newline="") as f:
+            rows=list(csv.DictReader(f))
+          assert any(x["objclass"]=="RiftConfigSheet" and x["level"]=="10"
+                     and x["hitpoints_multiplier"]=="12" for x in rows),summary
+          assert any(x["objclass"]=="NewPVPPropertySheet" and x["level"]=="10"
+                     and x["hitpoints_multiplier"]=="20" for x in rows),summary
+          print("NATIVE_ZOMBIE_MODES_CHECKED")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-damage-percent-curves-aggregated
+          path: |
+            Catalog/CHN/V4.2.8/damage_level_audit/ROLLUP_SUMMARY.json
+            Catalog/CHN/V4.2.8/damage_level_audit/damage_field_frequencies.csv
+            Catalog/CHN/V4.2.8/damage_level_audit/poison_and_health_damage_field_candidates.csv
+            Catalog/CHN/V4.2.8/damage_level_audit/plant_static_percent_related_candidates.csv
+            Catalog/CHN/V4.2.8/damage_level_audit/zombie_source_level_1_to_10_by_profile.csv
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish small evidence CSVs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "percent-rollup-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/damage_level_audit/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(chn428): real poison candidate and zombie 1-10 source curve rollup"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "PERCENT_CANDIDATES_PUBLISHED"
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
