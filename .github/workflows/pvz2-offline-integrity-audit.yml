@@ -78,7 +78,17 @@ jobs:
           mkdir -p "$RUNNER_TEMP/jadx"
           unzip -q "$RUNNER_TEMP/jadx.zip" -d "$RUNNER_TEMP/jadx"
           "$RUNNER_TEMP/jadx/bin/jadx" --version
+          # JADX returns 3 for recoverable per-class decompiler errors on this 4.2.8 game.
+          # A census only requires enough real source files for a full candidate search.
+          set +e
           "$RUNNER_TEMP/jadx/bin/jadx" -r --threads-count 4 -d "$RUNNER_TEMP/jadx-private" "$RUNNER_TEMP"/dex-private/*.dex
+          jadx_code="$?"
+          set -e
+          echo "JADX exit: $jadx_code (some decompilation errors are expected on real game bytecode)"
+          test -d "$RUNNER_TEMP/jadx-private/sources"
+          count="$(find "$RUNNER_TEMP/jadx-private/sources" -type f -name '*.java' | wc -l)"
+          echo "Recovered Java sources: $count"
+          test "$count" -gt 1000
       - name: Census package signing and termination candidates
         shell: bash
         run: |
