@@ -1,6 +1,6 @@
 """No game assets; test source-preserving level alias and safe Obsidian identity."""
 import unittest
-from scripts.catalog.enrich_entity_crosswalk import resolve, slug, md
+from scripts.catalog.enrich_entity_crosswalk import ref as resolve, slug, md
 
 
 class DetailedMappingTests(unittest.TestCase):
