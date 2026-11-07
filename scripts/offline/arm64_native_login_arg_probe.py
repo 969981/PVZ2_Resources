@@ -10,7 +10,10 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from scripts.offline.jni_registration_probe import parse_elf64, scan_registration_rows, to_file_offset
+try:
+    from scripts.offline.jni_registration_probe import parse_elf64, scan_registration_rows, to_file_offset
+except ModuleNotFoundError:
+    from jni_registration_probe import parse_elf64, scan_registration_rows, to_file_offset
 
 REG_GROUP = {"x2": "native_handle_long", "w2": "native_handle_long",
              "x3": "login_status_int", "w3": "login_status_int",
