@@ -4,10 +4,23 @@
   "region": "CHN",
   "apk_file": "PVZ2_4.2.8.apk",
   "source_apk_sha256": "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4",
-  "package_name_candidate": "com.popcap.pvz2cthdbk",
-  "package_name_evidence": "Android resources only; verify using aapt2/ADB",
+  "package_name_evidence": "verified by aapt2 dump badging, GitHub Actions run 42325659025",
   "runtime_status": "not_verified",
   "offline_playable": false,
   "modifies_payments": false,
-  "source_assets_redistributable": false
+  "source_assets_redistributable": false,
+  "package_name": "com.popcap.pvz2cthdbk",
+  "version_name": "4.2.8",
+  "version_code": "1895",
+  "target_sdk_version": "30",
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a"
+  ],
+  "zip_entries": 1374,
+  "dex_entries": 6,
+  "native_library_count": 28,
+  "static_candidate_host_count_bounded": 142,
+  "static_scan_sampled_bytes": 94154916,
+  "m0_status": "real_apk_verified"
 }

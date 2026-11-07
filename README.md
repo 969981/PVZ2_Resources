@@ -48,3 +48,7 @@ The tools are tracked upstream sources, not evidence of real CHN 4.2.8 extractio
 ## Obsidian documentation
 
 The entire [docs/](docs/README.md) directory is a standalone Obsidian Vault. Clone this repo, open the local `PVZ2_Resources/docs` folder in Obsidian and start at [00-知识库首页](docs/00-知识库首页.md). New notes use shared `docs/_templates/` templates and Wiki links. Personal workspace state is git-ignored; repo paths and existing technical documents are preserved.
+
+## CHN 4.2.8 offline research (M0 verified, M1 pending)
+
+[Real APK static audit Actions #42325659025](https://github.com/969981/PVZ2_Resources/actions/runs/42325659025) succeeded with the original SHA-verified 88-volume APK. Android aapt2 verified package `com.popcap.pvz2cthdbk`, versionCode `1895`, versionName `4.2.8`, targetSdk `30`; 28 native libraries and 142 candidate host strings were observed in a bounded scan. These are **not observed network requests**, and this repository **does not contain a working offline APK**. See [Offline M0 evidence](docs/Offline/06-M0真实APK审计.md) and [M1 device test protocol](docs/Offline/01-启动与网络依赖.md).
