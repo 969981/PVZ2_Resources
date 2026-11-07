@@ -1,0 +1,116 @@
+name: Build verified PvZ2 plant zombie type crosswalk and Obsidian atlas
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-entity-crosswalk.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pvz2-chn428-entity-crosswalk
+  cancel-in-progress: false
+
+jobs:
+  source_crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/build_entity_crosswalk.py
+            scripts/catalog/render_entity_obsidian.py
+            scripts/archive/restore_git_shard.py
+            tests/test_build_entity_crosswalk.py
+            Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip
+            Database/CHN/V4.2.8/pvz2_chs428_resource_catalog.zip
+            Database/CHN/V4.2.8/pvz2_chs428_localized_entities.zip
+            Catalog/CHN/V4.2.8/semantic_assets/asset_paths.csv
+            Catalog/CHN/V4.2.8/shards/Internal-05/files.csv
+            Unpack/CHN/V4.2.8/Internal/shard-05/
+            Catalog/CHN/V4.2.8/entity_map/
+            docs/Entities/CHN/V4.2.8/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Synthetic schema and source-integrity tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/catalog/build_entity_crosswalk.py scripts/catalog/render_entity_obsidian.py
+          python -m unittest discover -s tests -p test_build_entity_crosswalk.py -v
+      - name: Install zstd and recover SHA256 checked real Internal-05 JSON archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y zstd
+          python scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/real-internal05"
+      - name: Join real PlantType ZombieType skill avatar accessory level resource and PNG/PAM records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/catalog/build_entity_crosswalk.py \
+            --repo-root . --raw-root "$RUNNER_TEMP/real-internal05" \
+            --out Catalog/CHN/V4.2.8/entity_map
+          python - <<'PY'
+          import json,pathlib,sqlite3
+          root=pathlib.Path('Catalog/CHN/V4.2.8/entity_map')
+          s=json.loads((root/'SUMMARY.json').read_text())
+          assert s['kinds']=={'plant':381,'zombie':1265},s
+          assert s['sqlite_integrity_check']=='ok'
+          con=sqlite3.connect(root/'pvz2_chs428_entities.sqlite')
+          assert con.execute('SELECT COUNT(*) FROM entities').fetchone()[0]==1646
+          for table in ['links','assets','level_rows','avatars','ancillary',
+                        'ancillary_links','resource_groups','skill_records']:
+            assert con.execute('SELECT COUNT(*) FROM '+table).fetchone()[0] == s['records'][table]
+          assert con.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
+          print('REAL_ENTITY_1646_CROSSWALK_ACCEPTED',s['records'],s['link_status_counts'])
+          PY
+      - name: Generate individual Obsidian plant/zombie pages and type indexes
+        run: |
+          python scripts/catalog/render_entity_obsidian.py \
+            --db Catalog/CHN/V4.2.8/entity_map/pvz2_chs428_entities.sqlite \
+            --docs docs/Entities/CHN/V4.2.8
+      - name: Upload generated source evidence and browsable notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chs428-entity-crosswalk-source-verified
+          path: |
+            Catalog/CHN/V4.2.8/entity_map/
+            docs/Entities/CHN/V4.2.8/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Push only mapping tables and Obsidian Markdown (no unpublished raw media)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config gc.auto 0
+          git switch -c "entity-crosswalk-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/entity_map/ docs/Entities/CHN/V4.2.8/
+          if git diff --cached --quiet; then
+            echo 'Source mapping already up to date'
+            exit 0
+          fi
+          git commit -m "data(chn428): source-verified PlantType ZombieType avatar stats skills and assets crosswalk"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo 'ENTITY_MAPPING_PUBLISHED'
+              exit 0
+            fi
+            sleep 7
+          done
+          exit 1
