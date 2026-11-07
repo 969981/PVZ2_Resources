@@ -1,0 +1,90 @@
+name: Publish 26774 independent parsed metadata files
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-split-parsed-records.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-ch428-individual-parsed-records
+  cancel-in-progress: false
+
+jobs:
+  publish_parsed_records:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/split_parsed_records.py
+            tests/test_split_parsed_records.py
+            Catalog/CHN/V4.2.8/parsed/assets.csv
+            Catalog/CHN/V4.2.8/parsed/object_classes.csv
+            Catalog/CHN/V4.2.8/parsed/rtid_samples.csv
+            Catalog/CHN/V4.2.8/parsed/SUMMARY.json
+          persist-credentials: true
+
+      - name: Verify safe per-record splitting with synthetic fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/catalog/split_parsed_records.py
+          python3 -m unittest discover -s tests -p test_split_parsed_records.py -v
+
+      - name: Export 26774 individually browseable parsed JSON records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/split_parsed_records.py \
+            --src Catalog/CHN/V4.2.8/parsed \
+            --out Parsed/CHN/V4.2.8 \
+            --expected 26774
+          python3 - <<'PY'
+          import csv,json,pathlib
+          root=pathlib.Path("Parsed/CHN/V4.2.8")
+          m=json.loads((root/"MANIFEST.json").read_text())
+          assert m["independent_json_files"]==26774,m
+          assert m["stage_counts"]=={"Internal":14869,"Media":11905},m
+          assert m["missing_source_shards"]==["Media-06"],m
+          with (root/"INDEX.csv").open(encoding="utf-8-sig",newline="") as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==26774,len(rows)
+          paths={row["parsed_record"] for row in rows}
+          assert len(paths)==26774,"filename collision"
+          assert all((root/p).is_file() for p in paths),"unwritten output"
+          print("PARSED_INDIVIDUAL_FILES_VALIDATED",len(paths),
+                "metadata_bytes",m["total_generated_json_bytes"],flush=True)
+          PY
+          du -sh Parsed/CHN/V4.2.8
+          find Parsed/CHN/V4.2.8 -name '*.parsed.json' -type f | wc -l
+
+      - name: Commit independently browsable files (no copied game art/audio)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c ch428-26774-independent-parsed
+          git add --sparse -f -- Parsed/CHN/V4.2.8
+          git diff --cached --stat | tail -n 5
+          if git diff --cached --quiet; then
+            echo "Individual parsed records are unchanged"
+            exit 0
+          fi
+          git commit -m "data(parsed): publish 26774 independent per-file source-backed parse JSON records"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "INDEPENDENT_PARSED_RECORDS_PUSHED_TO_MASTER"
+              exit 0
+            fi
+            sleep 8
+          done
+          exit 1
