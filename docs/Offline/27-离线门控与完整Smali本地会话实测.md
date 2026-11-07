@@ -51,3 +51,18 @@ tags: [pvz2, offline, android, smali, native, signature]
 4. 目前仍无原生主菜单、第一关结算、原版存档读回证据；请优先用下轮新增的诊断片段对照原版/仅重签版本，再定位真实异常分支，不应盲改游戏内所有验签函数。
 
 验收口径未变：只有在飞行模式中真实进入并操作原版主菜单、完成第一关、结算保存且冷启动读回，才能标记“离线可玩”。
+
+## 2026-11-07 20:32 北京时间：复测 #42372372391
+
+本次 Actions **failure 是正确的验收结果**，已非测试脚本成功便直接 green。
+
+- 真实 Android 11 / 飞行模式 / `build_kind=smali-local-trial` / `game_modified=true`；APK 已安装，启动、隐私同意均通过。
+- 同意后 5 秒，Android UI 文本清楚显示：**“盗版游戏随时可能会崩溃，请使用正版游戏”**，按钮“确定”。这次没有显示 ANR 弹窗。
+- 25 秒后游戏退出，随后 60/120 秒仍不存活。`dumpsys activity exit-info` 返回 `ApplicationExitInfo #0 reason=2 (SIGNALED), status=9`（SIGKILL）；另有历史记录 `reason=1(EXIT_SELF)`。不能仅凭 SIGKILL 判定发信方或具体完整性检测函数。
+- 本轮 `logcat` 中 `java_fatal/native_signal/activity_anr` 均为 0。上一轮 `#42367042999` 曾记录 1 次 ANR，这是两次运行的真实差异，不应混淆。
+- 初版更新测试发现 `acceptance.json` 末尾错误附加字面 `\\n`，导致 JSON 不合法；已修复 workflow 序列化。
+- 改进实验探针：若捕获“盗版游戏/请使用正版”，显式判定 `FAIL_INTEGRITY_WARNING`，并保留脱敏退出原因（仍需下一轮执行才能获得新 verdict）。
+
+**静态回调合同补充：** 原版 `TWPurchase$1.run()` 在 UI 线程先做 `Native_SDKInitStart`，随后异步 `TwOfflineSDK.init`；成功初始化回调再调用 `Native_SDKInitEnd(...,0)`、`Native_SDKLoginStart` 和 `TwOfflineSDK.login`。登录回调将 `LoginResultBean.userId` 写入 `mUniqueID`，成功/游客状态转成 `Native_SDKLoginEnd(...,0,token)`。当前临时脚本则在同一 `run()` 中连续发起四个 JNI 调用，不复现异步回调及 `mUniqueID`。两条线须分别验证。
+
+目前首要根因方向是 APK 原样/仅重签/Smali 改造之间的完整性差异；在确认前不能把提示信息对应到某个具体方法，更不能当作登录改造已经成功。
