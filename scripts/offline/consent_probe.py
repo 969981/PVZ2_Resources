@@ -208,12 +208,17 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                 payload = message.get("payload")
                 if message.get("type") == "send" and isinstance(payload, dict):
                     typ = payload.get("type")
-                    if typ in ("INTEGRITY_WARNING_STACK", "TRACE_HOOKS_INSTALLED", "TRACE_HOOK_ERROR"):
+                    if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
+                               "GAME_EXIT_REQUEST", "TRACE_HOOKS_INSTALLED",
+                               "TRACE_HOOK_ERROR"):
                         record = {"type": typ, "source": payload.get("source")}
-                        if typ == "INTEGRITY_WARNING_STACK":
+                        if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
+                                   "GAME_EXIT_REQUEST"):
                             frames = payload.get("frames", [])
                             record["frames"] = [redact_evidence_line(str(item))
                                                 for item in frames[:24] if isinstance(item, str)]
+                        if typ == "INTEGRITY_ALERT_REQUEST":
+                            record["exit_requested"] = payload.get("exit_requested") is True
                         if typ == "TRACE_HOOK_ERROR":
                             record["error_kind"] = payload.get("error_kind")
                         output.append(record)
