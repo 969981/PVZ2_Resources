@@ -139,6 +139,9 @@ jobs:
             -postScript PvZ2CodeXrefs.java \
               "$RUNNER_TEMP/ghidra-derived/combined_function_entry_sites.csv" \
               "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv" \
+            -postScript PvZ2JniSemantics.java \
+              "$RUNNER_TEMP/ghidra-derived/jni_registration_candidates.csv" \
+              "$RUNNER_TEMP/ghidra-derived/ghidra_jni_argument_uses.csv" \
             -analysisTimeoutPerFile 1000 -max-cpu 2 -deleteProject
           test -s "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv"
           python3 - <<'PY'
@@ -155,6 +158,14 @@ jobs:
               writer.writeheader()
               writer.writerows(jni)
           assert len(jni)==4, f"Expected four exact native JNINativeMethod entry candidates, got {len(jni)}"
+          arguments=root/"ghidra_jni_argument_uses.csv"
+          assert arguments.is_file() and arguments.stat().st_size>80, "Missing native argument-use result"
+          with arguments.open(encoding="utf-8") as f:
+              native_args=list(csv.DictReader(f))
+          assert len(native_args)==4, "Must cover all four source JNI entries"
+          native_func=sum(bool(x["function_entry"]) for x in native_args)
+          status_uses=sum(bool(x["first_status_x3_input"]) for x in native_args)
+
           data={"source_apk_sha256":os.environ["SOURCE_SHA"],
                 "ghidra_version":"12.1.3",
                 "xref_rows":len(records),"function_rows_resolved":resolved,
@@ -166,6 +177,7 @@ jobs:
               f.write("- Candidate string refs: "+str(len(records))+"\n")
               f.write("- Mapped to functions: "+str(resolved)+"\n")
               f.write("- Native JNI candidates mapped to disassembly/function: "+str(jni_resolved)+"/"+str(len(jni))+"\n")
+              f.write("- JNI function entry prototypes found: "+str(native_func)+"/4; direct status W3/X3 reads observed: "+str(status_uses)+"/4\n")
               f.write("- These are NOT verified live network-check branches.\n")
               f.write("- No original SO, decompiled function bodies or APK uploaded.\n")
           PY
