@@ -147,7 +147,12 @@ def _bnk(path):
             sections.setdefault(name,[]).append((start,length))
             pos=end
         trailer=size-pos
-        if trailer>4:raise ValueError("BNK has unexpected trailing bytes")
+        warning=None
+        if trailer>4:
+            f.seek(pos)
+            warning={"reason":"nonstandard BNK trailer; source remains intact",
+                     "trailing_bytes":trailer,"trailer_prefix_hex":f.read(32).hex(),
+                     "trailer_offset":pos}
         entries=0
         invalid=0
         if sections.get("DIDX") and sections.get("DATA"):
@@ -162,7 +167,8 @@ def _bnk(path):
                 entries+=1
                 if offset+length>datalen:invalid+=1
         if invalid:raise ValueError(str(invalid)+" DIDX ranges exceed DATA")
-        return "bnk-chunks-parsed",{"chunk_count":len(chunks),"chunks":chunks[:30],
+        return ("bnk-partial" if warning else "bnk-chunks-parsed"),{"chunk_count":len(chunks),"chunks":chunks[:30],
+             "trailer_anomaly":warning,
              "embedded_wem_records":entries,"trailing_bytes":trailer,
              "note":"Bank metadata only; WEM streams not re-extracted here"},Counter(),[]
 
@@ -198,7 +204,12 @@ def _text(path,fmt):
                                   "prefix_hex":raw[:16].hex()},Counter(),[]
     meta={"encoding":encoding,"lines":len(text.splitlines()),"characters":len(text)}
     if fmt=="XML":
-        root=ET.fromstring(text)
+        try:
+            root=ET.fromstring(text)
+        except ET.ParseError as exc:
+            meta["xml_parse_error"]=str(exc)[:260]
+            meta["note"]="XML contains unsupported entity/grammar; source remains unmodified"
+            return "xml-partial",meta,Counter(),[]
         meta.update(root_tag=root.tag,element_count=sum(1 for _ in root.iter()))
         return "text-structure",meta,Counter(),[]
     if fmt=="INI":
