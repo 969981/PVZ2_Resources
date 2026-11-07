@@ -39,8 +39,8 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieMoneyTreeDefalt@PropertySheets | ZombieMoneyTreeProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | YuanbaoProjectileDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | YuanbaoProjectileDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | YuanbaoProjectileDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | YuanbaoProjectileDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

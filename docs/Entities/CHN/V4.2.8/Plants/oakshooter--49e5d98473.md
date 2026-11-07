@@ -43,24 +43,24 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | OakshooterDefault@PropertySheets | OakProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | OakDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakPlantFood@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakPlantAvatarFood@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakSplitDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakBulletNormal@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakBulletMultiple@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakBulletPower@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakBulletTrack@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakSuperDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | OakSuperSplitDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Oakshooter_Skill1_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Oakshooter_Skill1_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level3@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | plant_wakeup_level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level4@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | Oakshooter_SuperSkill@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | OakDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakPlantFood@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakPlantAvatarFood@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakSplitDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakBulletNormal@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakBulletMultiple@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakBulletPower@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakBulletTrack@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakSuperDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | OakSuperSplitDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Oakshooter_Skill1_Level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Oakshooter_Skill1_Level2@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level3@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | plant_wakeup_level1@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Plant_PropertyUp_Level4@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | Oakshooter_SuperSkill@SkillTypes | SkillPropertySheet | 04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json | exact-static-ability-or-projectile-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

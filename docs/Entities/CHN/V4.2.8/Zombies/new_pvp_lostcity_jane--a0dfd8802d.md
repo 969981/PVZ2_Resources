@@ -42,25 +42,25 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieNewPVPLostCityJaneDefault@PropertySheets | ZombieLostCityJaneProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | MangofierLob@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | StickybombRiceDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | CypripediumDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | CypripediumThickDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | CypripediumLv5@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | CabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | MegaCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | StarCabbageDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | KernelDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | ButterDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | ButterRocket@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | ButterFire@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | MelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | MegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | WinterMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | WinterMegaMelonDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | PepperpultDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | PepperpultPlantfoodDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
-| property-nested-skill-or-projectile-RTID | AkeeDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | MangofierLob@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | StickybombRiceDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumThickDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | CypripediumLv5@ProjectileTypes | CypripediumProjectileProps | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | CabbageDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | MegaCabbageDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | StarCabbageDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | KernelDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | ButterDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | ButterRocket@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | ButterFire@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | MelonDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | MegaMelonDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | WinterMelonDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | WinterMegaMelonDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | PepperpultDefault@ProjectileTypes | PepperpultProjectileProps | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | PepperpultPlantfoodDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
+| property-nested-skill-or-projectile-RTID | AkeeDefault@ProjectileTypes | AkeeProjectileProps | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 
 本页仅展示前 20 条；完整 65 条请查看 SQLite/CSV。
 

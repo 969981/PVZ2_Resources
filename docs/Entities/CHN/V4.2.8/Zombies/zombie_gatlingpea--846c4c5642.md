@@ -59,20 +59,20 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieIZombieGatlingPeaDefault@PropertySheets | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 | property-reference | ZombieIZombieWallnutDefault@PropertySheets | ZombieWallnutProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 | property-reference | ZombieIZombieGatlingPeaDefault@PropertySheets | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 | property-reference | ZombieIZombieWallnutDefault@PropertySheets | ZombieWallnutProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
 | property-reference | ZombieIZombieChickenFarmerDefault@CurrentLevel | ZombieChickenFarmerProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_2.json | exact-source-property-alias |
 | property-reference | ZombieIZombieTutorialGargantuar@PropertySheets | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | ambiguous-alias |
 | property-reference | ZombieIZombieTutorialGargantuar@PropertySheets | ZombieGargantuarProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | ambiguous-alias |
 | property-reference | ZombieIZombiePVPNurse@PropertySheets | ZombiePVPNurseProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | PVPNurseDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | PVPNurseDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 | property-reference | ZombieGatlingPeaDefault@CurrentLevel | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S26_61_N.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 | property-reference | ZombieGatlingPeaDefault@PropertySheets | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieGatlingPeaDefault@ProjectileTypes | ProjectilePropertySheet | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 

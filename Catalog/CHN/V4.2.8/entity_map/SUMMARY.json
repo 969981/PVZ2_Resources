@@ -131,7 +131,7 @@
   "optional_not_in_source_inventory": [],
   "records": {
     "entities": 1646,
-    "links": 6486,
+    "links": 6489,
     "assets": 7573,
     "level_rows": 16913,
     "avatars": 838,
@@ -147,10 +147,11 @@
   },
   "link_status_counts": {
     "exact-source-property-alias": 1540,
-    "unresolved-static-skill-ref": 1861,
+    "exact-static-ability-or-projectile-ref": 4760,
     "ambiguous-alias": 104,
     "dollar-namespace-alias-candidate": 42,
-    "exact-static-skill-ref": 2927,
+    "unresolved-static-ability-or-projectile-ref": 25,
+    "ambiguous-static-ability-or-projectile-ref": 6,
     "unresolved": 12
   },
   "resource_group_status_counts": {

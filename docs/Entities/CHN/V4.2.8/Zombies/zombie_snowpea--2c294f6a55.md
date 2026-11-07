@@ -52,9 +52,9 @@ status: static-source-mapping-runtime-unverified
 | 关系 | 原值 | 目标类型 | 目标路径 | 证据状态 |
 | --- | --- | --- | --- | --- |
 | property-reference | ZombieSnowPeaDefault@CurrentLevel | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_S26_61_N.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieSnowPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieSnowPeaDefault@ProjectileTypes | SnowPeaZombieProjectileProps | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 | property-reference | ZombieSnowPeaDefault@PropertySheets | ZombieShooterProps | 04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json | exact-source-property-alias |
-| property-nested-skill-or-projectile-RTID | ZombieSnowPeaDefault@ProjectileTypes |  |  | unresolved-static-skill-ref |
+| property-nested-skill-or-projectile-RTID | ZombieSnowPeaDefault@ProjectileTypes | SnowPeaZombieProjectileProps | 04_JSON/dynamic/Packages/PACKAGES/PROJECTILETYPES.json | exact-static-ability-or-projectile-ref |
 
 ## 已公开 PNG 图集候选（可点击）
 
