@@ -22,16 +22,16 @@ Header sample from CHN 4.2.8 begins 52 53 4C 42 = RSLB; version at +0x04 is 1. C
 - Subsequent descriptors repeat the 20-byte structure; the last descriptor has no following link.
 - Each block: 5-byte LZMA1 property header then raw LZMA1 stream.
 
-Check table bounds, continuity, declared sums and decoded byte count before accepting output. Header estimate: 5,639.62 MiB unwrapped across 33 bundles; the 2026-11-06 real probe found a stage1 parser mismatch; the corrected descriptor/link parser awaits another real run.
+Check table bounds, continuity, declared sums and decoded byte count before accepting output. The initial 2026-11-06 probe identified a parser mismatch; a corrected decoder was subsequently tested successfully against all 33 CHN 4.2.8 bundles. The real decoded RSB total is 5,913,571,328 bytes (approximately 5.51 GiB). See [[versions/CHN/4.2.8-parallel-unpack-results]] for the later validated execution.
 
 ## RSB v4 and RSGP
-Expected inner magic after RSLB decode: 31 62 73 72 = 1bsr. Probe version, RSGP group count, table offset, record stride and per-group offset/length. An RSB group table is not a complete extraction of its internal members. Layer 2 is a separate milestone.
+Expected inner magic after RSLB decode: 31 62 73 72 = 1bsr. Probe version, RSGP group count, table offset, record stride and per-group offset/length. Real CHN 4.2.8 extraction exported 2,964/2,964 RSGP groups; upstream Resource_Tool subsequently extracted 14,869 internal members, 8,091 of which were converted to valid JSON. Group extraction and member/format conversion remain distinct milestones; see [[versions/CHN/4.2.8-parallel-unpack-results]].
 
 ## Direct RTON
 18 APK-level .rton.smf files have RTON magic in sampled headers; outer .smf suffix does not automatically mean the bytes are compressed. Plain RTON is still binary configuration, not directly JSON. Inner group content may include encrypted RTON. Retain unknown/encrypted status, never silently swap data between versions.
 
 ## Other formats
-PTX, PAM, Reanim, atlas, media and localized text require individual probes after layer 2. Do not count them based on guesses from outer filenames.
+PTX, PAM, BNK and other media remain among 6,778 internal members retained in original formats after Stage 3. Their full PNG/animation/audio decoding and game-data semantic joins are not yet verified. See [[资源格式与文件用途]] and [[解包操作手册]].
 
 References:
 - https://github.com/Jelly-RayTian/pvz2-format-exploration

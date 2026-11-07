@@ -46,6 +46,6 @@ Stage 4: structured official Chinese names, plants, zombies, levels, and source 
 - Do not pull third-party source directly into scripts/ without license analysis.
 - Twinning is GPL-3.0. The Chinese reverse tools repo has no license indicated in its GitHub metadata; keep it separate and do not assume source-reuse permission.
 - The newest CN 4.2.8 APK has libSrc.so ELF; S3E-IDA-plugin is not relevant to the principal native library and was intentionally excluded.
-- Only format support is documented here. Actual CHN 4.2.8 end-to-end decoding is not yet verified.
+- Later CHN 4.2.8 Actions confirmed 33 RSB, 2,964 RSGP, 14,869 internal members, 8,091 JSON and 18 additional direct RTON JSON using the pinned Chinese Resource_Tool. This is **not** verification of complete PTX/PAM/BNK conversion or gameplay database extraction. See [verified report](../docs/versions/CHN/4.2.8-parallel-unpack-results.md) and [unpack manual](../docs/解包操作手册.md).
 
 The original ROMS/ archive stays unchanged. Do not commit extracted copyrighted game assets into tools/.

@@ -4,6 +4,10 @@ Plants vs. Zombies 2 Chinese Android resource extraction and research. Current s
 
 The repository's existing ROMS/CHN/V4.2.8 multi-volume 7z archive is preserved unchanged. Code and generated outputs are kept separate.
 
+## Updated CHN 4.2.8 unpack results (2026-11-07)
+
+The repository now records real successful Actions runs: 33/33 RSB, 2,964/2,964 RSGP groups, 14,869 internal members, 8,091 converted internal JSON, plus 18 direct RTON JSON. PTX/PAM/BNK media conversion and full structured gameplay database remain separate outstanding tasks. See [file structure](docs/文件目录与职责.md), [file formats and purpose](docs/资源格式与文件用途.md), [unpack runbook](docs/解包操作手册.md), [Actions/artifact guide](docs/工作流与Artifacts.md), and [real extraction evidence](docs/versions/CHN/4.2.8-parallel-unpack-results.md).
+
 ## Layout
 - AGENTS.md — project rules for coding assistants.
 - docs/ROADMAP.md — phased extraction and validation gates.
