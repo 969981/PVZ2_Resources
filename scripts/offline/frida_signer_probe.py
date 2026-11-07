@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
+import sys
 
 try:
     from scripts.offline.emulator_ui_capture import (
@@ -87,14 +88,14 @@ def run(apk: Path, out: Path, agent: Path, times: list[int]) -> dict:
         if not pid or not pid.split()[0].isdigit():
             result["status"] = "BLOCKED_MISSING_GAME_PID"
             return result
-        ps = subprocess.run(["frida-ps", "-U"], capture_output=True,
+        ps = subprocess.run([str(Path(sys.executable).parent / "frida-ps"), "-U"], capture_output=True,
                             timeout=30, check=False)
         if ps.returncode:
             result["status"] = "BLOCKED_FRIDA_SERVER_NOT_AVAILABLE"
             return result
         log_fh = raw_log.open("w", encoding="utf-8")
         proc = subprocess.Popen(
-            ["frida", "-U", "-p", pid.split()[0], "-l", str(agent), "-q"],
+            [str(Path(sys.executable).parent / "frida"), "-U", "-p", pid.split()[0], "-l", str(agent), "-q"],
             stdin=subprocess.PIPE, stdout=log_fh, stderr=subprocess.STDOUT,
             text=True,
         )
