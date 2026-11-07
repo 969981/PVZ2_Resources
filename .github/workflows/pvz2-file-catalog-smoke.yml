@@ -71,7 +71,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "catalog-${{ matrix.stage }}-${{ matrix.shard }}"
-          git add -f -- "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
+          git add --sparse -f -- "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
           git commit -m "data(catalog): per-file SHA256 inventory ${{ matrix.stage }} shard ${{ matrix.shard }}"
           for attempt in 1 2 3 4 5; do
             git fetch --no-tags origin master
