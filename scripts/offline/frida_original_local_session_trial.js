@@ -8,7 +8,33 @@
 'use strict';
 Java.perform(function () {
   const Log = Java.use('android.util.Log');
-  function mark(message) { Log.i('PVZ2LocalTrial', message); }
+  function mark(message) {
+    Log.i('PVZ2LocalTrial', message);
+    send({type: 'LOCAL_SESSION_TRACE', stage: message});
+  }
+  try {
+    const Splash = Java.use('com.popcap.pvz2cthddev.AndroidSplashScreen');
+    const sampleProgress = function () {
+      Java.perform(function () {
+        try {
+          send({
+            type: 'RESOURCE_LOADING_STAGE',
+            current_stage: Number(Splash.mCurrentDecompressStage.value),
+            time_hint: Number(Splash.mLeftDecompressTime.value),
+            is_first_init: Boolean(Splash.mIsFirstInit.value),
+          });
+        } catch (e) {
+          send({type: 'TRACE_HOOK_ERROR', source: 'SplashProgress',
+                error_kind: 'counter_unavailable'});
+        }
+      });
+    };
+    sampleProgress();
+    setInterval(sampleProgress, 30000);
+  } catch (e) {
+    send({type: 'TRACE_HOOK_ERROR', source: 'SplashProgress',
+          error_kind: 'install_failed'});
+  }
   try {
     const Runnable = Java.use('com.popcap.pvz2cthddev.TWPurchase$1');
     const Owner = Java.use('com.popcap.pvz2cthddev.TWPurchase');
