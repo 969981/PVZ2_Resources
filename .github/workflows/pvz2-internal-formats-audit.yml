@@ -1,0 +1,37 @@
+name: Audit all 8 original PvZ2 CN 4.2.8 secondary format inventories
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-internal-formats-audit.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42259266531
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: pvz2-chn-4.2.8-json-index-*
+          path: ${{ runner.temp }}/original-audits
+      - name: Verify 2964 groups and exact original-format file histogram
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/audit/verify_internal_inventory.py \
+            "$RUNNER_TEMP/original-audits" \
+            --out "$RUNNER_TEMP/completeness-inventory.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-428-verified-all-formats-histogram
+          path: ${{ runner.temp }}/completeness-inventory.json
+          if-no-files-found: error
+          retention-days: 3
