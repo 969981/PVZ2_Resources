@@ -1,0 +1,31 @@
+{
+  "source_archive": "Unpack/CHN/V4.2.8/Internal/shard-05",
+  "archive_sha256": "5a2011372df3ff8d9294f884d39446772d7682fb141c2217027979eba8e1ee78",
+  "source_run": 42259266531,
+  "region": "CHN",
+  "version": "4.2.8",
+  "stage": "Internal",
+  "shard": 5,
+  "file_count": 8440,
+  "small_file_candidates": 8047,
+  "total_size_bytes": 905869418,
+  "formats": {
+    "BNK": 3,
+    "INI": 39,
+    "JSON": 8017,
+    "PAM": 240,
+    "PTX": 134,
+    "TXT": 5,
+    "XML": 2
+  },
+  "category_bytes": {
+    "Animations": 26204341,
+    "Audio": 227865,
+    "Config": 253906,
+    "Data": 243226465,
+    "Text": 3036648,
+    "Textures": 632920193
+  },
+  "status": "real-source-streamed-sha256-verified",
+  "scope": "metadata-only; candidates are not approved for publication"
+}
