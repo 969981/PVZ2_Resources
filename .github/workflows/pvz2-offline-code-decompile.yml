@@ -1,0 +1,104 @@
+name: PVZ2 CHN 4.2.8 DEX and native dependency audit
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-offline-code-decompile.yml"
+      - "scripts/offline/reverse_dependencies.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-offline-code-decompile
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+      JADX_VERSION: "1.5.6"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          submodules: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+
+      - name: Synthetic Java DEX and ELF tests
+        run: python3 -m unittest discover -s tests -p test_offline_reverse_dependencies.py -v
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Download pinned official JADX
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 180 "https://github.com/skylot/jadx/releases/download/v1.5.6/jadx-1.5.6.zip" -o "$RUNNER_TEMP/jadx.zip"
+          mkdir -p "$RUNNER_TEMP/jadx"
+          unzip -q "$RUNNER_TEMP/jadx.zip" -d "$RUNNER_TEMP/jadx"
+          chmod +x "$RUNNER_TEMP/jadx/bin/jadx"
+          "$RUNNER_TEMP/jadx/bin/jadx" --version
+
+      - name: Restore original 4.2.8 APK from 88 volumes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y p7zip-full; fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/pvz2-restored"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/pvz2-restored" -y
+          apk="$(find "$RUNNER_TEMP/pvz2-restored" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/pvz2-restored" ROMS .git/objects
+          df -h .
+
+      - name: Decompile all six DEX and index all 28 native libraries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/reverse_dependencies.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            --scratch "$RUNNER_TEMP/pvz2-private-code" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata" \
+            --jadx "$RUNNER_TEMP/jadx/bin/jadx" \
+            --jadx-timeout 1800
+          python3 - <<'PY'
+          import json, os, pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/reverse_report.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["source_apk_sha256"] == os.environ["SOURCE_SHA"]
+          assert d["dex_count"] == 6 and d["native_library_count"] == 28
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as out:
+              out.write("## Real 4.2.8 code-decompilation audit\n\n")
+              out.write("JADX: "+str(d["jadx"])+"\n\n")
+              out.write("Java cue rows: "+str(d["java_rows_stored"])+"\n")
+              out.write("Native cue rows: "+str(d["native_rows_stored"])+"\n")
+              out.write("Static source hints only. No gameplay offline patch verified.\n")
+              out.write("No original APK, SO, DEX or decompiled Java uploaded.\n")
+          assert d["jadx"].get("decompiled_sources_found",0) > 0
+          PY
+
+      - name: Upload derived metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-offline-code-dependency-index
+          path: \${{ runner.temp }}/pvz2-derived-metadata/
+          if-no-files-found: warn
+          retention-days: 7
