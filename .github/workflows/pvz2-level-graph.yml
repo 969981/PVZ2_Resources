@@ -1,0 +1,62 @@
+name: PvZ2 CN 4.2.8 exact level wave graph and link integrity
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-level-graph.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  extract_graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 140
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: |
+            scripts
+            Unpack/CHN/V4.2.8/Internal/shard-05
+          persist-credentials: true
+      - name: Restore validated full original game config JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          python3 scripts/archive/restore_git_shard.py \
+            Unpack/CHN/V4.2.8/Internal/shard-05 \
+            --out "$RUNNER_TEMP/decoded"
+      - name: Build explicit namespace-resolved object, level, wave and action tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/build_level_graph.py "$RUNNER_TEMP/decoded" \
+            --out "$RUNNER_TEMP/graph" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_level_wave_graph.zip
+      - name: Upload source-level audit and summary even if incomplete
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-level-wave-graph-audit
+          path: |
+            ${{ runner.temp }}/graph/SUMMARY.json
+            ${{ runner.temp }}/graph/unresolved_refs.csv
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Commit validated graph to Git master
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c pvz2-level-wave-graph
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_level_wave_graph.zip
+          git commit -m "data(chn-4.2.8): full source-backed level wave action RTID graph"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
