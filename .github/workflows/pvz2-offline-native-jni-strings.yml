@@ -1,0 +1,94 @@
+name: PVZ2 CHN 4.2.8 native Java JNI literal inventory
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-offline-native-jni-strings.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-offline-native-jni-strings
+  cancel-in-progress: false
+
+jobs:
+  real-apk-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - name: Checkout offline scripts and original 88 split volumes
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+          sparse-checkout-cone-mode: true
+
+      - name: Prepare runner disk and 7-Zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          # Keep ANDROID_HOME/build-tools for aapt2 Manifest identity verification.
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          count="$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)"
+          test "$count" -eq 88
+
+      - name: Restore original APK and verify source SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/restore-pvz2"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/restore-pvz2" -y
+          apk="$(find "$RUNNER_TEMP/restore-pvz2" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv -- "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore-pvz2" ROMS .git/objects
+          df -h .
+
+      - name: Verify boundary-aware identifier parser with synthetic ELF strings
+        run: python3 -m unittest discover -s tests -p test_offline_native_java_bridge_identifiers.py -v
+
+      - name: Index original libSrc.so class/method JNI identifier RVAs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/native_java_bridge_identifiers.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            --scratch "$RUNNER_TEMP/pvz2-private-native-jni" \
+            --out "$RUNNER_TEMP/pvz2-derived-jni-identifiers"
+          python3 - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-jni-identifiers"
+          d=json.loads((root/"native_java_bridge_summary.json").read_text(encoding="utf-8"))
+          assert d["source_sha256"]==os.environ["SOURCE_SHA"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## Real PVZ2 CHN 4.2.8 JNI identifier inventory\n\n")
+              f.write("- Identifiers found: "+str(d["unique_identifiers_matched"])+"\n")
+              f.write("- Native literal offsets: "+str(d["matches"])+"\n")
+              f.write("- Does not prove executed JNI methods or safe offline patches.\n")
+          PY
+
+      - name: Upload derived JNI metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-native-java-bridge-literals
+          path: ${{ runner.temp }}/pvz2-derived-jni-identifiers/
+          retention-days: 7
+          if-no-files-found: warn
