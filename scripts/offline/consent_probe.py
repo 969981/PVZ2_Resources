@@ -86,24 +86,24 @@ def screen_is_privacy_visual(frame: dict, images_dir: Path) -> tuple[bool, int]:
 
 def redact_evidence_line(line: str) -> str:
     """Bounded, scrubbed diagnostics from a disposable account-free emulator."""
-    line = re.sub(r"https?://\\S+", "<url>", line)
-    line = re.sub(r"(?i)[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}", "<email>", line)
-    line = re.sub(r"(?<![\\w.])(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?![\\w.])", "<ip>", line)
-    line = re.sub(r"(?i)\\b(token|password|session|authorization)\\s*[:=]\\s*\\S+",
-                  r"\\1=<redacted>", line)
+    line = re.sub(r"https?://\S+", "<url>", line)
+    line = re.sub(r"(?i)[\w.+-]+@[\w.-]+\.[a-z]{2,}", "<email>", line)
+    line = re.sub(r"(?<![\w.])(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?![\w.])", "<ip>", line)
+    line = re.sub(r"(?i)\b(token|password|session|authorization)\s*[:=]\s*\S+",
+                  r"\1=<redacted>", line)
     return line.strip()[:280]
 
 
 def summarize_logcat_text(text: str) -> dict:
     expressions = {
         "java_fatal": r"FATAL EXCEPTION",
-        "native_signal": r"Fatal signal \\d+",
+        "native_signal": r"Fatal signal \d+",
         "missing_native_library": r"UnsatisfiedLinkError|dlopen failed",
         "dns_failure": r"UnknownHostException|EAI_NODATA",
         "connect_failure": r"ConnectException|ECONNREFUSED",
         "timeout": r"SocketTimeoutException|ETIMEDOUT",
         "ssl_failure": r"SSLHandshakeException|CERTIFICATE_VERIFY_FAILED",
-        "activity_anr": r"\\bANR in " + re.escape(PACKAGE),
+        "activity_anr": r"\bANR in " + re.escape(PACKAGE),
     }
     lines = text.splitlines()
     indices = set()
