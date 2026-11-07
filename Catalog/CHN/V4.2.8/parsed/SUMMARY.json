@@ -1,0 +1,318 @@
+{
+  "game": "PvZ2",
+  "region": "CHN",
+  "version": "4.2.8",
+  "status": "source-hash-and-format-parsing-reported",
+  "expected_indexed_files": 26774,
+  "files_processed": 26774,
+  "shards_processed": 15,
+  "missing_shards": [
+    "Media-06"
+  ],
+  "parser_status_counts": {
+    "bnk-chunks-parsed": 508,
+    "opaque-preserved": 5379,
+    "parse-error": 2,
+    "parsed-json": 12259,
+    "png-decoded": 1345,
+    "riff-partial": 245,
+    "riff-structural": 6941,
+    "sfnt-directory": 4,
+    "text-structure": 89,
+    "unresolved": 2
+  },
+  "formats": {
+    "BNK": 511,
+    "BNK_JSON": 505,
+    "INI": 39,
+    "JSON": 8133,
+    "Lua": 43,
+    "PAM": 3847,
+    "PAM_JSON": 3621,
+    "PNG": 1345,
+    "POPFX": 10,
+    "PTX": 1522,
+    "TTF": 4,
+    "TXT": 6,
+    "WEM": 7186,
+    "XML": 2
+  },
+  "class_row_count": 75608,
+  "rtid_total_seen": 754178,
+  "rtid_sampled": 153939,
+  "rtid_not_exported": 600239,
+  "parse_errors": 2,
+  "unresolved": 2,
+  "top_objclasses": [
+    [
+      "SpawnZombiesJitteredWaveActionProps",
+      83121
+    ],
+    [
+      "LevelDefinition",
+      6636
+    ],
+    [
+      "WaveManagerProperties",
+      6010
+    ],
+    [
+      "WaveManagerModuleProperties",
+      5931
+    ],
+    [
+      "SeedBankProperties",
+      5028
+    ],
+    [
+      "StarChallengeModuleProperties",
+      3825
+    ],
+    [
+      "LevelMutatorTableProps",
+      3075
+    ],
+    [
+      "SpawnModernPortalsWaveActionProps",
+      2770
+    ],
+    [
+      "StormZombieSpawnerProps",
+      2590
+    ],
+    [
+      "SpawnGravestonesWaveActionProps",
+      2021
+    ],
+    [
+      "StarChallengeBeatTheLevelProps",
+      1977
+    ],
+    [
+      "HotUIImageProperties",
+      1955
+    ],
+    [
+      "LevelMutatorModuleProperties",
+      1895
+    ],
+    [
+      "DinoWaveActionProps",
+      1861
+    ],
+    [
+      "PerkHandlerModuleProperties",
+      1636
+    ],
+    [
+      "StarChallengeSunProducedProps",
+      1579
+    ],
+    [
+      "StarChallengePlantsSurviveProps",
+      1516
+    ],
+    [
+      "MagentoProductProps",
+      1446
+    ],
+    [
+      "LevelDifficultyScalingModuleProperties",
+      1396
+    ],
+    [
+      "StarChallengeSaveMowersProps",
+      1292
+    ],
+    [
+      "ZombieType",
+      1265
+    ],
+    [
+      "ZombiePotionActionProps",
+      1187
+    ],
+    [
+      "HotUIWidgetProperties",
+      1132
+    ],
+    [
+      "StarChallengeSpendSunHoldoutProps",
+      1112
+    ],
+    [
+      "ApplyZombieConditionsChallengeProps",
+      1106
+    ],
+    [
+      "InitialGridItemProperties",
+      1104
+    ],
+    [
+      "StarChallengeKillZombiesInTimeProps",
+      1068
+    ],
+    [
+      "BarrelWaveActionProps",
+      1063
+    ],
+    [
+      "ZombieAirbubbleActionProps",
+      1046
+    ],
+    [
+      "StarChallengeSimultaneousPlantsProps",
+      1036
+    ],
+    [
+      "ConveyorSeedBankProperties",
+      1010
+    ],
+    [
+      "StarChallengeZombieDistanceProps",
+      998
+    ],
+    [
+      "StarChallengePlantsLostProps",
+      953
+    ],
+    [
+      "ModifyConveyorWaveActionProps",
+      947
+    ],
+    [
+      "HotUILabelProperties",
+      926
+    ]
+  ],
+  "source_shards": [
+    {
+      "stage": "Internal",
+      "shard": 0,
+      "files": 1269,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "7e21fee5d0d9a45a523292e36890111cf0ef83ca83a746293aeb8d9687cd90ea"
+    },
+    {
+      "stage": "Internal",
+      "shard": 1,
+      "files": 1270,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "de6ae45a88f7c38a62c037008a1eb740fea7f4fc16c8b40d1ebd9a4ca026c7a1"
+    },
+    {
+      "stage": "Internal",
+      "shard": 2,
+      "files": 828,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "f948744051826d0b7e0e9f069f41a9efe7f111abcce81115a3f7fc0a2de2934a"
+    },
+    {
+      "stage": "Internal",
+      "shard": 3,
+      "files": 1198,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "28aa5c1d1d5b8b36507e97b3c883ccce2d89948f58ea74b3ae171204e41fcbe7"
+    },
+    {
+      "stage": "Internal",
+      "shard": 4,
+      "files": 824,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "cb64017782f1498e1bfbd0c06c10c0c1504de57570652d06ec74916c486c3b55"
+    },
+    {
+      "stage": "Internal",
+      "shard": 5,
+      "files": 8440,
+      "classes": 75563,
+      "rtid_sample": 153939,
+      "source_sha256": "5a2011372df3ff8d9294f884d39446772d7682fb141c2217027979eba8e1ee78"
+    },
+    {
+      "stage": "Internal",
+      "shard": 6,
+      "files": 499,
+      "classes": 45,
+      "rtid_sample": 0,
+      "source_sha256": "afb64f0ec1d423507113504e06ff0ee70fd205a609bdf9e3630cf7fe0bf31330"
+    },
+    {
+      "stage": "Internal",
+      "shard": 7,
+      "files": 541,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "f2e7e9365d87302d0853f9d5f3006fe204086173149baadee6b217c99f6cde5c"
+    },
+    {
+      "stage": "Media",
+      "shard": 0,
+      "files": 1366,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "f73b0833c7112d2848200f7b8a40e2a55860a6acef28fbd35e4b043d9317f920"
+    },
+    {
+      "stage": "Media",
+      "shard": 1,
+      "files": 2955,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "87232f0744ca83afa67c3588c5c6076f3f93d0bf500fe5cf7c8870e412c37a83"
+    },
+    {
+      "stage": "Media",
+      "shard": 2,
+      "files": 1606,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "ac56cd3b814060d13961536b5132a080ebd1a552bed461cac44898508ed62e8b"
+    },
+    {
+      "stage": "Media",
+      "shard": 3,
+      "files": 3273,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "95f948290c630972e5be8ea67b9cdd71d212a14a3c82b4b17865144f99571b47"
+    },
+    {
+      "stage": "Media",
+      "shard": 4,
+      "files": 1029,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "8aad7be41cc3fbda96c7bd41d1132c6a991186ea550eb1c8042643f6156c38a0"
+    },
+    {
+      "stage": "Media",
+      "shard": 5,
+      "files": 388,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "02074e7c728f8f3af738ace16b43fe0c15a9f3abd2610d5f5a122da5a69a7006"
+    },
+    {
+      "stage": "Media",
+      "shard": 7,
+      "files": 1288,
+      "classes": 0,
+      "rtid_sample": 0,
+      "source_sha256": "78bc7899909583a8c3c01978a7faa08b87b81a0ba2c18fe97287cc243beb4dde"
+    }
+  ],
+  "limitations": [
+    "Plain-JSON parsing is not a running game engine",
+    "PTX/PAM/POPFX are opaque originals; preconverted PNG/PAM JSON have separate records",
+    "WEM RIFF/fmt is metadata, not full PCM/WAV decoding",
+    "Media-06 remains missing from Git-derived media",
+    "RTID samples are intentionally capped per JSON; full link graph stored in existing game database",
+    "No copyrighted original game binaries are re-uploaded through this workflow"
+  ]
+}
