@@ -1,0 +1,135 @@
+name: Recover PvZ2 CHN 4.2.8 poison plant native function clusters
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-plant-ghidra-functions.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-plant-ghidra-functions
+  cancel-in-progress: false
+jobs:
+  ghidra-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          submodules: false
+          persist-credentials: true
+          sparse-checkout: |
+            scripts
+            ROMS/CHN/V4.2.8
+            Catalog/CHN/V4.2.8/native_combat_xrefs
+            Catalog/CHN/V4.2.8/native_ghidra_clusters
+      - name: Prepare JDK and disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq p7zip-full
+          fi
+          python3 -m py_compile scripts/offline/group_plant_native_xrefs.py
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          test -s Catalog/CHN/V4.2.8/native_combat_xrefs/native_field_xrefs.csv
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Restore original APK and extract 100MB ARM64 libSrc
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/private-apk" "$RUNNER_TEMP/private-lib"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/private-apk" -y >/dev/null
+          apk="$(find "$RUNNER_TEMP/private-apk" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          python3 - <<'PY'
+          import os,pathlib,shutil,zipfile,hashlib,json
+          tmp=pathlib.Path(os.environ["RUNNER_TEMP"])
+          out=tmp/"private-lib/libSrc-arm64.so"
+          with zipfile.ZipFile(tmp/"PVZ2_4.2.8.apk") as z,z.open("lib/arm64-v8a/libSrc.so") as src,out.open("wb") as dst:
+            shutil.copyfileobj(src,dst,4*1024*1024)
+          digest=hashlib.sha256(out.read_bytes()).hexdigest()
+          expected=json.loads(pathlib.Path("Catalog/CHN/V4.2.8/native_combat_xrefs/SUMMARY.json").read_text())
+          assert digest==expected["source_libsrc_arm64_sha256"],(digest,expected)
+          print("ACTUAL_ELF_SHA_VERIFIED",digest)
+          PY
+      - name: Prepare official Ghidra 12.1.3 with pinned SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 600 \
+            "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.3_build/ghidra_12.1.3_PUBLIC_20260817.zip" \
+            -o "$RUNNER_TEMP/ghidra.zip"
+          echo "93a5d11a9ad510622acaaf908c556a7b9b764d338e78a7567f3689bf5081fd54  $RUNNER_TEMP/ghidra.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/ghidra"
+          unzip -q "$RUNNER_TEMP/ghidra.zip" -d "$RUNNER_TEMP/ghidra"
+          "$JAVA_HOME/bin/java" -version
+      - name: Resolve original ARM64 field xrefs to Ghidra functions and caller links
+        shell: bash
+        run: |
+          set -euo pipefail
+          GHIDRA_TOOL="$(find "$RUNNER_TEMP/ghidra" -type f -name analyzeHeadless | head -1)"
+          test -n "$GHIDRA_TOOL"
+          chmod +x "$GHIDRA_TOOL"
+          mkdir -p "$RUNNER_TEMP/plant-ghidra-project" Catalog/CHN/V4.2.8/native_ghidra_clusters
+          timeout 2100 "$GHIDRA_TOOL" \
+            "$RUNNER_TEMP/plant-ghidra-project" CHN428PlantDamage \
+            -import "$RUNNER_TEMP/private-lib/libSrc-arm64.so" \
+            -scriptPath "$GITHUB_WORKSPACE/scripts/offline/ghidra" \
+            -postScript PvZ2CodeXrefs.java \
+              "$GITHUB_WORKSPACE/Catalog/CHN/V4.2.8/native_combat_xrefs/native_field_xrefs.csv" \
+              "$GITHUB_WORKSPACE/Catalog/CHN/V4.2.8/native_ghidra_clusters/ghidra_plant_functions.csv" \
+            -analysisTimeoutPerFile 1200 -max-cpu 2 -deleteProject
+          python3 scripts/offline/group_plant_native_xrefs.py \
+            --ghidra Catalog/CHN/V4.2.8/native_ghidra_clusters/ghidra_plant_functions.csv \
+            --out Catalog/CHN/V4.2.8/native_ghidra_clusters
+          python3 - <<'PY'
+          import json,pathlib,os
+          p=pathlib.Path("Catalog/CHN/V4.2.8/native_ghidra_clusters/native_plant_function_clusters.json")
+          s=json.loads(p.read_text())
+          assert s["xref_rows"]>20,s
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("## Real 4.2.8 poison plant native function topology\n\n")
+            for k in ("xref_rows","resolved_function_rows","candidate_function_groups","multi_field_groups"):
+              f.write(f"- {k}: {s[k]}\n")
+            f.write("- Name-to-function link only; no execution proof of RNG or poison max-HP formula.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-chn428-ghidra-plant-field-functions
+          path: Catalog/CHN/V4.2.8/native_ghidra_clusters/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Commit source-backed function topology only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "plant-ghidra-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/native_ghidra_clusters/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(chn428): Ghidra function groups of native poison plant config references"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "NATIVE_GHIDRA_GROUPS_PUBLISHED"
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
