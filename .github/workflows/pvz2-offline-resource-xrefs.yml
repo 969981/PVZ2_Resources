@@ -7,7 +7,9 @@ on:
     paths:
       - ".github/workflows/pvz2-offline-resource-xrefs.yml"
       - "scripts/offline/map_integrity_resource.py"
+      - "scripts/offline/dynamic_resource_gate_index.py"
       - "tests/test_offline_integrity_resource_map.py"
+      - "tests/test_offline_dynamic_resource_gate_index.py"
 permissions:
   contents: read
 jobs:
@@ -21,10 +23,14 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             scripts/offline/map_integrity_resource.py
+            scripts/offline/dynamic_resource_gate_index.py
             tests/test_offline_integrity_resource_map.py
+            tests/test_offline_dynamic_resource_gate_index.py
             Reconstructed/CHN_4.2.8/SmaliProject
       - name: Test candidate parser
-        run: python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
+        run: |
+          python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_dynamic_resource_gate_index.py' -v
       - name: Find generated resource ID and reference methods
         shell: bash
         run: |
@@ -44,6 +50,12 @@ jobs:
           (out/"integrity_field_xrefs.json").write_text(
               json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"
           )
+          from scripts.offline.dynamic_resource_gate_index import scan
+          extra=scan(root)
+          (out/"dynamic_warning_candidates.json").write_text(
+              json.dumps(extra,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"
+          )
+          print(json.dumps({"dynamic_candidates":extra["candidate_methods"]}))
           print(json.dumps({"refs":len(data["references"]),
                             "files_examined":data["smali_files_examined"],
                             "status":data["status"]}))
