@@ -1,0 +1,37 @@
+{
+  "source_version": "CHN 4.2.8",
+  "four_plants": [
+    "convallariachemist",
+    "lotusshooter",
+    "mulberry",
+    "tigerstool"
+  ],
+  "verified_file_sha256": {
+    "PLANTTYPES": "7564cc46eaa436984b5a4f98e2c40b3df18d2d7a37b83e2c98105ffe1d76c59b",
+    "PROPERTYSHEETS": "c4902eacafe4ba6bfd3721ffdc9e3d783c81b1c6a8b329af0cd21f2108ad93a7",
+    "PROJECTILETYPES": "6e4f95b2b3b03f76c2816532829a58d85235a4714506623c250bda300177c7d5",
+    "SKILLTYPES": "4337efe46cfc043268358593cd2ae0f32339ccc19a2f949fcd6c595d9cd09422",
+    "GRIDITEMTYPES": "39d4151682eccd4846bbc478ca872762bccab1c89805066c5b3b5bb2c37b6309",
+    "ZOMBIEACTIONS": "566d7dcd7f91d72adfc835dee09cc681837b7e716494ece7265f3070264696bf",
+    "LEVELMODULES": "2e185c3bb6333a6efcaa00e09d299c91ddd0f2d060a861b8e8cdd8c37d7a0d8d"
+  },
+  "selected_source_objects": 52,
+  "numeric_string_field_rows": 399,
+  "RTID_edges": 68,
+  "edge_status": {
+    "exact-static-alias": 60,
+    "unresolved-in-selected-source": 8
+  },
+  "selection_reason_counts": {
+    "exact-plant-TypeName": 4,
+    "explicit-PlantType-property-RTID": 4,
+    "class-or-alias-hint": 35,
+    "RTID-target-step-1": 9
+  },
+  "warning": [
+    "Static 4.2.8 snapshots cannot identify which older version nerfed stats.",
+    "A PoisonDamage of 1 is not automatically 1% maximum-health damage.",
+    "RTID matches prove static source reference, not exact runtime damage function.",
+    "Some plant action objects may be outside the selected package files."
+  ]
+}
