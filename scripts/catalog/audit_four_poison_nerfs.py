@@ -95,10 +95,10 @@ def run(root,inventory,out):
     selected[k]=("exact-plant-TypeName",r)
  for p,r in all_plants.items():
   value=r["data"].get("Properties")
-  k=keyname(value)
-  if isinstance(value,str) and "@" in value:
-   sym,scope=k.rsplit("@",1)
-   for t in indexed.get((sym,scope.lstrip("$")),[]):
+  m=RTID.fullmatch(value) if isinstance(value,str) else None
+  if m:
+   sym,scope=m.group(1),m.group(2).lstrip("$")
+   for t in indexed.get((sym,scope),[]):
     selected[(t["source"],t["index"])]=("explicit-PlantType-property-RTID",t)
  # expand explicit RTIDs from initial selected objects up to 2 steps; only
  # true source-scope alias resolution receives "exact" label.
