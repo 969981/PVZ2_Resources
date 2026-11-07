@@ -1,4 +1,4 @@
-name: PvZ2 git archive full import
+name: PvZ2 CHN import remaining Git data shards
 on:
   push:
     branches: [master]
@@ -9,65 +9,10 @@ permissions:
   contents: write
   actions: read
 
-concurrency:
-  group: pvz2-chn-428-git-archive-full
-  cancel-in-progress: false
-
 jobs:
   archive:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        include:
-          - stage: Internal
-            shard: 0
-          - stage: Internal
-            shard: 1
-          - stage: Internal
-            shard: 2
-          - stage: Internal
-            shard: 3
-          - stage: Internal
-            shard: 4
-          - stage: Internal
-            shard: 6
-          - stage: Internal
-            shard: 7
-          - stage: RSB
-            shard: 0
-          - stage: RSB
-            shard: 1
-          - stage: RSB
-            shard: 2
-          - stage: RSB
-            shard: 3
-          - stage: RSB
-            shard: 4
-          - stage: RSB
-            shard: 5
-          - stage: RSB
-            shard: 6
-          - stage: RSB
-            shard: 7
-          - stage: RSGP
-            shard: 0
-          - stage: RSGP
-            shard: 1
-          - stage: RSGP
-            shard: 2
-          - stage: RSGP
-            shard: 3
-          - stage: RSGP
-            shard: 4
-          - stage: RSGP
-            shard: 5
-          - stage: RSGP
-            shard: 6
-          - stage: RSGP
-            shard: 7
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,63 +20,80 @@ jobs:
           fetch-depth: 0
           sparse-checkout: scripts
           persist-credentials: true
-      - name: Resolve existing successful artifact
+      - name: Install zstd and configure Git
         shell: bash
         run: |
           set -euo pipefail
-          case "${{ matrix.stage }}" in
-            Internal) echo "SOURCE_RUN=42259266531" >> "$GITHUB_ENV"
-                      echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-json-files-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
-            RSB) echo "SOURCE_RUN=42256393599" >> "$GITHUB_ENV"
-                 echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsb-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
-            RSGP) echo "SOURCE_RUN=42258406327" >> "$GITHUB_ENV"
-                  echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsg-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
-            *) exit 2 ;;
-          esac
-      - name: Download verified resource shard
-        uses: actions/download-artifact@v4
-        with:
-          run-id: ${{ env.SOURCE_RUN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ env.SOURCE_ARTIFACT }}
-          path: ${{ runner.temp }}/pvz2-artifact
-      - name: Install zstd and configure Git author
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          if ! command -v zstd >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq zstd
+          fi
+          gh --version
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Create 64 MiB Git archive fragments
+          git config gc.auto 0
+          git switch -c archive-pvz2-428
+      - name: Fetch and Git-commit all 23 outstanding resource shards
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          python3 scripts/archive/import_actions_artifact.py \
-            --input "$RUNNER_TEMP/pvz2-artifact" \
-            --output-root Unpack/CHN/V4.2.8 \
-            --stage "${{ matrix.stage }}" --shard "${{ matrix.shard }}" \
-            --temporary "$RUNNER_TEMP"
-      - name: Commit each shard independently to master
-        shell: bash
-        run: |
-          set -euo pipefail
-          DEST="Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-$(printf '%02d' ${{ matrix.shard })"
-          git switch -c "archive-${{ matrix.stage }}-${{ matrix.shard }}"
-          git add --sparse -f -- "$DEST"
-          git commit -m "data(chn-4.2.8): git archive ${{ matrix.stage }} shard ${{ matrix.shard }}"
-          for attempt in 1 2 3 4 5; do
-            git fetch --no-tags origin master
-            git rebase FETCH_HEAD
-            if git push origin HEAD:refs/heads/master; then
-              echo "GIT_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-              exit 0
-            fi
-            echo "Push rejected; retry $attempt"
-            sleep 5
+          completed=0
+          for stage in Internal RSB RSGP; do
+            case "$stage" in
+              Internal) source_run=42259266531; prefix=pvz2-chn-4.2.8-json-files ;;
+              RSB) source_run=42256393599; prefix=pvz2-chn-4.2.8-rsb ;;
+              RSGP) source_run=42258406327; prefix=pvz2-chn-4.2.8-rsg ;;
+            esac
+            for shard in 0 1 2 3 4 5 6 7; do
+              if [[ "$stage" == Internal && "$shard" -eq 5 ]]; then
+                echo "Existing verified archive: Internal 5"
+                continue
+              fi
+              folder="$(printf '%02d' "$shard")"
+              dest="Unpack/CHN/V4.2.8/$stage/shard-$folder"
+              echo "::group::Import $stage shard $shard"
+              git fetch --no-tags origin master
+              if git cat-file -e "FETCH_HEAD:$dest/manifest.json" 2>/dev/null; then
+                echo "Already committed to master; skipping $dest"
+                echo "::endgroup::"
+                continue
+              fi
+              mkdir -p "$RUNNER_TEMP/pvz2-artifact"
+              gh run download "$source_run" \
+                -R "$GITHUB_REPOSITORY" \
+                -n "$prefix-$shard" -D "$RUNNER_TEMP/pvz2-artifact"
+              python3 scripts/archive/import_actions_artifact.py \
+                --input "$RUNNER_TEMP/pvz2-artifact" \
+                --output-root Unpack/CHN/V4.2.8 \
+                --stage "$stage" --shard "$shard" --temporary "$RUNNER_TEMP"
+              git add --sparse -f -- "$dest"
+              git commit -m "data(chn-4.2.8): archive $stage shard $shard"
+              pushed=false
+              for attempt in 1 2 3 4 5; do
+                git fetch --no-tags origin master
+                git rebase FETCH_HEAD
+                if git push origin HEAD:refs/heads/master; then
+                  pushed=true
+                  break
+                fi
+                sleep 5
+              done
+              if [[ "$pushed" != true ]]; then
+                echo "Failed to commit $dest after retries"
+                exit 1
+              fi
+              rm -rf "$RUNNER_TEMP/pvz2-artifact"
+              completed=$((completed + 1))
+              echo "Git upload completed: $dest @ $(git rev-parse --short HEAD)"
+              df -h .
+              echo "::endgroup::"
+            done
           done
-          exit 1
-      - name: Confirm Git commit
+          echo "Newly committed shards this execution: $completed"
+      - name: Final Git archive status
         shell: bash
         run: |
-          echo "Archived ${{ matrix.stage }} shard ${{ matrix.shard }}"
-          git log -1 --format='%h %s'
+          git log -1 --oneline
+          echo "Check all 24 manifests under Unpack/CHN/V4.2.8"
