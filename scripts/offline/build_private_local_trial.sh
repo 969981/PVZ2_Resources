@@ -16,26 +16,39 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/pvz2-patch.XXXXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
-TOOLSDIR="${SMALI_TOOLS_DIR:-$WORK/tools}"
-mkdir -p "$TOOLSDIR"
-for NAME in baksmali smali; do
-  JAR="$TOOLSDIR/$NAME-3.0.10-fat.jar"
-  if [[ ! -f "$JAR" ]]; then
-    curl --retry 3 -fL --max-time 180 \
-      "https://github.com/baksmali/smali/releases/download/v3.0.10/$NAME-3.0.10-fat.jar" -o "$JAR"
-  fi
-done
-echo "37ae4a41a8886e15c20b8362fa4250f96bbdb55e1a608199ad8b5dff068b588f  $TOOLSDIR/baksmali-3.0.10-fat.jar" | sha256sum -c -
-echo "32fa0e88a6c397b3922201adf5f3e534fbaed5a663c71d0c558c3ddce0af844a  $TOOLSDIR/smali-3.0.10-fat.jar" | sha256sum -c -
-mkdir -p "$WORK/dex" "$WORK/changed"
+TOOLSDIR="$WORK/tools"
+mkdir -p "$TOOLSDIR" "$WORK/dex" "$WORK/changed"
+APKTOOL_JAR="$TOOLSDIR/apktool_2.12.1.jar"
+if [[ ! -f "$APKTOOL_JAR" ]]; then
+  curl --retry 2 -fL --max-time 180 \
+    "https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar" \
+    -o "$APKTOOL_JAR" || \
+  curl --retry 2 -fL --max-time 180 \
+    "https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.12.1.jar" \
+    -o "$APKTOOL_JAR"
+fi
+# SHA256 from apktool.org/blog/apktool-2.12.1/ official 2025-09-17 note.
+echo "66cf4524a4a45a7f56567d08b2c9b6ec237bcdd78cee69fd4a59c8a0243aeafa  $APKTOOL_JAR" | sha256sum -c -
+java -jar "$APKTOOL_JAR" --version
 target=""
 for ENTRY in classes.dex classes2.dex classes3.dex classes4.dex classes5.dex classes6.dex; do
   unzip -p "$APK" "$ENTRY" > "$WORK/dex/$ENTRY"
   [[ -s "$WORK/dex/$ENTRY" ]] || { echo "Missing dex $ENTRY"; exit 3; }
-  mkdir -p "$WORK/smali"
-  java -Xmx2g -jar "$TOOLSDIR/baksmali-3.0.10-fat.jar" disassemble \
-       "$WORK/dex/$ENTRY" -o "$WORK/smali" --jobs 2
-  ORIGINAL="$WORK/smali/com/popcap/pvz2cthddev/TWPurchase.smali"
+  # Construct a MINIMAL temporary APK with only Manifest, resources.arsc,
+  # and one DEX renamed classes.dex. This avoids expanding copyrighted
+  # full game assets and prevents APKTool from altering source resources.
+  python3 - "$APK" "$ENTRY" "$WORK/minimal.apk" <<'PY'
+import sys,zipfile
+source,member,dest=sys.argv[1:]
+with zipfile.ZipFile(source) as original,zipfile.ZipFile(dest,"w") as minimal:
+    for name in ("AndroidManifest.xml","resources.arsc"):
+        minimal.writestr(name,original.read(name),compress_type=zipfile.ZIP_STORED)
+    minimal.writestr("classes.dex",original.read(member),compress_type=zipfile.ZIP_STORED)
+PY
+  rm -rf "$WORK/apktool-src"
+  java -Xmx3g -jar "$APKTOOL_JAR" d --no-res --no-assets -f \
+       -o "$WORK/apktool-src" "$WORK/minimal.apk"
+  ORIGINAL="$WORK/apktool-src/smali/com/popcap/pvz2cthddev/TWPurchase.smali"
   if [[ -f "$ORIGINAL" ]]; then
     [[ -z "$target" ]] || { echo "Duplicate TWPurchase class"; exit 3; }
     target="$ENTRY"
@@ -44,14 +57,14 @@ for ENTRY in classes.dex classes2.dex classes3.dex classes4.dex classes5.dex cla
       --summary "$OUT/local_trial_patch_summary.json" \
       --init-status "$INIT_TRIAL" --login-status "$LOGIN_TRIAL"
     cp "$WORK/changed/TWPurchase.smali" "$ORIGINAL"
-    java -Xmx3g -jar "$TOOLSDIR/smali-3.0.10-fat.jar" assemble \
-      "$WORK/smali" -o "$WORK/changed/$ENTRY"
+    java -Xmx3g -jar "$APKTOOL_JAR" b "$WORK/apktool-src" \
+      -o "$WORK/changed/minimal-patched.apk"
+    unzip -p "$WORK/changed/minimal-patched.apk" classes.dex > "$WORK/changed/$ENTRY"
     test -s "$WORK/changed/$ENTRY"
     sha256sum "$WORK/dex/$ENTRY" "$WORK/changed/$ENTRY" \
       | sed "s|$WORK/||g" > "$OUT/dex_before_after_sha256.txt"
     break
   fi
-  rm -rf "$WORK/smali"
 done
 [[ -n "$target" ]] || { echo "Missing exact TWPurchase class in six DEX"; exit 4; }
 echo "Original targeted DEX: $target"
