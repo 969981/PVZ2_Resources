@@ -6,7 +6,9 @@ on:
       - .github/workflows/pvz2-entity-crosswalk.yml
       - scripts/catalog/build_entity_crosswalk.py
       - scripts/catalog/render_entity_obsidian.py
+      - scripts/catalog/enrich_entity_crosswalk.py
       - tests/test_build_entity_crosswalk.py
+      - tests/test_enrich_entity_crosswalk.py
   workflow_dispatch:
 
 permissions:
@@ -30,8 +32,10 @@ jobs:
           sparse-checkout: |
             scripts/catalog/build_entity_crosswalk.py
             scripts/catalog/render_entity_obsidian.py
+            scripts/catalog/enrich_entity_crosswalk.py
             scripts/archive/restore_git_shard.py
             tests/test_build_entity_crosswalk.py
+            tests/test_enrich_entity_crosswalk.py
             Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip
             Database/CHN/V4.2.8/pvz2_chs428_resource_catalog.zip
             Database/CHN/V4.2.8/pvz2_chs428_localized_entities.zip
@@ -47,8 +51,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/catalog/build_entity_crosswalk.py scripts/catalog/render_entity_obsidian.py
+          python -m py_compile scripts/catalog/build_entity_crosswalk.py scripts/catalog/render_entity_obsidian.py scripts/catalog/enrich_entity_crosswalk.py
           python -m unittest discover -s tests -p test_build_entity_crosswalk.py -v
+          python -m unittest discover -s tests -p test_enrich_entity_crosswalk.py -v
       - name: Install zstd and recover SHA256 checked real Internal-05 JSON archive
         shell: bash
         run: |
@@ -84,6 +89,28 @@ jobs:
           python scripts/catalog/render_entity_obsidian.py \
             --db Catalog/CHN/V4.2.8/entity_map/pvz2_chs428_entities.sqlite \
             --docs docs/Entities/CHN/V4.2.8
+      - name: Join every original upgrade tier to exact skill alias and append Obsidian detail
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/catalog/enrich_entity_crosswalk.py \
+            --db Catalog/CHN/V4.2.8/entity_map/pvz2_chs428_entities.sqlite \
+            --out Catalog/CHN/V4.2.8/entity_map \
+            --docs docs/Entities/CHN/V4.2.8
+          python - <<'PY'
+          import json,pathlib,sqlite3
+          p=pathlib.Path('Catalog/CHN/V4.2.8/entity_map')
+          stats=json.loads((p/'DETAIL_SUMMARY.json').read_text())
+          assert stats['obsidian_pages_updated']==1434,stats
+          assert stats['records']['entity_media_summary']==1646,stats
+          assert stats['records']['entity_avatar_details']==838,stats
+          assert stats['records']['entity_level_skills']>0,stats
+          assert stats['skill_resolution'].get('advanced/exact-static-SkillTypes-alias',0)>0,stats
+          db=sqlite3.connect(p/'pvz2_chs428_entities.sqlite')
+          assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
+          print('SOURCE_EXACT_ENTITY_DETAILS_ACCEPTED',stats)
+          PY
+
       - name: Upload generated source evidence and browsable notes
         uses: actions/upload-artifact@v4
         with:
