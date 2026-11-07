@@ -1,0 +1,48 @@
+name: Audit exact localized names against original gameplay classes
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-name-link-audit.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: Database/CHN/V4.2.8
+      - name: Inspect original entity TypeName, aliases and Chinese string IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import zipfile,tempfile,sqlite3,os,json
+          from pathlib import Path
+          root=Path('Database/CHN/V4.2.8')
+          with tempfile.TemporaryDirectory() as tmp:
+              def connect(archive,name):
+                  with zipfile.ZipFile(root/archive) as f:
+                      p=Path(f.extract(name,tmp))
+                  return sqlite3.connect(p)
+              game=connect('pvz2_chs428_gameplay_shard05.zip','pvz2_chs428_gameplay.sqlite')
+              strings=connect('pvz2_chs428_lawnstrings.zip','pvz2_chs428_lawnstrings.sqlite')
+              for cat in ('plant_types','zombie_types','levels','skills'):
+                  print('===',cat,'EXACT GAME RECORDS ===')
+                  samples=game.execute('SELECT source_file,objclass,aliases_json,objdata_json FROM game_objects WHERE category=? LIMIT 12',(cat,)).fetchall()
+                  for src,cls,aliases,raw in samples:
+                      data=json.loads(raw)
+                      subset={k:v for k,v in data.items() if any(t in k.lower() for t in ('name','type','properties','description','display','level'))}
+                      print(json.dumps({'source':src,'class':cls,'aliases':json.loads(aliases),'fields':subset},ensure_ascii=False)[:650])
+              for clause in ('%PEASHOOTER%','%SUNFLOWER%','%PLANT%NAME%','%ZOMBIE%NAME%','%SKILL%NAME%','%LEVEL%NAME%'):
+                  print('=== LAWN STRING KEY',clause,'===')
+                  hits=strings.execute('SELECT string_id,text_zh_cn FROM strings WHERE string_id LIKE ? LIMIT 15',(clause,)).fetchall()
+                  print(json.dumps(hits,ensure_ascii=False)[:1400])
+              print('=== COUNTS ===',game.execute('SELECT category,count(*) FROM game_objects GROUP BY category').fetchall())
+              print('=== KEYED NAME COUNTS ===',strings.execute('SELECT category_hint,count(*) FROM strings WHERE name_key_hint=1 GROUP BY category_hint').fetchall())
+              game.close();strings.close()
+          PY
