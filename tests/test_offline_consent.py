@@ -24,9 +24,9 @@ class ConsentGuardTest(unittest.TestCase):
 
     def test_privacy_palette(self):
         valid = {(x, y): color for x, y, color in POLICY_PALETTE}
-        self.assertEqual(privacy_palette_matches(lambda x, y: valid[(x, y)]), 8)
+        self.assertEqual(privacy_palette_matches(lambda coordinate: valid[coordinate]), 8)
         # A wrong screen must not accidentally pass the test.
-        self.assertEqual(privacy_palette_matches(lambda x, y: (0, 0, 0)), 0)
+        self.assertEqual(privacy_palette_matches(lambda coordinate: (0, 0, 0)), 0)
 
 
 if __name__ == "__main__":
