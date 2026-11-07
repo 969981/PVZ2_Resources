@@ -79,6 +79,31 @@ PY
       done
     fi
     [[ -f "$VERIFIED_SUPER" ]] || { echo "Exact superclass not found in six DEX"; exit 5; }
+    python3 - "$WORK/apktool-src/smali/com/popcap/pvz2cthddev" <<'PY'
+import pathlib,re,sys,json
+root=pathlib.Path(sys.argv[1])
+rows=[]
+for p in sorted(root.glob("TWPurchase*.smali")):
+    code=p.read_text(encoding="utf-8",errors="replace")
+    for m in re.finditer(r"(?ms)^\.method\s+([^\n]+)\n(.*?)^\.end method",code):
+        method,body=m.groups()
+        relevant=("Native_SDKInitStart" in body or
+                  "TwOfflineSDK;->init" in body or
+                  "Native_SDKLoginEnd" in body or
+                  "TwOfflineSDK;->login" in body)
+        if relevant:
+            lines=[ln.strip() for ln in body.splitlines() if
+                   any(t in ln for t in ("Native_SDKInitStart","TwOfflineSDK;->init",
+                                          "Native_SDKLoginEnd","TwOfflineSDK;->login"))]
+            outer=[ln.strip() for ln in code.splitlines() if
+                   (ln.lstrip().startswith(".field") and ("this$0" in ln or "val$" in ln))]
+            rows.append({
+                "class":p.name,"method_signature":method,
+                "relevant_calls":lines[:8],"outer_fields":outer[:12],
+                "has_run_signature":"run()V" in method
+            })
+print("TARGET_SMALI_RELEVANT_METHODS="+json.dumps(rows,ensure_ascii=False))
+PY
     python3 "$ROOT/scripts/offline/patch_tw_local_trial.py" \
       --smali "$ORIGINAL" \
       --super-smali "$VERIFIED_SUPER" \
