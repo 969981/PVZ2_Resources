@@ -1,0 +1,66 @@
+name: PvZ2 CN real format-161 ASTC to PNG smoke
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-astc-smoke.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install ASTC decoder and get pinned RSG library
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq astcenc
+          astcenc -help | head -6 || true
+          git init -q "$RUNNER_TEMP/pvz2-tool"
+          git -C "$RUNNER_TEMP/pvz2-tool" remote add origin https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git
+          git -C "$RUNNER_TEMP/pvz2-tool" fetch --depth=1 origin 04f57f42080ef831545c9b2877f81f811f0be4e2
+          git -C "$RUNNER_TEMP/pvz2-tool" checkout -q FETCH_HEAD
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42256393599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-4
+          path: ${{ runner.temp }}/rsb
+      - name: Reconstruct original ASTC 5x5 textures from dino RSB
+        shell: bash
+        env:
+          PYTHONPATH: ${{ runner.temp }}/pvz2-tool/Resource_Tool
+        run: |
+          set -euo pipefail
+          python3 scripts/media/export_raw_media.py "$RUNNER_TEMP/rsb/dino.rsb" --out "$RUNNER_TEMP/raw"
+          python3 -c "import json,os; r=json.load(open(os.environ['RUNNER_TEMP']+'/raw/media_export_report.json')); assert r['counts']['.ptx']==5"
+      - name: Decode and verify all five real ASTC images
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/media/ptx_astc_to_png.py "$RUNNER_TEMP/raw" \
+            --out "$RUNNER_TEMP/pngs" --workers 2
+          python3 -c "import os,json; r=json.load(open(os.environ['RUNNER_TEMP']+'/pngs/astc_decode_report.json')); assert r['summary']=={'ptx_total':5,'png_ok':5,'unsupported':0,'failed':0},r['summary']"
+      - name: Publish real decoded PNG and format audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-dino-astc5x5-5png
+          path: |
+            ${{ runner.temp }}/pngs/**/*.png
+            ${{ runner.temp }}/pngs/astc_decode_report.json
+            ${{ runner.temp }}/raw/media_export_report.json
+          if-no-files-found: warn
+          retention-days: 3
