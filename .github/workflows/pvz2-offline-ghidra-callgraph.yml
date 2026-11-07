@@ -177,7 +177,7 @@ jobs:
               f.write("- Candidate string refs: "+str(len(records))+"\n")
               f.write("- Mapped to functions: "+str(resolved)+"\n")
               f.write("- Native JNI candidates mapped to disassembly/function: "+str(jni_resolved)+"/"+str(len(jni))+"\n")
-              f.write("- JNI function entry prototypes found: "+str(native_func)+"/4; direct status W3/X3 reads observed: "+str(status_uses)+"/4\\n")
+              f.write("- JNI function entry prototypes found: "+str(native_func)+"/4; direct status W3/X3 reads observed: "+str(status_uses)+"/4\n")
               f.write("- These are NOT verified live network-check branches.\n")
               f.write("- No original SO, decompiled function bodies or APK uploaded.\n")
           PY
