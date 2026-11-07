@@ -1,0 +1,84 @@
+name: PvZ2 CN format-0 and format-147 PNG verification
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-special-ptx.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        shard: [0,5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build PopStudio and fetch a pinned CN unpacker
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init -q "$RUNNER_TEMP/PopStudio"
+          git -C "$RUNNER_TEMP/PopStudio" remote add origin https://github.com/PopGameTool/PopStudio.git
+          git -C "$RUNNER_TEMP/PopStudio" fetch --depth=1 origin a8bd1edd3e1dc4ec79e3b37ee29774e268438d85
+          git -C "$RUNNER_TEMP/PopStudio" checkout -q FETCH_HEAD
+          git init -q "$RUNNER_TEMP/pvz2-tool"
+          git -C "$RUNNER_TEMP/pvz2-tool" remote add origin https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git
+          git -C "$RUNNER_TEMP/pvz2-tool" fetch --depth=1 origin 04f57f42080ef831545c9b2877f81f811f0be4e2
+          git -C "$RUNNER_TEMP/pvz2-tool" checkout -q FETCH_HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ['RUNNER_TEMP'])/'PopStudio/PopStudio.ConsoleProject/Program.cs'
+          s=p.read_text(encoding='utf-8-sig')
+          assert s.count('while (true)')==1
+          p.write_text(s.replace('while (true)','for (int once=0;once<1;once++)'),encoding='utf-8')
+          PY
+          dotnet build "$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/PopStudio.ConsoleProject.csproj" -c Release -r linux-x64 --no-self-contained
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42256393599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-${{ matrix.shard }}
+          path: ${{ runner.temp }}/rsb
+      - name: Reconstruct original PTX binary from real global texture table
+        shell: bash
+        env:
+          PYTHONPATH: ${{ runner.temp }}/pvz2-tool/Resource_Tool
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for source in "$RUNNER_TEMP"/rsb/*.rsb; do
+            python3 scripts/media/export_raw_media.py "$source" --out "$RUNNER_TEMP/raw"
+          done
+      - name: Convert exactly those non-ASTC textures through PopStudio
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll="$(find "$RUNNER_TEMP/PopStudio/PopStudio.ConsoleProject/bin" -name PopStudio.dll -print -quit)"
+          test -f "$dll"
+          python3 scripts/media/decode_special_ptx.py "$RUNNER_TEMP/raw" \
+            --out "$RUNNER_TEMP/png" --popstudio-dll "$dll"
+      - name: Share verified PNGs or inspectable unsupported-format evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-4.2.8-special-ptx-${{ matrix.shard }}
+          path: ${{ runner.temp }}/png/
+          if-no-files-found: warn
+          retention-days: 3
