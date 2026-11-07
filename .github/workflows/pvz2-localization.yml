@@ -1,0 +1,84 @@
+name: PvZ2 CN full Chinese text and name candidates
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-localization.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42259266531
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-json-files-${{ matrix.shard }}
+          path: ${{ runner.temp }}/internal
+      - name: Source-preserving Chinese localization scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/scan_localization.py "$RUNNER_TEMP/internal" \
+            --out "$RUNNER_TEMP/language"
+      - name: Upload per-shard Chinese strings and source refs
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-428-language-${{ matrix.shard }}
+          path: ${{ runner.temp }}/language/
+          retention-days: 3
+          if-no-files-found: error
+
+  merge:
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout: scripts
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pvz2-428-language-*
+          merge-multiple: false
+          path: ${{ runner.temp }}/scans
+      - name: Merge all eight scans into SQLite, full CSV and a searchable candidate index
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/merge_localization.py "$RUNNER_TEMP/scans" \
+            --out "$RUNNER_TEMP/merged" \
+            --zip Database/CHN/V4.2.8/pvz2_chs428_localization_candidates.zip
+      - name: Commit source-backed localized text data to master
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c cn-lang-428
+          git add --sparse -f Database/CHN/V4.2.8/pvz2_chs428_localization_candidates.zip
+          git commit -m "data(chn-4.2.8): source-backed original Chinese string and name candidates"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
