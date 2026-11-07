@@ -1,4 +1,5 @@
 name: Parse all 26,774 verified PvZ2 CHN 4.2.8 asset records
+# Rerun with explicit nonstandard BNK trailer and XML custom-entity partial classification.
 on:
   push:
     branches: [master]
