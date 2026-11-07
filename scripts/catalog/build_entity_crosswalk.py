@@ -140,10 +140,17 @@ def references(value, path="$", *, include_plain=False, depth=0):
 
 
 def source_token_index(records):
+    """Index original alias and scoped alias@ResourceFile without name-only shortcuts."""
     ids=defaultdict(list)
     for rec in records:
+        stem=Path(rec["source"]).stem.upper()
         for token in alias_tokens(rec["aliases"]):
             ids[token].append(rec)
+            if stem in ("PROPERTYSHEETS","SKILLTYPES","PLANTTYPES","ZOMBIETYPES"):
+                scope={"PROPERTYSHEETS":"PropertySheets","SKILLTYPES":"SkillTypes",
+                       "PLANTTYPES":"PlantTypes","ZOMBIETYPES":"ZombieTypes"}[stem]
+                ids[token+"@"+scope].append(rec)
+                ids[token+"@$"+scope].append(rec)
     return ids
 
 
@@ -201,6 +208,44 @@ def original_audit(root: Path):
         if r["format"]!="JSON":continue
         indexed[r["original_path"]]=(r["sha256"],int(r["size_bytes"]))
     return indexed
+
+
+def verified_source_objects(raw_root:Path,index,relative:str):
+    """Read one original Internal-05 JSON member only after SHA256 and size checks."""
+    if relative not in index:
+        raise ValueError("CurrentLevel source not in Internal-05 inventory: "+relative)
+    expected_sha,size=index[relative]
+    path=raw_root/relative
+    if path.is_symlink() or not path.is_file() or path.stat().st_size!=size:
+        raise ValueError("Missing/untrusted CurrentLevel JSON: "+relative)
+    if sha256(path)!=expected_sha:
+        raise ValueError("CurrentLevel source SHA256 mismatch: "+relative)
+    root=json.loads(path.read_text(encoding="utf-8-sig"))
+    if not isinstance(root,dict) or not isinstance(root.get("objects"),list):
+        raise ValueError("Invalid original CurrentLevel objects: "+relative)
+    entries=[]
+    for i,o in enumerate(root["objects"]):
+        if isinstance(o,dict) and isinstance(o.get("objclass"),str) and isinstance(o.get("objdata"),dict):
+            entries.append({"source":relative,"index":i,"class":o["objclass"],
+                            "aliases":o.get("aliases",[]),"data":o["objdata"],
+                            "category":"raw_current_level"})
+    return entries,expected_sha
+
+
+def current_level_scope(raw_root:Path,index,entities):
+    """RTID(foo@CurrentLevel) resolves ONLY in same original level JSON."""
+    wanted=sorted({e["source"] for e in entities if isinstance(e["data"].get("Properties"),str)
+                   and re.search(r"@\$?CurrentLevel\)",e["data"]["Properties"],re.I)})
+    scopes=defaultdict(list)
+    verified={}
+    for relative in wanted:
+        entries,digest=verified_source_objects(raw_root,index,relative)
+        verified[relative]=digest
+        for row in entries:
+            for alias in alias_tokens(row["aliases"]):
+                scopes[(relative,alias+"@CurrentLevel")].append(row)
+                scopes[(relative,alias+"@$CurrentLevel")].append(row)
+    return scopes,verified
 
 
 def get_ancillary(raw_root: Path, index, *, require_raw=True):
@@ -304,8 +349,14 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
         finally:
             game.close();resource.close();loc.close()
 
-    native,verified,missing,not_in_source=get_ancillary(raw_root,original_audit(root),require_raw=require_raw)
-    refs=source_token_index(gameplay)  # Native raw objects duplicate exported gameplay rows; avoid false ambiguities.
+    raw_index=original_audit(root)
+    native,verified,missing,not_in_source=get_ancillary(raw_root,raw_index,require_raw=require_raw)
+    merged={(x["source"],x["index"]):x for x in native}
+    merged.update({(x["source"],x["index"]):x for x in gameplay})
+    refs=source_token_index(merged.values())
+    # Scope CurrentLevel aliases to the *same level source file*, never a global match.
+    preliminary_entities=[x for x in gameplay if x["category"] in ("plant_types","zombie_types")]
+    level_scopes,current_verified=current_level_scope(raw_root,raw_index,preliminary_entities)
     asset_list=list(read_csv(root/"Catalog/CHN/V4.2.8/semantic_assets/asset_paths.csv"))
     assets_by_group=defaultdict(list)
     assets_by_group_key=defaultdict(list)
@@ -405,7 +456,9 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
         properties=data.get("Properties")
         properties_resolved=[]
         for field,token in references(properties,path="$.Properties",include_plain=True):
-            matched=exact_alias_matches(token,refs)
+            matched=(list({(x["source"],x["index"]):x for x in level_scopes.get((r["source"],token),[])}.values())
+                     if token.endswith(("@CurrentLevel","@$CurrentLevel"))
+                     else exact_alias_matches(token,refs))
             if not matched:
                 tables["links"].append({
                     "entity_id":eid,"kind":kind,"relation":"property-reference","field_path":field,
@@ -413,17 +466,23 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                     "target_source_file":"","target_object_index":"",
                     "status":"unresolved","evidence":"literal-PlantType-or-ZombieType.Properties"})
             for target in matched:
-                ty=target["category"]
-                compatible=ty==("plant_properties" if kind=="plant" else "zombie_properties")
-                status="exact-alias-source-reference" if compatible and len(matched)==1 else (
-                    "ambiguous-alias" if len(matched)>1 else "alias-type-mismatch")
+                # A source-scoped alias is a static graph edge, not a proved runtime value.
+                same_scope=(target["source"].endswith("/PROPERTYSHEETS.json")
+                            if token.endswith(("@PropertySheets","@$PropertySheets"))
+                            else target["source"]==r["source"])
+                ambiguous=len(matched)!=1
+                is_dollar="@$" in token
+                status=("ambiguous-alias" if ambiguous else
+                        "source-scope-mismatch" if not same_scope else
+                        "dollar-namespace-alias-candidate" if is_dollar else
+                        "exact-source-property-alias")
                 tid=entity_key("property",target["source"],target["index"])
                 tables["links"].append({
                     "entity_id":eid,"kind":kind,"relation":"property-reference","field_path":field,
                     "source_reference":token,"target_type":target["class"],"target_id":tid,
                     "target_source_file":target["source"],"target_object_index":target["index"],
                     "status":status,"evidence":"source-token-exact-alias-comparison"})
-                if compatible and status=="exact-alias-source-reference":
+                if status in ("exact-source-property-alias","dollar-namespace-alias-candidate"):
                     properties_resolved.append((tid,target))
         if not list(references(properties,path="$.Properties",include_plain=True)):
             tables["links"].append({"entity_id":eid,"kind":kind,"relation":"property-reference",
@@ -511,7 +570,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
                     field.startswith("$.PopAnim")):
                 continue
             matched=[t for t in exact_alias_matches(token,refs)
-                     if t["category"] in ("skills","projectiles")]
+                     if t.get("category") in ("skills","projectiles")]
             if len(matched)>10:continue
             for t in matched:
                 tables["links"].append({
@@ -530,7 +589,8 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
         "schema":"pvz2-entity-crosswalk-1","region":REL,"version":VERSION,
         "apk_sha256":APK_SHA,"entity_source":"original gameplay SQLite ZIP",
         "raw_json_root":"SHA256-verified Internal-05 source archive",
-        "verified_raw_json_sha256":verified,"missing_requested_raw":missing,
+        "verified_raw_json_sha256":verified,"verified_current_level_json_sha256":current_verified,
+        "missing_requested_raw":missing,
         "optional_not_in_source_inventory":not_in_source,
         "records":{k:len(v) for k,v in tables.items()},
         "kinds":dict(Counter(r["kind"] for r in tables["entities"])),

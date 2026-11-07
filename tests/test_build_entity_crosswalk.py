@@ -120,7 +120,7 @@ class EntityCrosswalkTests(unittest.TestCase):
             self.assertEqual(s["records"]["entities"],3)
             self.assertTrue(s["records"]["avatars"]>=1)
             links=list(csv.DictReader((output/"links.csv").open(encoding="utf-8-sig")))
-            self.assertTrue(any(x["status"]=="exact-alias-source-reference" for x in links))
+            self.assertTrue(any(x["status"]=="exact-source-property-alias" for x in links))
             self.assertTrue(any(x["status"]=="unresolved" for x in links))
             grades=list(csv.DictReader((output/"level_rows.csv").open(encoding="utf-8-sig")))
             self.assertTrue(any(x["field"]=="PlantLevelStats" for x in grades))
