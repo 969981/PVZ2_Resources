@@ -6,6 +6,8 @@ on:
     paths:
       - ".github/workflows/pvz2-offline-code-decompile.yml"
       - "scripts/offline/reverse_dependencies.py"
+      - "scripts/offline/signature_integrity_index.py"
+      - "tests/test_offline_signature_integrity_index.py"
       - "scripts/offline/jni_registration_probe.py"
       - "scripts/offline/twpurchase_login_branches.py"
       - "tests/test_offline_twpurchase_login_branches.py"
@@ -86,6 +88,9 @@ jobs:
 
       - name: Test native SDK login callback argument-shape analyzer
         run: python3 -m unittest discover -s tests -p test_offline_twpurchase_login_branches.py -v
+
+      - name: Verify signature and process termination source-site scan on synthetic Java
+        run: python3 -m unittest discover -s tests -p test_offline_signature_integrity_index.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -262,6 +267,25 @@ jobs:
               f.write("- Argument count hints: "+str(d["argument_count_hints"])+"\n")
               f.write("- Numeric status meanings remain UNVERIFIED.\n")
           assert d["native_login_end_callsite_count"] >= 5
+          PY
+
+      - name: Search all real Java sources for package-signature checks and deliberate app exits
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/signature_integrity_index.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/signature_integrity_candidate_summary.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["java_files_scanned"]>500, "JADX did not expose enough real classes"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## SHA-verified actual APK signature/integrity candidate code sites\n")
+              f.write("- Java files searched: "+str(d["java_files_scanned"])+"\n")
+              f.write("- Signature/process-exit candidate sites: "+str(d["source_sites_count"])+"\n")
+              f.write("- Static sites only; no actual signature-check branch proven to execute.\n")
           PY
 
       - name: Upload derived metadata only
