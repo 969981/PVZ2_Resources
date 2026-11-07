@@ -30,8 +30,8 @@ tags: [pvz2, offline, android, twpurchase, login, jni, ghidra]
 | 原生字符串 | 指令参考 RVA | Ghidra 所属函数 | 直接调用者 |
 | --- | --- | --- | --- |
 | `pvz2cdn.ditwan.cn` | `0x423322c` | `FUN_04232f1c` | 14 |
-| `cloudpvz2android.ditwan.cn` | `0x42d526c` | `FUN_042d4d38`（需从最新 CSV 复核） | 按 CSV |
-| `cloudpvz2androidbeta.ditwan.cn` | `0x42d5280` | 同附近函数（待逐行复核） | 按 CSV |
+| `cloudpvz2android.ditwan.cn` | `0x42d526c` | `FUN_042d521c` | 1 |
+| `cloudpvz2androidbeta.ditwan.cn` | `0x42d5280` | `FUN_042d521c` | 1 |
 
 **该 RVA 是“形成服务器字符串地址的指令”而非认证判断或关卡联网判定。** 只有配合 GDB/Frida 动态命中和参数/返回值才能判断是否执行及能否安全地改本地回退。Ghidra 项目不会公开上传。
 
