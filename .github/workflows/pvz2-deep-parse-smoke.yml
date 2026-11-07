@@ -1,0 +1,89 @@
+name: PVZ2 26774 file parser unit tests and real shard smoke
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-deep-parse-smoke.yml"
+      - "scripts/parse/**"
+      - "tests/test_asset_formats.py"
+      - "tests/test_parse_shard.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/parse/
+            tests/test_asset_formats.py
+            tests/test_parse_shard.py
+      - name: Compile parsers and validate synthetic formats
+        run: |
+          python3 -m compileall -q scripts/parse
+          python3 -m unittest discover -s tests -p 'test_asset_formats.py' -v
+          python3 -m unittest discover -s tests -p 'test_parse_shard.py' -v
+  real_samples:
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - stage: Internal
+            shard: "02"
+            expected: 828
+          - stage: Media
+            shard: "00"
+            expected: 1366
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/parse/
+            scripts/archive/restore_git_shard.py
+            Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+      - name: Install zstd and optionally Pillow for real PNG decode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -qq -y zstd; fi
+          python3 -m pip install --quiet Pillow || echo "Pillow unavailable: use PNG structural validation"
+      - name: Restore authentic files and verify source container SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/archive/restore_git_shard.py \
+            "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}" \
+            --out "$RUNNER_TEMP/restored"
+      - name: Parse every real file and validate per-shard totals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/parse/parse_shard.py \
+            --root "$RUNNER_TEMP/restored" \
+            --catalog "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/files.csv" \
+            --out "$RUNNER_TEMP/parse" --workers 2 --max-refs-per-json 24
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'parse/SUMMARY.json'
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['source_files_sha256_verified']==${{ matrix.expected }},d
+          assert sum(d['statuses'].values())==${{ matrix.expected }},d
+          print("REAL_SAMPLE_OK",d["stage"],d["shard"],d["statuses"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-ch428-parser-real-${{ matrix.stage }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/parse/
+          retention-days: 7
+          if-no-files-found: error
