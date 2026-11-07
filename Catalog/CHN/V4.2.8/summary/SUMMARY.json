@@ -1,0 +1,45 @@
+{
+  "coverage": {
+    "Internal": {
+      "shards": 8,
+      "files": 14869,
+      "eligible_files_lt95MiB": 14869,
+      "ineligible_files": 0,
+      "warning_files_gt50MiB": 0,
+      "text_preview_candidates": 8141,
+      "source_total_bytes": 6174625218
+    },
+    "Media": {
+      "shards": 7,
+      "files": 11905,
+      "eligible_files_lt95MiB": 11905,
+      "ineligible_files": 0,
+      "warning_files_gt50MiB": 5,
+      "text_preview_candidates": 2443,
+      "source_total_bytes": 13129294555
+    }
+  },
+  "indexed_shards": [
+    "Internal-00",
+    "Internal-01",
+    "Internal-02",
+    "Internal-03",
+    "Internal-04",
+    "Internal-05",
+    "Internal-06",
+    "Internal-07",
+    "Media-00",
+    "Media-01",
+    "Media-02",
+    "Media-03",
+    "Media-04",
+    "Media-05",
+    "Media-07"
+  ],
+  "missing_expected_shards": [
+    "Media-06"
+  ],
+  "status": "source-backed-metadata-only",
+  "scope": "Size eligibility is <95MiB, not a permission to redistribute game assets",
+  "files": "assets.sqlite + assets.csv, no raw game media"
+}
