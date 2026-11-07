@@ -1,0 +1,39 @@
+{
+  "region": "CHN",
+  "version": "4.2.8",
+  "covered_shards": 15,
+  "expected_files": 26774,
+  "files_individually_sha256_verified": 26774,
+  "status_counts": {
+    "checksum-only": 5473,
+    "header-verified": 9040,
+    "parsed": 12259,
+    "unresolved": 2
+  },
+  "formats": {
+    "PTX": 1522,
+    "PAM": 3847,
+    "BNK": 511,
+    "JSON": 8133,
+    "WEM": 7186,
+    "TTF": 4,
+    "POPFX": 10,
+    "INI": 39,
+    "TXT": 6,
+    "XML": 2,
+    "Lua": 43,
+    "PAM_JSON": 3621,
+    "PNG": 1345,
+    "BNK_JSON": 505
+  },
+  "missing_shards": [
+    "Media-06"
+  ],
+  "limitations": [
+    "No full WAV decoding in this run",
+    "No PAM animation playback",
+    "No POPFX rendering",
+    "Unrestored Media-06 remains missing",
+    "No original game bytes re-published"
+  ]
+}
