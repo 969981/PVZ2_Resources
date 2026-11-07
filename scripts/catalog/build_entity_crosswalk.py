@@ -22,6 +22,7 @@ import zipfile
 APK_SHA = "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4"
 VERSION = "4.2.8"
 REL = "CHN"
+REQUIRED_RAW = {"PLANTTYPES.json","PROPERTYSHEETS.json","SKILLTYPES.json","PLANTNEWAVATARS.json","COLLECTABLETYPES.json"}
 TARGET_FILES = [
     "PLANTTYPES.json", "PROPERTYSHEETS.json", "SKILLTYPES.json",
     "ZOMBIETYPES.json", "PLANTNEWAVATARS.json", "COLLECTABLETYPES.json",
@@ -208,10 +209,15 @@ def get_ancillary(raw_root: Path, index, *, require_raw=True):
     selected=[]
     hashes={}
     missing=[]
+    absent=[]
     for fname in TARGET_FILES:
         rel=prefix+fname
         path=raw_root/rel
-        if rel not in index or not path.is_file():
+        if rel not in index:
+            absent.append(rel)
+            if fname in REQUIRED_RAW:missing.append(rel)
+            continue
+        if not path.is_file():
             missing.append(rel)
             continue
         expected_hash,expected_size=index[rel]
@@ -231,7 +237,7 @@ def get_ancillary(raw_root: Path, index, *, require_raw=True):
                              "aliases":item.get("aliases",[]),"data":data})
     if require_raw and missing:
         raise ValueError("Missing raw Internal-05 JSON files: "+str(missing))
-    return selected,hashes,missing
+    return selected,hashes,missing,absent
 
 
 def safe_csv_sqlite(out: Path, table_rows: dict[str,list[dict]]):
@@ -277,7 +283,8 @@ def trim_json(value,limit=8192):
                                          "sha256":hashlib.sha256(s.encode()).hexdigest()})
 
 
-def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
+def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True,
+          expected_plants:int=381, expected_zombies:int=1265):
     tables={k:[] for k in FIELDS}
     counts=Counter()
     root=root.resolve(strict=True)
@@ -297,7 +304,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
         finally:
             game.close();resource.close();loc.close()
 
-    native,verified,missing=get_ancillary(raw_root,original_audit(root),require_raw=require_raw)
+    native,verified,missing,not_in_source=get_ancillary(raw_root,original_audit(root),require_raw=require_raw)
     refs=source_token_index(gameplay+native)
     asset_list=list(read_csv(root/"Catalog/CHN/V4.2.8/semantic_assets/asset_paths.csv"))
     assets_by_group=defaultdict(list)
@@ -308,7 +315,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
         assets_by_group_key[normalized(x["group_key"])].append(x)
 
     entities=[r for r in gameplay if r["category"] in ("plant_types","zombie_types")]
-    if Counter(x["category"] for x in entities)!=Counter({"plant_types":381,"zombie_types":1265}):
+    if Counter(x["category"] for x in entities)!=Counter({"plant_types":expected_plants,"zombie_types":expected_zombies}):
         raise ValueError("unexpected source entity coverage")
     entity_token=defaultdict(set)
     for r in entities:
@@ -524,6 +531,7 @@ def build(root:Path,out:Path,raw_root:Path,*,require_raw:bool=True):
         "apk_sha256":APK_SHA,"entity_source":"original gameplay SQLite ZIP",
         "raw_json_root":"SHA256-verified Internal-05 source archive",
         "verified_raw_json_sha256":verified,"missing_requested_raw":missing,
+        "optional_not_in_source_inventory":not_in_source,
         "records":{k:len(v) for k,v in tables.items()},
         "kinds":dict(Counter(r["kind"] for r in tables["entities"])),
         "link_status_counts":dict(Counter(r["status"] for r in tables["links"])),
@@ -554,8 +562,11 @@ def main():
     p.add_argument("--raw-root",type=Path,required=True)
     p.add_argument("--out",type=Path,default=Path("Catalog/CHN/V4.2.8/entity_map"))
     p.add_argument("--allow-missing-raw",action="store_true")
+    p.add_argument("--expected-plants",type=int,default=381)
+    p.add_argument("--expected-zombies",type=int,default=1265)
     a=p.parse_args()
-    build(a.repo_root,a.out,a.raw_root,require_raw=not a.allow_missing_raw)
+    build(a.repo_root,a.out,a.raw_root,require_raw=not a.allow_missing_raw,
+          expected_plants=a.expected_plants,expected_zombies=a.expected_zombies)
 
 
 if __name__=="__main__":
