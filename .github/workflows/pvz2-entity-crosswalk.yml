@@ -4,6 +4,9 @@ on:
     branches: [master]
     paths:
       - .github/workflows/pvz2-entity-crosswalk.yml
+      - scripts/catalog/build_entity_crosswalk.py
+      - scripts/catalog/render_entity_obsidian.py
+      - tests/test_build_entity_crosswalk.py
   workflow_dispatch:
 
 permissions:
