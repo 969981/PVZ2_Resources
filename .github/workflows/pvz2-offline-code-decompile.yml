@@ -9,6 +9,8 @@ on:
       - "scripts/offline/inspect_login_flow.py"
       - "tests/test_offline_login_flow.py"
       - "scripts/offline/bridge_site_index.py"
+      - "scripts/offline/twpurchase_bridge_contract.py"
+      - "tests/test_offline_twpurchase_contract.py"
       - "tests/test_offline_bridge_site_index.py"
       - "scripts/offline/inspect_native_callbacks.py"
       - "tests/test_offline_native_callbacks.py"
@@ -71,6 +73,9 @@ jobs:
 
       - name: Validate local login result Java model schema scanner
         run: python3 -m unittest discover -s tests -p test_offline_login_schema_index.py -v
+
+      - name: Check native-login boundary parser against synthetic fixture
+        run: python3 -m unittest discover -s tests -p test_offline_twpurchase_contract.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -190,6 +195,28 @@ jobs:
               f.write("## SDK login JSON data model static field inventory\n\n")
               f.write("Models: "+str(d["model_java_files"])+"; fields: "+str(d["field_declarations"])+"\n")
               f.write("Field names and method types only, no source body or credentials.\n")
+          PY
+
+      - name: Correlate TWPurchase SDK native login declarations with Java call sites and ELF JNI exports
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/twpurchase_bridge_contract.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --so "$RUNNER_TEMP/pvz2-private-code/original_code/lib/arm64-v8a/libSrc.so" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          f=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/twpurchase_bridge_summary.json"
+          d=json.loads(f.read_text(encoding="utf-8"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as stream:
+              stream.write("## TWPurchase SDK-native boundary\n\n")
+              stream.write(f"- Java sources: {d['sources_found']}/{d['sources_checked']}\n")
+              stream.write(f"- Callback / JNI candidate edges: {d['edges']}\n")
+              stream.write("- Declared native methods: "+", ".join(d["twpurchase_native_methods"])+"\n")
+              stream.write("- No actual offline login callback or patch has been verified.\n")
+          assert d["sources_found"]>=6
+          assert {"Native_SDKLoginEnd","Native_SDKLoginStart"}.issubset(d["twpurchase_native_methods"])
           PY
 
       - name: Upload derived metadata only
