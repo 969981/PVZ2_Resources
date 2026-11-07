@@ -95,7 +95,7 @@ with zipfile.ZipFile(src) as s,zipfile.ZipFile(signed) as t:
   assert original[key]==rebuilt[key],f"Original non-Dex member changed: {key}"
 report={
  "status":"SIGNED_APK_FROM_REPO_SMALI_BUILT",
- "signed_apk_sha256":hashlib.sha256(signed.read_bytes()).hexdigest(),
+ "signed_apk_sha256":(lambda path: hashlib.file_digest(path.open("rb"), "sha256").hexdigest())(signed),
  "signed_apk_size":signed.stat().st_size,
  "source_smali_roots":6,
  "rebuilt_dex_count":6,
