@@ -12,6 +12,11 @@ class OfflineRuntimeDiagnosticsTests(unittest.TestCase):
         self.assertEqual(classify_runtime(frames, {"counts": {"activity_anr": 0}}),
                          "FAIL_ANDROID_ANR")
 
+    def test_integrity_warning_precedes_exit_classification(self):
+        frames = [{"process_alive": True, "integrity_warning_seen": True}]
+        self.assertEqual(classify_runtime(frames, {"counts": {}}),
+                         "FAIL_INTEGRITY_WARNING")
+
     def test_anr_from_logcat_is_failure(self):
         summary = summarize_logcat_text(
             "W/ActivityManager: ANR in " + PACKAGE + "\n"
