@@ -37,7 +37,16 @@ def patch_smali(source: str, *, init_status:int, login_status:int)->tuple[str,di
     if not re.search(r"(?m)^\.class\s+[^\n]*\bLcom/popcap/pvz2cthddev/TWPurchase;\s*$",source):
         raise ValueError("Not the exact TWPurchase class")
     if not re.search(r"(?m)^\.field\b[^\n]*\bmNativeDriverPtr:J(?:\s|$)",source):
-        raise ValueError("Native driver pointer field not confirmed")
+        references=[line.strip() for line in source.splitlines()
+                    if "mNativeDriverPtr" in line][:12]
+        supers=re.findall(r"(?m)^\.super\s+(L[^\s]+;)",source)[:1]
+        fields=[line.strip() for line in source.splitlines()
+                if line.startswith(".field")][:20]
+        print(json.dumps({"smali_preflight":"POINTER_FIELD_NOT_IN_CLASS_DECLARATIONS",
+                          "superclass":supers,
+                          "native_pointer_symbol_references":references,
+                          "own_field_declarations":fields},ensure_ascii=False))
+        raise ValueError("Native driver pointer field not confirmed; no patch applied")
     for name,descriptor in NATIVE.items():
         declaration=re.compile(
             r"(?m)^\.method\b(?=[^\n]*\bstatic\b)(?=[^\n]*\bnative\b)"
