@@ -2,7 +2,9 @@ name: PvZ2 CN 4.2.8 exact level wave graph and link integrity
 on:
   push:
     branches: [master]
-    paths: [".github/workflows/pvz2-level-graph.yml"]
+    paths:
+      - ".github/workflows/pvz2-level-graph.yml"
+      - "scripts/catalog/build_level_graph.py"
   workflow_dispatch:
 permissions:
   contents: write

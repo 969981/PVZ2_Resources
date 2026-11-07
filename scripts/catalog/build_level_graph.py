@@ -195,7 +195,7 @@ CREATE TABLE spawn_action_objects(source_file TEXT,object_index INTEGER,objclass
     stats["wave_records"]=db.execute("SELECT count(*) FROM waves").fetchone()[0]
     stats["reference_records"]=db.execute("SELECT count(*) FROM reference_edges").fetchone()[0]
     class_counts=db.execute("SELECT objclass,count(*) FROM spawn_action_objects GROUP BY objclass ORDER BY count(*) DESC LIMIT 30").fetchall()
-    examples=db.execute("SELECT source_file,object_index,reference_text,namespace,status FROM reference_edges WHERE status!='resolved' LIMIT 40").fetchall()
+    examples=db.execute("SELECT source_file,source_object_index,reference_text,namespace,status FROM reference_edges WHERE status!='resolved' LIMIT 40").fetchall()
     db.close()
     report={"scope":"8,017 source JSON files in Internal/shard-05, including 6,636 LevelDefinition and 6,010 WaveManagerProperties",
             "counts":dict(stats),"top_action_classes":class_counts,
