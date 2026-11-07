@@ -78,20 +78,26 @@ jobs:
           disk-size: 10240M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
-          script: |
-            python3 scripts/offline/emulator_smoke.py --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" --out "$RUNNER_TEMP/pvz2-offline-emulator" --observe-seconds 25
-            python3 - <<'PY'
-            import json,os,pathlib
-            p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-offline-emulator/emulator_smoke.json"
-            d=json.loads(p.read_text(encoding="utf-8"))
-            print("EMULATOR_RESULT:",d["status"])
-            with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
-                f.write("## Real PVZ2 CHN 4.2.8 offline emulator check\n\n")
-                f.write("- Diagnostic status: **"+d["status"]+"**\n")
-                f.write("- Emulator ABI: "+d.get("emulator",{}).get("ro.product.cpu.abilist","unavailable")+"\n")
-                f.write("- Native bridge: "+d.get("emulator",{}).get("ro.dalvik.vm.native.bridge","unavailable")+"\n")
-                f.write("- Playable offline: **not verified**\n")
-            PY
+          script: python3 scripts/offline/emulator_smoke.py --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" --out "$RUNNER_TEMP/pvz2-offline-emulator" --observe-seconds 25
+      - name: Summarize sanitized emulator results
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-offline-emulator/emulator_smoke.json"
+          if not p.is_file():
+              print("No emulator diagnostic JSON available; inspect emulator step logs")
+          else:
+              d=json.loads(p.read_text(encoding="utf-8"))
+              print("EMULATOR_RESULT:",d["status"])
+              with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+                  f.write("## PVZ2 CHN 4.2.8 Android emulator check\n\n")
+                  f.write("- Diagnostic status: **"+d["status"]+"**\n")
+                  f.write("- Emulator ABI: "+d.get("emulator",{}).get("ro.product.cpu.abilist","unavailable")+"\n")
+                  f.write("- Native bridge: "+d.get("emulator",{}).get("ro.dalvik.vm.native.bridge","unavailable")+"\n")
+                  f.write("- Offline playability: **not verified**\n")
+          PY
       - name: Upload sanitized emulator evidence only
         if: always()
         uses: actions/upload-artifact@v4

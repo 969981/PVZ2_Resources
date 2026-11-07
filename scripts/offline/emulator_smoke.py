@@ -6,6 +6,8 @@ Only sanitized JSON is persisted. Diagnostic exit 0 never implies offline playab
 import argparse
 from datetime import datetime, timezone
 import json
+import hashlib
+import struct
 from pathlib import Path
 import re
 import subprocess
@@ -89,6 +91,22 @@ def observe(apk,out,seconds=25):
         time.sleep(seconds)
         process=adb("shell","pidof",PACKAGE)
         report["process_alive"]=bool(process.stdout.strip()) and not process.returncode
+        # Native OpenGL gameplay is not necessarily visible to UIAutomator.
+        # Record screen metadata and foreground app status without uploading images.
+        activity=adb("shell","dumpsys","activity","activities",timeout=35)
+        focus_lines=re.findall(r"(?:mResumedActivity|topResumedActivity|mFocusedApp)[^\n]*",activity.stdout,re.I)
+        report["foreground_activity_package_detected"]=any(PACKAGE in x for x in focus_lines)
+        try:
+            screenshot=subprocess.run(["adb","exec-out","screencap","-p"],capture_output=True,timeout=40,check=False)
+            raw=screenshot.stdout
+            valid=screenshot.returncode==0 and raw.startswith(bytes.fromhex("89504e470d0a1a0a")) and len(raw)>24
+            report["screenshot_png_valid"]=bool(valid)
+            if valid:
+                width,height=struct.unpack(">II",raw[16:24])
+                report["screenshot_dimensions"]=[width,height]
+                report["screenshot_sha256"]=hashlib.sha256(raw).hexdigest()
+        except (OSError,subprocess.TimeoutExpired):
+            report["screenshot_png_valid"]=False
         log=adb("logcat","-d","-v","brief","-t","5000",timeout=45)
         indicators={
             "java_fatal":r"\bFATAL EXCEPTION\b",

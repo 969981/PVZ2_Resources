@@ -32,3 +32,15 @@ tags: [pvz2, offline, emulator, arm64, android]
 若 x86_64 模拟器不存在 ARM Native Bridge，应单独试验 ARM64 系统镜像或有转译能力的环境；不要把 ABI 故障误判为联网限制。只有 APK 安装并启动后才开始关卡和存档诊断。
 
 返回 [[00-离线版总览]]、[[01-启动与网络依赖]]、[[06-M0真实APK审计]]
+
+## 2026-11-07 第一轮实际测试
+
+- [Actions #42326808614](https://github.com/969981/PVZ2_Resources/actions/runs/42326808614) 在真实 APK、真实 Android 11/API30 `google_apis` x86_64 AVD 上执行。
+- 已确认 SHA256 的 2.27 GB 原始 APK；安装成功耗时 41.3 秒，实际包名 `com.popcap.pvz2cthdbk`，版本 4.2.8（1895）。
+- 系统 ABI：`x86_64,x86,arm64-v8a,armeabi-v7a,armeabi`；Native Bridge 为 `libndk_translation.so`，ARM 原生库转译可用。
+- 飞行模式设置确认开启；关闭 Wi-Fi 和移动网络操作均返回 0，Monkey 启动事件注入成功。
+- 25 秒后游戏进程仍存活；采样范围内 Java FATAL、native fatal、dlopen/UnsatisfiedLinkError 和常见网络异常计数均为 0。
+- **本次 Actions 结果标记失败的原因不是游戏，而是 android-emulator-runner 将多行 `script` 分别执行，第二段 heredoc 的 `import` 被作为 shell 命令解释**；主烟雾测试已产出 JSON，失败仅发生在打印摘要阶段。
+- 此轮不能确认是否进入主界面，也没有完成关卡/存档验证。已针对摘要脚本进行修复，并加入前台 Activity 与截图有效性（只保存宽高和 SHA，不保存图片）的探针。
+
+证据等级：真实模拟器安装与进程存活已验证；画面/关卡/离线完整性未验证。
