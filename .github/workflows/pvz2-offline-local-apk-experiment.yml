@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/pvz2-offline-local-apk-experiment.yml"
       - "scripts/offline/patch_tw_local_trial.py"
+      - "tests/test_offline_tw_local_trial.py"
       - "scripts/offline/build_private_local_trial.sh"
       - "scripts/offline/local_trial_gameplay_probe.py"
   workflow_dispatch:
