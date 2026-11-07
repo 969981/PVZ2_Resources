@@ -30,6 +30,8 @@ def patch_get_signature(source: str) -> tuple[str, dict]:
     if ".end method" not in rest:
         raise ValueError("Missing method end")
     body, after = rest.split(".end method", 1)
+    if TRACE_TAG in body:
+        raise ValueError("Unexpected GetSignature implementation")
     if not re.search(r"(?m)^\s*\.locals 1\s*$", body):
         raise ValueError("Unexpected register count")
     if body.count(INVOKE) != 1 or body.count(RETURN) != 1 or TRACE_TAG in body:
