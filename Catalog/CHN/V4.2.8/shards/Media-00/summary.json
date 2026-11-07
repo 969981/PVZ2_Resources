@@ -1,0 +1,27 @@
+{
+  "source_archive": "Unpack/CHN/V4.2.8/Media/shard-00",
+  "archive_sha256": "f73b0833c7112d2848200f7b8a40e2a55860a6acef28fbd35e4b043d9317f920",
+  "source_run": 42321977158,
+  "region": "CHN",
+  "version": "4.2.8",
+  "stage": "Media",
+  "shard": 0,
+  "file_count": 1366,
+  "small_file_candidates": 265,
+  "total_size_bytes": 897679253,
+  "formats": {
+    "BNK_JSON": 27,
+    "JSON": 5,
+    "PAM_JSON": 357,
+    "PNG": 72,
+    "WEM": 905
+  },
+  "category_bytes": {
+    "Animations": 561946971,
+    "Audio": 17978665,
+    "Data": 420637,
+    "Images": 317332980
+  },
+  "status": "real-source-streamed-sha256-verified",
+  "scope": "metadata-only; candidates are not approved for publication"
+}
