@@ -126,27 +126,19 @@ done
 [[ -n "$target" ]] || { echo "Missing exact TWPurchase class in six DEX"; exit 4; }
 echo "Original targeted DEX: $target"
 UNSIGNED="$WORK/pvz2-local-unsigned.apk"
-ALIGNED="$WORK/pvz2-local-aligned.apk"
+ALIGNED="$UNSIGNED"
 SIGNED="$OUT/PVZ2_CHN_4.2.8_local_trial_$INIT_TRIAL"_"$LOGIN_TRIAL.apk"
-cp "$APK" "$UNSIGNED"
-for name in 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/*.EC' \
-            'META-INF/*.SF' 'META-INF/MANIFEST.MF'; do
-   zip -qd "$UNSIGNED" "$name" 2>/dev/null || true
-done
-mkdir -p "$WORK/for-zip"
-cp "$WORK/changed/$target" "$WORK/for-zip/$target"
-(cd "$WORK/for-zip" && zip -q -0 -X "$UNSIGNED" "$target")
+# Preserve all untouched ZIP local-entry headers and original game asset offsets.
+python3 "$ROOT/scripts/offline/append_dex_preserve_zip_offsets.py" \
+  --apk "$APK" --dex "$WORK/changed/$target" --target "$target" \
+  --output "$UNSIGNED" > "$OUT/apk_zip_offset_report.json"
 unzip -t "$UNSIGNED" "$target" >/dev/null
-BUILD_TOOLS="${ANDROID_BUILD_TOOLS_DIR:-}"
-if [[ -z "$BUILD_TOOLS" ]]; then
-  BUILD_TOOLS="$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/build-tools" \
-    -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
-fi
-test -x "$BUILD_TOOLS/zipalign"
+BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" \
+  -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
 test -x "$BUILD_TOOLS/apksigner"
-"$BUILD_TOOLS/zipalign" -f -p 4 "$UNSIGNED" "$ALIGNED"
-"$BUILD_TOOLS/zipalign" -c -p 4 "$ALIGNED"
-rm -f "$UNSIGNED"
+# Never zipalign -f or rewrite source resource member offsets.
+"$BUILD_TOOLS/zipalign" -c -p 4 "$UNSIGNED" || \
+  echo "ZIP alignment warning; offset-preserving build retained"
 TEST_KEYSTORE="$WORK/local-test.jks"
 keytool -genkeypair -noprompt -keystore "$TEST_KEYSTORE" -storepass "offline-only-test" \
   -alias localtest -keypass "offline-only-test" \
