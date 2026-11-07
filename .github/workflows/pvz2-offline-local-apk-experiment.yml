@@ -25,8 +25,8 @@ jobs:
     timeout-minutes: 95
     env:
       SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
-      LOCAL_TRIAL_INIT_STATUS: "1"
-      LOCAL_TRIAL_LOGIN_STATUS: "1"
+      LOCAL_TRIAL_INIT_STATUS: "0"
+      LOCAL_TRIAL_LOGIN_STATUS: "0"
     steps:
       - name: Checkout only offline scripts, synthetic tests and original 88 7z volumes
         uses: actions/checkout@v4
@@ -83,7 +83,7 @@ jobs:
             "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
             "$RUNNER_TEMP/private-patched-apk" \
             "$LOCAL_TRIAL_LOGIN_STATUS" "$LOCAL_TRIAL_INIT_STATUS"
-          test -s "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_1_1.apk"
+          test -s "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_0_0.apk"
           python3 - <<'PY'
           import json,os,pathlib
           p=pathlib.Path(os.environ["RUNNER_TEMP"])/"private-patched-apk/local_trial_build_result.json"
@@ -125,7 +125,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
           script: >-
             "$RUNNER_TEMP/visual-venv/bin/python" scripts/offline/local_trial_gameplay_probe.py
-            --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_1_1.apk"
+            --apk "$RUNNER_TEMP/private-patched-apk/PVZ2_CHN_4.2.8_local_trial_0_0.apk"
             --out "$RUNNER_TEMP/trial-qa-screens"
             --times 120,360,600
 
