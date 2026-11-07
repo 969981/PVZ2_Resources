@@ -1,0 +1,106 @@
+name: Audit PVZ2 4.2.8 plant combat native ARM64 xrefs
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-plant-native-xrefs.yml"
+      - "scripts/offline/pvz2_plant_native_xrefs.py"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pvz2-chn428-plant-combat-xrefs
+  cancel-in-progress: false
+jobs:
+  source-verified-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: true
+          submodules: false
+          sparse-checkout: |
+            scripts
+            ROMS/CHN/V4.2.8
+            Catalog/CHN/V4.2.8/native_combat_xrefs
+      - name: Verify script syntax and prepare disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/offline/pvz2_plant_native_xrefs.py
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+      - name: Restore exactly matched original 4.2.8 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/plant-native-apk"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/plant-native-apk" -y >/dev/null
+          apk="$(find "$RUNNER_TEMP/plant-native-apk" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+      - name: Index actual ARM64 native combat class and field references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/pvz2_plant_native_xrefs.py \
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" \
+            --scratch "$RUNNER_TEMP/private-native-combat" \
+            --out "Catalog/CHN/V4.2.8/native_combat_xrefs"
+          python3 - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('Catalog/CHN/V4.2.8/native_combat_xrefs')
+          s=json.loads((p/'SUMMARY.json').read_text())
+          assert s['source_apk_sha256']== "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4"
+          assert s["libsrc_bytes"]>10_000_000
+          assert s["elf_exec_segments"]>=1
+          for name in ('native_literals.csv','native_field_xrefs.csv','native_candidate_symbols.csv'):
+            assert (p/name).exists()
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as f:
+            f.write("## Verified actual ARM64 combat literal and xrefs\n\n")
+            f.write(f"- Native SO SHA256: {s['source_libsrc_arm64_sha256']}\n")
+            f.write(f"- Original source literal rows: {s['native_literal_rows']}\n")
+            f.write(f"- Native code XREF rows: {s['native_xref_rows']}\n")
+            f.write(f"- Symbol candidates: {s['candidate_symbol_rows']}\n")
+            f.write("- No claimed runtime poison formula or RNG branch without executable call-chain proof.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-chn428-native-plant-combat-xrefs
+          path: Catalog/CHN/V4.2.8/native_combat_xrefs/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Publish derived evidence only, not game binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "plant-native-xrefs-$GITHUB_RUN_ID"
+          git add --sparse -f Catalog/CHN/V4.2.8/native_combat_xrefs/
+          if git diff --cached --quiet; then
+            echo "NATIVE_XREF_AUDIT_ALREADY_PRESENT"
+            exit 0
+          fi
+          git commit -m "data(chn428): SHA-verified ARM64 combat class string xrefs"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "NATIVE_XREF_EVIDENCE_PUBLISHED"
+              exit 0
+            fi
+            sleep 6
+          done
+          exit 1
