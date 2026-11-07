@@ -136,3 +136,24 @@ AndroidSurfaceView$AndroidRenderer.onSurfaceCreated(AndroidSurfaceView.java:958)
 - 本次实验被明确判定 `FAIL_INTEGRITY_WARNING`；仍无真实主菜单、第一关结算、冷重启读档证据。
 - 下一步将根据 `AndroidSurfaceView.Native_onSurfaceCreated()V` 的真实 JNI 注册表 RVA，在 **同 SHA256 的 ARM64 `libSrc.so`** 中建立 Ghidra 原生调用图，把完整性校验和必须联网的 SDK 初始化拆开。
 - 已新增 `scripts/offline/surface_jni_registration.py` 和独立 `.github/workflows/pvz2-offline-surface-jni-map.yml`，仅输出 ELF RVA、签名和注册表候选，保留零原版 ELF/APK 二进制产物。
+
+## 2026-11-07 23:15 北京时间：原始签名保持不变的真实 A/B 试验
+
+[Actions #42383797764](https://github.com/969981/PVZ2_Resources/actions/runs/42383797764) 恢复原版 SHA256 `64b0f2c...` APK 并**不修改 DEX／APK 签名**，真实 Android 11 x86_64 + ARM 转译模拟器中断网安装，Frida 以 PID 6026 附加成功。隐私条款已安全点“同意”。
+
+独立采样（相对同意时刻）：
+
+| 秒数 | 进程存活 | 盗版警告 | 实际画面 |
+| ---: | --- | --- | --- |
+| 5 | 是 | 无 | 游戏继续启动 |
+| 120 | 是 | 无 | 启动阶段 |
+| 420 | 是 | 无 | **“正在加载核心资源”20%，预计剩余 3 秒** |
+| 720 | 是 | 无 | **与 420 秒逐字节同一 PNG** |
+
+420 秒与 720 秒 PNG SHA256 均为 `f190cd109dd78760d281e7df14a33b75eb1fb26e49e308655a30ad9041f2f110`；Android 无 Java FATAL、无 native fatal、无 ANR、无进程退出，logcat 可见 10 次 DNS failure。**网络故障与停滞之间的因果关系未证实**，仍可能是资源校验或 ARM 转译性能问题。
+
+Frida `TRACE_HOOKS_INSTALLED` 可见但独立 `LOCAL_SESSION_* ` logcat 标记 0 次，因此**不能确认 TWPurchase.run 真实被 Hook、返回或建立本地会话**。旧版本通过 logcat 长时间后的筛选统计，可能遭遇环形缓冲截断。为区分未安装 Hook 与日志丢失，新增 `LOCAL_SESSION_TRACE` 直接 Frida send、`RESOURCE_LOADING_STAGE` Java 静态字段周期采样，并将下一实验限制为真实场景需要的 600 秒。这些事件仍不代表主菜单或关卡成功。
+
+[ARM64 Ubuntu Runner #42384319052](https://github.com/969981/PVZ2_Resources/actions/runs/42384319052) 在安装 Android emulator SDK 包时失败（`Failed to find package emulator`）；[Apple Silicon macOS Runner #42384446590](https://github.com/969981/PVZ2_Resources/actions/runs/42384446590) 因 `HV_UNSUPPORTED`、`failed to initialize HVF` 而无法完成引导。两者均是测试设施限制，不代表游戏不支持 ARM64。**真正的 ARM64 原生指令动态追踪仍需可用的物理设备或支持虚拟化的宿主机**。
+
+此结论特别重要：原版签名不变时**没有出现盗版提示**，但并未恢复游玩。不可把“完整性门控分离”误写成“原版进主菜单”；实际未通过。
