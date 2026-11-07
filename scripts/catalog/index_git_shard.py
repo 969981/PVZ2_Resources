@@ -21,9 +21,12 @@ CHUNK=4*1024*1024
 COLUMNS=[
     "region","version","stage","shard","source_run","archive_sha256",
     "original_path","filename","suffix","format","category","size_bytes",
-    "sha256","small_file_candidate","publication_status"
+    "sha256","small_file_candidate","git_size_eligible","git_warning_over_50mib","publication_status"
 ]
 SMALL_EXT={".json",".csv",".ini",".txt",".xml",".lua",".md"}
+# Technical Git blob eligibility is independent of the optional 512KiB text-preview filter.
+GIT_SAFE_BYTES=95*1024*1024
+GIT_WARNING_BYTES=50*1024*1024
 CATEGORIES={
     ".json":("JSON","Data"),".pam":("PAM","Animations"),
     ".ptx":("PTX","Textures"),".png":("PNG","Images"),
@@ -131,11 +134,16 @@ def index(shard_dir:Path, out:Path, max_small:int):
                         "suffix":suffix,"format":kind,"category":category,
                         "size_bytes":length,"sha256":digest.hexdigest(),
                         "small_file_candidate":candidate,
+                        "git_size_eligible":int(length<GIT_SAFE_BYTES),
+                        "git_warning_over_50mib":int(length>GIT_WARNING_BYTES),
                         "publication_status":"metadata-only-needs-rights-review"
                     }
                     w.writerow(row)
                     counts["files"]+=1
                     counts["small_file_candidates"]+=candidate
+                    counts["git_size_eligible"]+=int(length<GIT_SAFE_BYTES)
+                    counts["git_size_ineligible"]+=int(length>=GIT_SAFE_BYTES)
+                    counts["git_warning_over_50mib"]+=int(length>GIT_WARNING_BYTES)
                     sizes[category]+=length
                     types[kind]+=1
     finally:
@@ -159,15 +167,19 @@ def index(shard_dir:Path, out:Path, max_small:int):
         "region":manifest["region"],"version":manifest["version_label"],
         "stage":manifest["stage"],"shard":manifest["shard"],
         "file_count":counts["files"],"small_file_candidates":counts["small_file_candidates"],
+        "git_size_eligible":counts["git_size_eligible"],
+        "git_size_ineligible":counts["git_size_ineligible"],
+        "git_warning_over_50mib":counts["git_warning_over_50mib"],
+        "git_safe_limit_bytes":GIT_SAFE_BYTES,
         "total_size_bytes":sum(sizes.values()),"formats":dict(sorted(types.items())),
         "category_bytes":dict(sorted(sizes.items())),
         "status":"real-source-streamed-sha256-verified",
-        "scope":"metadata-only; candidates are not approved for publication"
+        "scope":"metadata only: git_size_eligible means <95MiB ONLY, not publication approval; small_file_candidate means <=512KiB selected text types"
     }
     if summary["total_size_bytes"]!=manifest["source_total_bytes"]:
         raise ValueError("source bytes mismatch with manifest")
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("CATALOG_OK",json.dumps({k:summary[k] for k in ("stage","shard","file_count","small_file_candidates","total_size_bytes")}),flush=True)
+    print("CATALOG_OK",json.dumps({k:summary[k] for k in ("stage","shard","file_count","small_file_candidates","git_size_eligible","git_size_ineligible","git_warning_over_50mib","total_size_bytes")}),flush=True)
     return summary
 
 def main():
