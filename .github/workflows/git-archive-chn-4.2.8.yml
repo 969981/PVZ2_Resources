@@ -1,0 +1,112 @@
+name: Import CHN 4.2.8 derived resources into Git history
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/git-archive-chn-4.2.8.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: pvz2-chn-428-git-archive
+  cancel-in-progress: false
+
+jobs:
+  import:
+    name: Git archive ${{ matrix.stage }} shard-${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        stage: [Internal, RSB, RSGP]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Partial clone and source code only
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          submodules: false
+          sparse-checkout: scripts
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+
+      - name: Resolve the matching proven Actions artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.stage }}" in
+            Internal) echo "SOURCE_RUN=42259266531" >> "$GITHUB_ENV"
+                      echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-json-files-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            RSB) echo "SOURCE_RUN=42256393599" >> "$GITHUB_ENV"
+                 echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsb-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            RSGP) echo "SOURCE_RUN=42258406327" >> "$GITHUB_ENV"
+                  echo "SOURCE_ARTIFACT=pvz2-chn-4.2.8-rsg-${{ matrix.shard }}" >> "$GITHUB_ENV" ;;
+            *) exit 2 ;;
+          esac
+
+      - name: Download verified artifact contents
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ env.SOURCE_RUN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ env.SOURCE_ARTIFACT }}
+          path: ${{ runner.temp }}/pvz2-artifact
+
+      - name: Prepare zstd and disk capacity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq zstd
+          fi
+          df -h .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Compress and split into Git-compatible 64 MiB files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/archive/import_actions_artifact.py \
+            --input "$RUNNER_TEMP/pvz2-artifact" \
+            --output-root "Unpack/CHN/V4.2.8" \
+            --stage "${{ matrix.stage }}" --shard "${{ matrix.shard }}" \
+            --temporary "$RUNNER_TEMP"
+          test -f "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-$(printf '%02d' ${{ matrix.shard })/manifest.json"
+
+      - name: Commit archive data and push to master with conflict-safe retries
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIRECTORY="Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-$(printf '%02d' ${{ matrix.shard })"
+          git switch -c "import-${{ matrix.stage }}-${{ matrix.shard }}"
+          git add --sparse -f -- "$DIRECTORY"
+          git diff --cached --stat
+          git commit -m "data(chn-4.2.8): archive ${{ matrix.stage }} shard ${{ matrix.shard }} in 64 MiB git volumes"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then
+              echo "PUSH_SUCCEEDED=true" >> "$GITHUB_ENV"
+              git log -1 --oneline
+              exit 0
+            fi
+            echo "Push attempt $attempt rejected; retrying with fresh master"
+            sleep 3
+          done
+          echo "All Git pushes failed"
+          exit 1
+
+      - name: Show completed Git archive shard
+        if: success()
+        shell: bash
+        run: |
+          git show -1 --format="Commit: %H" --stat | tail -14
+          echo "Uploaded ${{ matrix.stage }} / shard ${{ matrix.shard }}"
