@@ -145,6 +145,8 @@ def exit_info_summary() -> dict:
 
 
 def classify_runtime(frames: list[dict], logcat: dict) -> str:
+    if any(frame.get("integrity_warning_seen") for frame in frames):
+        return "FAIL_INTEGRITY_WARNING"
     if any(frame.get("anr_dialog_seen") for frame in frames) or (
             logcat.get("counts", {}).get("activity_anr", 0) > 0):
         return "FAIL_ANDROID_ANR"
@@ -202,6 +204,11 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
             frame = sample(out, f"after_consent_{seconds:03d}s")
             frame["offset_target_seconds"] = seconds
             frame["privacy_policy_visible"] = screen_is_privacy_policy(frame)
+            frame["integrity_warning_seen"] = any(
+                "盗版游戏" in (node.get("text", "") + node.get("content_desc", "")) or
+                "请使用正版" in (node.get("text", "") + node.get("content_desc", ""))
+                for node in frame.get("ui_tree", {}).get("described_nodes", [])
+            )
             frame["anr_dialog_seen"] = any(
                 "isn't responding" in (node.get("text", "") + node.get("content_desc", "")) or
                 "无响应" in (node.get("text", "") + node.get("content_desc", ""))
