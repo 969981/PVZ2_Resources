@@ -1,0 +1,205 @@
+name: PVZ2 CHN 4.2.8 direct original APK resign without zip rebuild
+
+on:
+  push:
+    branches:
+      - master
+      - experiment/chn428-direct-resign-control
+    paths:
+      - ".github/workflows/pvz2-offline-direct-resign-control.yml"
+      - "scripts/offline/patch_tw_local_trial.py"
+      - "tests/test_offline_tw_local_trial.py"
+      - "scripts/offline/build_private_local_trial.sh"
+      - "scripts/offline/local_trial_gameplay_probe.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-direct-resign-control
+  cancel-in-progress: false
+
+jobs:
+  isolate-build-and-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - name: Checkout only offline scripts, synthetic tests and original 88 7z volumes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          submodules: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+
+      - name: Validate the trial patch strictly against synthetic smali layout
+        run: python3 -m unittest discover -s tests -p test_offline_tw_local_trial.py -v
+
+      - name: Clean runner without deleting Android build-tools or JDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Restore exact original APK SHA before all modification
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pvz2-restore"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/pvz2-restore" -y
+          apk="$(find "$RUNNER_TEMP/pvz2-restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/pvz2-restore" ROMS .git/objects
+          "$JAVA_HOME/bin/java" -version
+          df -h .
+
+      - name: Re-sign source APK directly without zip -d or zipalign rewriting entries
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/direct-control"
+          mkdir -p "$work" "$RUNNER_TEMP/resign-report"
+          bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          test -x "$bt/apksigner"
+          "$bt/zipalign" -c -p 4 "$RUNNER_TEMP/PVZ2_4.2.8.apk" || echo "Original archive alignment is not guaranteed"
+          keytool -genkeypair -noprompt -keystore "$work/key.jks" -storepass "isolated-test-only" \
+            -alias trial -keypass "isolated-test-only" -keyalg RSA -keysize 3072 -validity 1 \
+            -dname "CN=Direct resign preservation test, O=Private Research, C=ZZ" >/dev/null 2>&1
+          "$bt/apksigner" sign --ks "$work/key.jks" --ks-key-alias trial \
+            --ks-pass pass:isolated-test-only --key-pass pass:isolated-test-only \
+            --out "$work/PVZ2_4.2.8_direct_resign.apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          "$bt/apksigner" verify --verbose "$work/PVZ2_4.2.8_direct_resign.apk" > "$RUNNER_TEMP/resign-report/signature_check.txt"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,zipfile
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          a=root/"PVZ2_4.2.8.apk";b=root/"direct-control/PVZ2_4.2.8_direct_resign.apk"
+          def sha(path):
+              h=hashlib.sha256()
+              with path.open("rb") as f:
+                  for chunk in iter(lambda:f.read(4*1024*1024),b""):
+                      h.update(chunk)
+              return h.hexdigest()
+          with zipfile.ZipFile(a) as za,zipfile.ZipFile(b) as zb:
+              candidates=[info for info in za.infolist()
+                          if not info.filename.startswith("META-INF/")]
+              bz={x.filename:x for x in zb.infolist()}
+              offsets_same=sum(x.filename in bz and
+                               x.header_offset==bz[x.filename].header_offset for x in candidates)
+              crc_same=sum(x.filename in bz and x.CRC==bz[x.filename].CRC and
+                           x.file_size==bz[x.filename].file_size for x in candidates)
+              code={}
+              for name in ["classes.dex","classes2.dex","classes3.dex","classes4.dex","classes5.dex","classes6.dex","lib/arm64-v8a/libSrc.so"]:
+                  first=hashlib.sha256(za.read(name)).hexdigest()
+                  second=hashlib.sha256(zb.read(name)).hexdigest()
+                  assert first==second, "Original code was unexpectedly changed"
+                  code[name]=first
+          d={"status":"DIRECT_RESIGNED_APK_ZIP_ENTRY_OFFSET_CONTROL",
+             "source_sha256":sha(a),"signed_sha256":sha(b),
+             "zip_entry_candidates":len(candidates),
+             "entries_with_unchanged_header_offset":offsets_same,
+             "entries_with_unchanged_crc_size":crc_same,
+             "source_exact_code_sha256":code,
+             "no_game_bytecode_modified":True}
+          (root/"resign-report/resign_only_control.json").write_text(json.dumps(d,indent=2)+"\n")
+          print(json.dumps({k:v for k,v in d.items() if k!="source_exact_code_sha256"},indent=2))
+          PY
+
+      - name: Prepare private screenshot decoder
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/visual-venv"
+          "$RUNNER_TEMP/visual-venv/bin/python" -m pip install --disable-pip-version-check Pillow==11.3.0
+
+      - name: Enable hardware KVM when available
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          fi
+
+      - name: Install unmodified re-signed APK and observe post-consent process survival
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: >-
+            "$RUNNER_TEMP/visual-venv/bin/python" scripts/offline/local_trial_gameplay_probe.py
+            --apk "$RUNNER_TEMP/direct-control/PVZ2_4.2.8_direct_resign.apk"
+            --out "$RUNNER_TEMP/trial-qa-screens"
+            --times 10,30,60,120,360,600
+
+      - name: State precise end-to-end verification results
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          p=root/"trial-qa-screens/local_trial_ui_qa.json"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              if not p.exists():
+                  f.write("No full Android QA result; see failed build or emulator logs.\n")
+              else:
+                  d=json.loads(p.read_text(encoding="utf-8"))
+                  f.write("\n## Real offline gameplay acceptance\n\n")
+                  f.write("- Android QA status: **"+d["status"]+"**\n")
+                  f.write("- APK installed: "+str(d["install_success"])+"\n")
+                  f.write("- Airplane mode: "+str(d.get("airplane_mode_after"))+"\n")
+                  for item in d["frames"]:
+                      f.write(f"- {item['name']}: {item.get('visual_classification','unknown')}\n")
+                  f.write("- Main menu **verified**: "+str(d["actual_main_menu_verified"])+"\n")
+                  f.write("- First level **completed**: "+str(d["first_level_completed"])+"\n")
+                  f.write("- Original save **reloaded**: "+str(d["original_game_save_reloaded"])+"\n")
+          PY
+
+      - name: Check that unchanged-bytecode re-signed control remains alive
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"trial-qa-screens/local_trial_ui_qa.json"
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert any(f.get("process_alive") and f.get("target_offset_seconds",0)>=120 for f in d["frames"]), "UNCHANGED_CODE_RESIGN_APP_EXITED_BEFORE_120S"
+          PY
+
+      - name: Upload only screenshots, bounded metadata and verification evidence, not private APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-original-bytecode-resign-control
+          path: |
+            ${{ runner.temp }}/resign-report/*.json
+            ${{ runner.temp }}/resign-report/*.txt
+            ${{ runner.temp }}/trial-qa-screens/*.json
+            ${{ runner.temp }}/trial-qa-screens/*.png
+          if-no-files-found: warn
+          retention-days: 1
