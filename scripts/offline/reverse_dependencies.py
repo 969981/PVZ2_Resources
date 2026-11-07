@@ -25,7 +25,10 @@ import subprocess
 import time
 import zipfile
 
-from scripts.offline.audit_apk import SOURCE_SHA256, sha256_file
+try:
+    from scripts.offline.audit_apk import SOURCE_SHA256, sha256_file
+except ModuleNotFoundError:
+    from audit_apk import SOURCE_SHA256, sha256_file
 
 DEX_NAME = re.compile(r"^classes(?:[1-9][0-9]*)?\.dex$")
 SO_NAME = re.compile(r"^lib/(arm64-v8a|armeabi-v7a)/[^/]+\.so$")
