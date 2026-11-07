@@ -103,12 +103,22 @@ jobs:
             -postScript PvZ2CodeXrefs.java \
               "$RUNNER_TEMP/ghidra-derived/surface_native_function_sites.csv" \
               "$RUNNER_TEMP/ghidra-derived/surface_function_refs.csv" \
+            -postScript PvZ2SurfaceBranchIndex.java \
+              "0x5722ff0" \
+              "$RUNNER_TEMP/ghidra-derived/surface_branch_index.csv" \
             -analysisTimeoutPerFile 1000 -max-cpu 2 -deleteProject
           python3 - <<'PY'
           import csv,json,os,pathlib
           root=pathlib.Path(os.environ["RUNNER_TEMP"])/"ghidra-derived"
           with (root/"surface_function_refs.csv").open(encoding="utf-8") as f:
               records=list(csv.DictReader(f))
+          branches=root/"surface_branch_index.csv"
+          assert branches.is_file() and branches.stat().st_size>50, "Missing Ghidra branch index"
+          with branches.open(encoding="utf-8") as f:
+              indexed=list(csv.DictReader(f))
+          assert len(indexed)>20, "Expected native initialization call/branch metadata"
+          assert indexed[0]["type"]=="entry", "Missing verified JNI inside-function pointer"
+          assert indexed[0]["instruction_address"]=="05722ff0", "Ghidra mapped unexpected JNI address"
           assert len(records)==1, "Expected one exact JNI source-verified entry"
           row=records[0]
           report={
@@ -122,6 +132,9 @@ jobs:
               "caller_count":row["caller_count"],
               "callee_count":row["callee_count"],
               "function_num_addresses":row["function_num_addresses"],
+              "direct_and_indirect_call_insns":sum("call" in x["type"] for x in indexed),
+              "conditional_branch_insns":sum("branch" in x["type"] for x in indexed),
+              "branch_index_filename":"surface_branch_index.csv",
               "runtime_branch_verified":False,
               "safe_offline_patch_verified":False,
               "gameplay_verified":False
@@ -139,6 +152,7 @@ jobs:
           path: |
             ${{ runner.temp }}/ghidra-derived/surface_jni_registration.json
             ${{ runner.temp }}/ghidra-derived/surface_function_refs.csv
+            ${{ runner.temp }}/ghidra-derived/surface_branch_index.csv
             ${{ runner.temp }}/ghidra-derived/surface_function_summary.json
           retention-days: 2
           if-no-files-found: warn
