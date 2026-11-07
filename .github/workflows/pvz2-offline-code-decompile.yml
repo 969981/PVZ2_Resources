@@ -6,6 +6,8 @@ on:
     paths:
       - ".github/workflows/pvz2-offline-code-decompile.yml"
       - "scripts/offline/reverse_dependencies.py"
+      - "scripts/offline/jni_registration_probe.py"
+      - "tests/test_offline_jni_registration.py"
       - "scripts/offline/inspect_login_flow.py"
       - "tests/test_offline_login_flow.py"
       - "scripts/offline/bridge_site_index.py"
@@ -76,6 +78,9 @@ jobs:
 
       - name: Check native-login boundary parser against synthetic fixture
         run: python3 -m unittest discover -s tests -p test_offline_twpurchase_contract.py -v
+
+      - name: Validate ELF JNI registration table scanner on generated synthetic fixtures
+        run: python3 -m unittest discover -s tests -p test_offline_jni_registration.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -217,6 +222,23 @@ jobs:
               stream.write("- No actual offline login callback or patch has been verified.\n")
           assert d["sources_found"]>=6
           assert {"Native_SDKLoginEnd","Native_SDKLoginStart"}.issubset(d["twpurchase_native_methods"])
+          PY
+
+      - name: Locate structurally valid JNI registration-table candidates in original arm64 libSrc.so
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/jni_registration_probe.py \
+            --so "$RUNNER_TEMP/pvz2-private-code/original_code/lib/arm64-v8a/libSrc.so" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/jni_registration_summary.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## Native JNINativeMethod table analysis\n")
+              f.write("- Structurally valid table entries: "+str(d["candidate_rows"])+"\n")
+              f.write("- Methods found: "+", ".join(d["methods_with_candidate_table_entries"])+"\n")
+              f.write("- Results are NOT verified Java-to-native runtime call targets.\n")
           PY
 
       - name: Upload derived metadata only
