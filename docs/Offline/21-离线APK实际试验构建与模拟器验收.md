@@ -84,3 +84,13 @@ APK 只会出现在本机输出目录，签名是本地测试证书。**不要�
 如果第一版签名包可安装且能进入菜单，下一步应按 [[19-离线主菜单关卡结算重启读档验收规范]] **实际选择并完成第一关**；之后才研究 `AndroidGameApp.GetUserDataFolder` 与结算写档路径。若登录依然阻挡，先检查 `Native_SDKLoginEnd` 原生如何消费 `token` 和状态，再设计真正独立本地玩家会话而不是向联网 SDK 伪造账号。
 
 返回 [[18-离线单机里程碑与验收台账-2026-11-07]] · [[20-原生登录状态与玩家数据消费核验]]。
+
+## 2026-11-07：真实构建进度更新
+
+- 首个工作流 [#42351580970](https://github.com/969981/PVZ2_Resources/actions/runs/42351580970) 因不存在的 Smali 下载地址 HTTP 404 失败。已改用 SHA256 校验后的 Apktool 2.12.1。
+- 随后源字节码发现 `TWPurchase` 本身**没有** `run()V`；原版真实初始化回调位于 **`TWPurchase$1.run()V`**（匿名 Runnable 类），其中存在 `Native_SDKInitStart` 与 `TwOfflineSDK.init` 调用。
+- 真实内层类含 `this$0:Lcom/popcap/pvz2cthddev/TWPurchase;` 引用；原生句柄 `mNativeDriverPtr:J` 则来自其父类 `ThirdpartyPurchaseDriver`，必须在同一 APK 的其他 DEX 找到并验证字段后才能构建。
+- 原版状态常量 `INIT_RESULT_SUCCESS=0`、`LOGIN_RESULT_SUCCESS=0`，此前使用 1 的设想已撤销；`0` 仅表示原版 Smali 的符号常量，不代表本地凭据已获原生认证。
+- [实际改包与模拟器 QA #42353040171](https://github.com/969981/PVZ2_Resources/actions/runs/42353040171)：通过源 APK SHA 校验、目标匿名类 DEX 重组、完整 APK 对齐和测试密钥签名，已进入 Android 11 模拟器步骤。**这时只确认构建签名通过，不代表主菜单/关卡/存档通过。**
+
+以上实验在隔离的仓库分支执行，不覆写原版 APK；GitHub 仅保留工具和短期诊断，完整商业游戏文件不作为公共 Artifact 上传。
