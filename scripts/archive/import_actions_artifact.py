@@ -16,7 +16,7 @@ import subprocess
 import tempfile
 
 CHUNK_BYTES = 64 * 1024 * 1024
-RUN_IDS = {"RSB": 42256393599, "RSGP": 42258406327, "Internal": 42259266531, "Media": 42321977158}
+RUN_IDS = {"RSB": 42256393599, "RSGP": 42258406327, "Internal": 42259266531, "Media": 42321977158, "MediaSpecial": 42322830668}
 
 def digest(path: Path) -> str:
     h=hashlib.sha256()
@@ -31,6 +31,7 @@ def main() -> None:
     p.add_argument("--output-root", type=Path, default=Path("Unpack/CHN/V4.2.8"))
     p.add_argument("--stage", choices=tuple(RUN_IDS), required=True)
     p.add_argument("--shard", type=int, required=True)
+    p.add_argument("--source-run-id", type=int, help="Actual upstream Actions run ID for this artifact")
     p.add_argument("--temporary", type=Path)
     args=p.parse_args()
     if not 0 <= args.shard <= 7:
@@ -86,7 +87,7 @@ def main() -> None:
         manifest={
             "schema_version":1, "game":"PvZ2","region":"CHN",
             "version_label":"4.2.8", "stage":args.stage,"shard":args.shard,
-            "source_actions_run_id":RUN_IDS[args.stage],
+            "source_actions_run_id":args.source_run_id or RUN_IDS[args.stage],
             "source_file_count":len(source_files),
             "source_total_bytes":total,
             "archive_filename":"archive.tar.zst",
