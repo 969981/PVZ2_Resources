@@ -30,23 +30,35 @@ RUN_PATTERN=re.compile(r"(?m)^(?P<header>\.method\s+[^\n]*?\brun\(\)V)\s*\n(?P<b
 METHOD_DECL=re.compile(r"(?m)^\.method\s+[^\n]*\bstatic\b[^\n]*\bnative\b[^\n]*$")
 
 
-def patch_smali(source: str, *, init_status:int, login_status:int)->tuple[str,dict]:
+def patch_smali(source: str, *, init_status:int, login_status:int,
+                super_source: str|None=None)->tuple[str,dict]:
     if init_status not in (0,1) or login_status not in (0,1):
         raise ValueError("Trial status is 0 or 1 only")
     # No fallback or heuristic guess for an unknown APK class layout.
     if not re.search(r"(?m)^\.class\s+[^\n]*\bLcom/popcap/pvz2cthddev/TWPurchase;\s*$",source):
         raise ValueError("Not the exact TWPurchase class")
-    if not re.search(r"(?m)^\.field\b[^\n]*\bmNativeDriverPtr:J(?:\s|$)",source):
-        references=[line.strip() for line in source.splitlines()
-                    if "mNativeDriverPtr" in line][:12]
-        supers=re.findall(r"(?m)^\.super\s+(L[^\s]+;)",source)[:1]
-        fields=[line.strip() for line in source.splitlines()
-                if line.startswith(".field")][:20]
-        print(json.dumps({"smali_preflight":"POINTER_FIELD_NOT_IN_CLASS_DECLARATIONS",
-                          "superclass":supers,
-                          "native_pointer_symbol_references":references,
-                          "own_field_declarations":fields},ensure_ascii=False))
-        raise ValueError("Native driver pointer field not confirmed; no patch applied")
+    parent=re.findall(r"(?m)^\.super\s+(L[^\s]+;)",source)
+    if len(parent)!=1:
+        raise ValueError("Expected exactly one superclass declaration")
+    field_pattern=r"(?m)^\.field\b[^\n]*\bmNativeDriverPtr:J(?:\s|$)"
+    if re.search(field_pattern,source):
+        handle_owner=OWNER
+    elif parent[0]=="Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;" and (
+            super_source is not None and
+            re.search(r"(?m)^\.class\s+[^\n]*Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;\s*$",super_source) and
+            re.search(field_pattern,super_source)):
+        handle_owner=parent[0]
+    else:
+        print(json.dumps({
+            "smali_preflight":"NATIVE_POINTER_OWNER_NOT_VERIFIED",
+            "superclass":parent,
+            "class_pointer_symbols":[line.strip() for line in source.splitlines()
+                                     if "mNativeDriverPtr" in line][:8],
+            "parent_source_present":super_source is not None,
+            "parent_pointer_declaration":bool(
+                super_source and re.search(field_pattern,super_source)),
+        },ensure_ascii=False))
+        raise ValueError("Could not verify native driver field in class or exact superclass")
     for name,descriptor in NATIVE.items():
         declaration=re.compile(
             r"(?m)^\.method\b(?=[^\n]*\bstatic\b)(?=[^\n]*\bnative\b)"
@@ -69,7 +81,7 @@ def patch_smali(source: str, *, init_status:int, login_status:int)->tuple[str,di
     body=(
         f"{h}\n"
         "    .locals 4\n"
-        f"    iget-wide v0, p0, {OWNER}->mNativeDriverPtr:J\n"
+        f"    iget-wide v0, p0, {handle_owner}->mNativeDriverPtr:J\n"
         f"    invoke-static {{v0, v1}}, {OWNER}->Native_SDKInitStart(J)V\n"
         f"    const/4 v2, 0x{init_status:x}\n"
         f"    invoke-static {{v0, v1, v2}}, {OWNER}->Native_SDKInitEnd(JI)V\n"
@@ -86,6 +98,7 @@ def patch_smali(source: str, *, init_status:int, login_status:int)->tuple[str,di
         "status":"PATCHED_FOR_OFFLINE_EXPERIMENT_NOT_VALIDATED",
         "class":"com.popcap.pvz2cthddev.TWPurchase",
         "method":"run()V",
+        "native_handle_field_owner":handle_owner,
         "source_smali_sha256":hashlib.sha256(source.encode()).hexdigest(),
         "patched_smali_sha256":hashlib.sha256(patched.encode()).hexdigest(),
         "init_status_trial":init_status,
@@ -105,6 +118,7 @@ def main():
     p.add_argument("--smali",type=Path,required=True)
     p.add_argument("--output",type=Path,required=True)
     p.add_argument("--summary",type=Path,required=True)
+    p.add_argument("--super-smali",type=Path,help="Verify inherited ThirdpartyPurchaseDriver field")
     p.add_argument("--init-status",type=int,choices=(0,1),required=True)
     p.add_argument("--login-status",type=int,choices=(0,1),required=True)
     a=p.parse_args()
@@ -113,7 +127,8 @@ def main():
     if a.smali.resolve()==a.output.resolve():
         p.error("Refusing to overwrite original smali")
     original=a.smali.read_text(encoding="utf-8")
-    result,summary=patch_smali(original,init_status=a.init_status,login_status=a.login_status)
+    super_text=a.super_smali.read_text(encoding="utf-8") if a.super_smali and a.super_smali.is_file() else None
+    result,summary=patch_smali(original,init_status=a.init_status,login_status=a.login_status,super_source=super_text)
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.summary.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(result,encoding="utf-8")
