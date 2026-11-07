@@ -102,3 +102,47 @@ Avatars 明细：5 条；外围配件原生类候选关联：5 条。
 | PlantCrownFlowerAudio | PlantCrownFlowerAudio | exact-resource-group-id |
 
 返回 [[Unpack/18-植物僵尸跨格式关联数据库]]。完整记录在 [entity_map SQLite/CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/SUMMARY.json)。
+
+<!-- AUTO ENTITY DETAIL START -->
+## 逐级技能、Avatar、升级道具及素材映射
+
+> [!warning] 等级数组索引与静态 RTID 不等于游戏内进阶等级和实机技能效果。PNG/PAM 关联仍可能仅是命名候选。
+
+### 原始等级系数、进阶技能与属性技能
+
+| 对象index | 等级数组index | 攻击系数 | 生命系数 | 进阶技能RTID | 技能名称键 | RTID状态 | 属性技能RTID | 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 225 | 0 | 1 | 1 |  |  | no-explicit-skill-ref |  | no-explicit-skill-ref |
+| 225 | 1 | 1.5 | 1.5 | RTID(CrownFlower_Skill_Level1@SkillTypes) | [CROWNFLOWER_SKILL_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level1@SkillTypes) | exact-static-SkillTypes-alias |
+| 225 | 2 | 2.0 | 2 | RTID(CrownFlower_Skill_Level2@SkillTypes) | [CROWNFLOWER_SKILL_LEVEL2] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level2@SkillTypes) | exact-static-SkillTypes-alias |
+| 225 | 3 | 2.5 | 2.5 | RTID(plant_wakeup_level1@SkillTypes) | [PLANT_WAKEUP_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level3@SkillTypes) | exact-static-SkillTypes-alias |
+| 225 | 4 | 3.0 | 3 | RTID(CrownFlower_SuperSkill@SkillTypes) | [CROWNFLOWER_SKILL_LEVEL5] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level4@SkillTypes) | exact-static-SkillTypes-alias |
+
+### AvatarLayers 装扮层
+
+| 元素 | 类型 | 层名 | 状态 |
+| --- | --- | --- | --- |
+| 0 | normal | ["custom_01"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 1 | normal | ["custom_02"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 2 | normal | ["custom_03"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 3 | normal | ["custom_04A","custom_04B","custom_04C","custom_04D"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 4 | none | [] | source-PlantType-avatar-array-not-runtime-equipped |
+
+### 配件、道具和装扮属性配置候选
+
+| 类型 | 源JSON | 对象index | 字段 | 证据 |
+| --- | --- | --- | --- | --- |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 147 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 148 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 149 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 150 | PlantName | typed-field-exact-name-candidate |
+| CollectablePlantPieceType | 04_JSON/dynamic/Packages/PACKAGES/COLLECTABLETYPES.json | 561 | PlantName | typed-field-exact-name-candidate |
+
+### 图片、动画以及资源 ID 缺口
+
+| PNG候选 | PAM JSON候选 | RTON组精确 | RTON组未解 | 图片ID精确 | 图片ID未解 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 16 | 2 | 1 | 0 | 2 |
+
+完整数据：[逐级技能CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_level_skills.csv) · [AvatarCSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_avatar_details.csv) · [装扮与物品配置候选CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_item_costume_candidates.csv)
+<!-- AUTO ENTITY DETAIL END -->

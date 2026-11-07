@@ -128,3 +128,42 @@ Avatars 明细：3 条；外围配件原生类候选关联：2 条。
 | FreezonEffectGroup |  | unresolved-group-id |
 
 返回 [[Unpack/18-植物僵尸跨格式关联数据库]]。完整记录在 [entity_map SQLite/CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/SUMMARY.json)。
+
+<!-- AUTO ENTITY DETAIL START -->
+## 逐级技能、Avatar、升级道具及素材映射
+
+> [!warning] 等级数组索引与静态 RTID 不等于游戏内进阶等级和实机技能效果。PNG/PAM 关联仍可能仅是命名候选。
+
+### 原始等级系数、进阶技能与属性技能
+
+| 对象index | 等级数组index | 攻击系数 | 生命系数 | 进阶技能RTID | 技能名称键 | RTID状态 | 属性技能RTID | 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 323 | 0 | 1 | 1 |  |  | no-explicit-skill-ref |  | no-explicit-skill-ref |
+| 323 | 1 | 1.5 | 1.5 | RTID(megagatling_Skill_Level1@SkillTypes) | [MEGAGATLING_SKILL_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level1@SkillTypes) | exact-static-SkillTypes-alias |
+| 323 | 2 | 2 | 2 | RTID(megagatling_Skill_Level2@SkillTypes) | [MEGAGATLING_SKILL_LEVEL2] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level2@SkillTypes) | exact-static-SkillTypes-alias |
+| 323 | 3 | 2.5 | 2.5 | RTID(plant_wakeup_level1@SkillTypes) | [PLANT_WAKEUP_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level3@SkillTypes) | exact-static-SkillTypes-alias |
+| 323 | 4 | 4 | 3 | RTID(megagatling_Skill_Level5@SkillTypes) | [MEGAGATLING_SKILL_LEVEL5] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level4@SkillTypes) | exact-static-SkillTypes-alias |
+
+### AvatarLayers 装扮层
+
+| 元素 | 类型 | 层名 | 状态 |
+| --- | --- | --- | --- |
+| 0 | normal | ["custom_01ele","custom_01fire","custom_01goo","custom_01ice","custom_01pri","custom_01super","custom_01thr"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 1 | normal | [] | source-PlantType-avatar-array-not-runtime-equipped |
+| 2 | normal | [] | source-PlantType-avatar-array-not-runtime-equipped |
+
+### 配件、道具和装扮属性配置候选
+
+| 类型 | 源JSON | 对象index | 字段 | 证据 |
+| --- | --- | --- | --- | --- |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 38 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 55 | PlantName | typed-field-exact-name-candidate |
+
+### 图片、动画以及资源 ID 缺口
+
+| PNG候选 | PAM JSON候选 | RTON组精确 | RTON组未解 | 图片ID精确 | 图片ID未解 |
+| --- | --- | --- | --- | --- | --- |
+| 8 | 53 | 8 | 5 | 0 | 2 |
+
+完整数据：[逐级技能CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_level_skills.csv) · [AvatarCSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_avatar_details.csv) · [装扮与物品配置候选CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_item_costume_candidates.csv)
+<!-- AUTO ENTITY DETAIL END -->

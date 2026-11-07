@@ -97,3 +97,46 @@ Avatars 明细：5 条；外围配件原生类候选关联：4 条。
 | PlantBanana | PlantBanana | exact-resource-group-id |
 
 返回 [[Unpack/18-植物僵尸跨格式关联数据库]]。完整记录在 [entity_map SQLite/CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/SUMMARY.json)。
+
+<!-- AUTO ENTITY DETAIL START -->
+## 逐级技能、Avatar、升级道具及素材映射
+
+> [!warning] 等级数组索引与静态 RTID 不等于游戏内进阶等级和实机技能效果。PNG/PAM 关联仍可能仅是命名候选。
+
+### 原始等级系数、进阶技能与属性技能
+
+| 对象index | 等级数组index | 攻击系数 | 生命系数 | 进阶技能RTID | 技能名称键 | RTID状态 | 属性技能RTID | 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 341 | 0 | 1 | 1 |  |  | no-explicit-skill-ref |  | no-explicit-skill-ref |
+| 341 | 1 | 1.5 | 1.5 | RTID(WireGelsemium_Skill_Level1@SkillTypes) | [WIREGELSEMIUM_SKILL_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level1@SkillTypes) | exact-static-SkillTypes-alias |
+| 341 | 2 | 2 | 2 | RTID(WireGelsemium_Skill_Level2@SkillTypes) | [WIREGELSEMIUM_SKILL_LEVEL2] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level2@SkillTypes) | exact-static-SkillTypes-alias |
+| 341 | 3 | 2.5 | 2.5 | RTID(plant_wakeup_level1@SkillTypes) | [PLANT_WAKEUP_LEVEL1] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level3@SkillTypes) | exact-static-SkillTypes-alias |
+| 341 | 4 | 3 | 3 | RTID(WireGelsemium_Skill_Level5@SkillTypes) | [WIREGELSEMIUM_SKILL_LEVEL5] | exact-static-SkillTypes-alias | RTID(Plant_PropertyUp_Level4@SkillTypes) | exact-static-SkillTypes-alias |
+
+### AvatarLayers 装扮层
+
+| 元素 | 类型 | 层名 | 状态 |
+| --- | --- | --- | --- |
+| 0 | normal | ["custom_01"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 1 | normal | ["custom_02"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 2 | normal | ["custom_03"] | source-PlantType-avatar-array-not-runtime-equipped |
+| 3 | normal | ["custom_qszb01a","custom_qszb02a","custom_qszb03a","custom_qszb04a","custom_qszb05a","custom_qszb06a","custom_qszb07a","custom_qszb08a","custom_qszb09a","custom_qszb10a","custom_qszb11a","custom_qszb12a","custom_qszb13a","custom_qszb14a"," | source-PlantType-avatar-array-not-runtime-equipped |
+| 4 | normal | ["custom_qszb01b","custom_qszb02b","custom_qszb03b","custom_qszb04b","custom_qszb05b","custom_qszb06b","custom_qszb07b","custom_qszb08b","custom_qszb09b","custom_qszb10b","custom_qszb11b","custom_qszb12b","custom_qszb13b","custom_qszb14b"," | source-PlantType-avatar-array-not-runtime-equipped |
+
+### 配件、道具和装扮属性配置候选
+
+| 类型 | 源JSON | 对象index | 字段 | 证据 |
+| --- | --- | --- | --- | --- |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 89 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 96 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 97 | PlantName | typed-field-exact-name-candidate |
+| PlantNewAvatar | 04_JSON/dynamic/Packages/PACKAGES/PLANTNEWAVATARS.json | 115 | PlantName | typed-field-exact-name-candidate |
+
+### 图片、动画以及资源 ID 缺口
+
+| PNG候选 | PAM JSON候选 | RTON组精确 | RTON组未解 | 图片ID精确 | 图片ID未解 |
+| --- | --- | --- | --- | --- | --- |
+| 2 | 8 | 4 | 1 | 0 | 2 |
+
+完整数据：[逐级技能CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_level_skills.csv) · [AvatarCSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_avatar_details.csv) · [装扮与物品配置候选CSV](https://github.com/969981/PVZ2_Resources/blob/master/Catalog/CHN/V4.2.8/entity_map/entity_item_costume_candidates.csv)
+<!-- AUTO ENTITY DETAIL END -->

@@ -1,0 +1,23 @@
+{
+  "schema": "entity-details-1",
+  "records": {
+    "entity_level_skills": 7574,
+    "entity_avatar_details": 838,
+    "entity_item_costume_candidates": 953,
+    "entity_media_summary": 1646
+  },
+  "obsidian_pages_updated": 1434,
+  "skill_resolution": {
+    "advanced/exact-static-SkillTypes-alias": 1459,
+    "advanced/no-explicit-skill-ref": 6106,
+    "advanced/unresolved-SkillTypes-ref": 9,
+    "property/exact-static-SkillTypes-alias": 1468,
+    "property/no-explicit-skill-ref": 6106
+  },
+  "limits": [
+    "source-array-index-not-player-level",
+    "static-SkillTypes-alias-not-runtime-skill",
+    "costume-links-are-candidates",
+    "image-group-not-validated-sprite-mapping"
+  ]
+}
