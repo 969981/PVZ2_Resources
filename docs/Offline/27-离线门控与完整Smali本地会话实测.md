@@ -66,3 +66,20 @@ tags: [pvz2, offline, android, smali, native, signature]
 **静态回调合同补充：** 原版 `TWPurchase$1.run()` 在 UI 线程先做 `Native_SDKInitStart`，随后异步 `TwOfflineSDK.init`；成功初始化回调再调用 `Native_SDKInitEnd(...,0)`、`Native_SDKLoginStart` 和 `TwOfflineSDK.login`。登录回调将 `LoginResultBean.userId` 写入 `mUniqueID`，成功/游客状态转成 `Native_SDKLoginEnd(...,0,token)`。当前临时脚本则在同一 `run()` 中连续发起四个 JNI 调用，不复现异步回调及 `mUniqueID`。两条线须分别验证。
 
 目前首要根因方向是 APK 原样/仅重签/Smali 改造之间的完整性差异；在确认前不能把提示信息对应到某个具体方法，更不能当作登录改造已经成功。
+
+## 2026-11-07 21:10 北京时间：完整性提示来源与运行追踪
+
+验证后的独立数据：
+- `#42373326477` 在原始 APK 的 `resources.arsc` 原始文件偏移 `133412` 找到“盗版游戏”文案前缀（UTF-8）；561 个相关成员文件中，DEX/SO 均不含该文案明文。此项只证明资源字面存储位置。
+- `#42374270690` 对实验版加入不改变返回值的 `TWPurchase.GetSignature()` 进入/退出日志，模拟器已真实触发盗版警告和退出，但 `GetSignature.enter=0`、`GetSignature.exit=0`，暂不能以它作为首发校验点。此结果应标明“本轮可观测日志内未命中”，不是所有运行时永不调用。
+- `#42375122143` 全量 16,375 Smali 中 `check_sign_failed:I=0x7f0f01d6` 存在于自动生成的 R$string 资源定义；没有其它方法通过常量 ID 或 `R$string;->check_sign_failed` 直接引用它。由于未能由 AAPT2 正向映射文案到 ID，此字段只是高度相关的名字候选。
+- `#42375337534` 动态资源 API 索引显示 46 个 `Resources.getIdentifier()` 方法，**没有任何方法包含 `const-string "check_sign_failed"`**。这些动态 API 不能仅凭出现就认作盗版校验入口。
+- `#42375534308` SHA 锁定原版 APK 共检查 35 个 DEX/SO 文件，资源名 `check_sign_failed` 仅在六个 DEX 的生成资源字段表中出现，未在 SO 中找到同名明文。不能据此排除原生数值 ID 或加密字符串引用。
+
+### 新增只读 Frida 弹窗调用栈验证
+
+新增 `scripts/offline/frida_warning_stack.js`，仅在 `TextView.setText(CharSequence)` 和 `AlertDialog.Builder.setMessage(CharSequence)` 收到正版警告字样时发送有限 Java 调用栈。Python 端只保留脱敏后的堆栈方法名；不记录用户账户内容、签名实际值或网络凭据。通过 Android 11 飞行模式一次性模拟器实验进行校验，Frida 按官方发布的 16.7.19 服务器/客户端固定版本。
+
+这条动态验证比盲目改资源或屏蔽通用 `Device_ExitApp` 更有价值：只有观测到真实警告调用者，才能考虑局部修复。**不允许以“弹窗不再出现”代替实际本地主菜单、首关、结算和原版存档验收。**
+
+当前仍标记：`offline-playable = false`。
