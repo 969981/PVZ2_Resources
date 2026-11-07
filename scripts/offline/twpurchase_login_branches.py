@@ -84,7 +84,7 @@ def integer_status_literal(value: str) -> str:
 def identifier_only(value: str) -> str:
     """Safe class/field/variable identifier, not expression value or token data."""
     value=value.strip()
-    if len(value)>120 or not re.fullmatch(r"[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*){0,5}",value):
+    if len(value)>120 or not re.fullmatch(r"[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*){0,5}",value):
         return ""
     return value
 
