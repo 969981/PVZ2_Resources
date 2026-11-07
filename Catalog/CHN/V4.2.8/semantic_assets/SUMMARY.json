@@ -1,0 +1,459 @@
+{
+  "schema": "pvz2-chn428-visual-entity-research-v1",
+  "version": "CHN 4.2.8",
+  "source_png_and_media_catalogs": "Git master source SHA256 and 8 published PNG manifests",
+  "source_gameplay_zip": "Database/CHN/V4.2.8/pvz2_chs428_gameplay_shard05.zip",
+  "format_counts": {
+    "PNG": 1520,
+    "PAM_JSON": 3847,
+    "PAM": 3847
+  },
+  "gameplay_categories": {
+    "levels": 6636,
+    "wave_managers": 6010,
+    "zombie_types": 1265,
+    "projectiles": 665,
+    "zombie_properties": 276,
+    "plant_types": 381,
+    "plant_properties": 27,
+    "skills": 857
+  },
+  "family_format_counts": {
+    "plant": {
+      "PAM": 1439,
+      "PAM_JSON": 1439,
+      "PNG": 344
+    },
+    "ui_or_shared": {
+      "PAM": 741,
+      "PAM_JSON": 741,
+      "PNG": 398
+    },
+    "world_or_effect": {
+      "PAM": 783,
+      "PAM_JSON": 783,
+      "PNG": 366
+    },
+    "zombie": {
+      "PAM": 884,
+      "PAM_JSON": 884,
+      "PNG": 412
+    }
+  },
+  "image_animation_name_matched_groups": 1028,
+  "image_animation_unmatched_groups": 359,
+  "skill_item_costume_filename_candidates": 819,
+  "potential_config_classes": 435,
+  "raw_field_evidence": 384,
+  "gameplay_examples": {
+    "plant_types": [
+      {
+        "objclass": "PlantType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+        "object_index": 0,
+        "type_name": "sunflower",
+        "present_fields": [
+          "#comment(green, blue, purple)",
+          "AdventureFlags",
+          "AnimRigClass",
+          "Attribute",
+          "AvatarPieceImageName",
+          "Avatars",
+          "DisplayFamilyId",
+          "HomeWorld",
+          "PlantFramework",
+          "PlantPieceImageName",
+          "PlantResourceGroups",
+          "PopAnim",
+          "Profession",
+          "Properties",
+          "Quality",
+          "Rare",
+          "SecondPopAnimRare",
+          "TypeName"
+        ]
+      },
+      {
+        "objclass": "PlantType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+        "object_index": 1,
+        "type_name": "peashooter",
+        "present_fields": [
+          "AdventureFlags",
+          "AnimRigClass",
+          "Attribute",
+          "AvatarPieceImageName",
+          "Avatars",
+          "BondTags",
+          "DisplayFamilyId",
+          "HomeWorld",
+          "PlantFramework",
+          "PlantPieceImageName",
+          "PlantResourceGroups",
+          "PopAnim",
+          "Profession",
+          "Properties",
+          "Rare",
+          "TypeName"
+        ]
+      },
+      {
+        "objclass": "PlantType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+        "object_index": 2,
+        "type_name": "moton",
+        "present_fields": [
+          "AdventureFlags",
+          "AnimRigClass",
+          "Attribute",
+          "AvatarPieceImageName",
+          "Avatars",
+          "HomeWorld",
+          "PlantFramework",
+          "PlantPieceImageName",
+          "PlantResourceGroups",
+          "PopAnim",
+          "Profession",
+          "Properties",
+          "Rare",
+          "TypeName"
+        ]
+      },
+      {
+        "objclass": "PlantType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+        "object_index": 3,
+        "type_name": "wallnut",
+        "present_fields": [
+          "AdventureFlags",
+          "AnimRigClass",
+          "Attribute",
+          "AvatarPieceImageName",
+          "Avatars",
+          "BondTags",
+          "DisplayFamilyId",
+          "HomeWorld",
+          "PlantFramework",
+          "PlantPieceImageName",
+          "PlantResourceGroups",
+          "PopAnim",
+          "Profession",
+          "Properties",
+          "Rare",
+          "TypeName"
+        ]
+      },
+      {
+        "objclass": "PlantType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PLANTTYPES.json",
+        "object_index": 4,
+        "type_name": "tallnut",
+        "present_fields": [
+          "AdventureFlags",
+          "AnimRigClass",
+          "Attribute",
+          "AvatarPieceImageName",
+          "Avatars",
+          "DisplayFamilyId",
+          "HomeWorld",
+          "PlantFramework",
+          "PlantPieceImageName",
+          "PlantResourceGroups",
+          "PopAnim",
+          "Profession",
+          "Properties",
+          "Rare",
+          "TypeName"
+        ]
+      }
+    ],
+    "zombie_types": [
+      {
+        "objclass": "ZombieType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_1.json",
+        "object_index": 25,
+        "type_name": "zombie_gatlingpea",
+        "present_fields": [
+          "AnimRigClass",
+          "AudioGroups",
+          "BoardAlmanac",
+          "HomeWorld",
+          "PopAnim",
+          "Properties",
+          "RecommendPlants",
+          "ResourceGroups",
+          "TypeName",
+          "ZombieClass"
+        ]
+      },
+      {
+        "objclass": "ZombieType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_1.json",
+        "object_index": 26,
+        "type_name": "zombie_gatlingpea",
+        "present_fields": [
+          "AnimRigClass",
+          "BoardAlmanac",
+          "HomeWorld",
+          "PopAnim",
+          "Properties",
+          "RecommendPlants",
+          "ResourceGroups",
+          "TypeName",
+          "ZombieClass"
+        ]
+      },
+      {
+        "objclass": "ZombieType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_15.json",
+        "object_index": 32,
+        "type_name": "modern_balloon",
+        "present_fields": [
+          "AnimRigClass",
+          "AudioGroups",
+          "BoardAlmanac",
+          "HomeWorld",
+          "PopAnim",
+          "Properties",
+          "ResourceGroups",
+          "TypeName",
+          "ZombieClass"
+        ]
+      },
+      {
+        "objclass": "ZombieType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_2.json",
+        "object_index": 45,
+        "type_name": "zombie_gatlingpea",
+        "present_fields": [
+          "AnimRigClass",
+          "AudioGroups",
+          "BoardAlmanac",
+          "HomeWorld",
+          "PopAnim",
+          "Properties",
+          "RecommendPlants",
+          "ResourceGroups",
+          "TypeName",
+          "ZombieClass"
+        ]
+      },
+      {
+        "objclass": "ZombieType",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/LEVELS/PVZ1_MINIGAME_GAME_2.json",
+        "object_index": 46,
+        "type_name": "zombie_gatlingpea",
+        "present_fields": [
+          "AnimRigClass",
+          "BoardAlmanac",
+          "HomeWorld",
+          "PopAnim",
+          "Properties",
+          "RecommendPlants",
+          "ResourceGroups",
+          "TypeName",
+          "ZombieClass"
+        ]
+      }
+    ],
+    "skills": [
+      {
+        "objclass": "SkillPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+        "object_index": 0,
+        "type_name": "",
+        "present_fields": [
+          "SkillDescription",
+          "SkillIconImage",
+          "SkillName"
+        ]
+      },
+      {
+        "objclass": "SkillPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+        "object_index": 1,
+        "type_name": "",
+        "present_fields": [
+          "SkillDescription",
+          "SkillIconImage",
+          "SkillName"
+        ]
+      },
+      {
+        "objclass": "SkillPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+        "object_index": 2,
+        "type_name": "",
+        "present_fields": [
+          "SkillDescription",
+          "SkillIconImage",
+          "SkillName"
+        ]
+      },
+      {
+        "objclass": "SkillPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+        "object_index": 3,
+        "type_name": "",
+        "present_fields": [
+          "SkillDescription",
+          "SkillIconImage",
+          "SkillName"
+        ]
+      },
+      {
+        "objclass": "SkillPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/SKILLTYPES.json",
+        "object_index": 4,
+        "type_name": "",
+        "present_fields": [
+          "SkillDescription",
+          "SkillIconImage",
+          "SkillName"
+        ]
+      }
+    ],
+    "plant_properties": [
+      {
+        "objclass": "PlantPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+        "object_index": 5,
+        "type_name": "",
+        "present_fields": [
+          "# Board-space offset applied to the cursor preview when planting",
+          "# Height offset into the grid cell from the normal planting position for this plant. Affects grid selection when planting.",
+          "# Initial cooldown at start of level",
+          "# Number of seconds to keep plantfood animation looping",
+          "# Number of times to play plantfood animation",
+          "# [ground, air, any]",
+          "# [low, normal, tall]",
+          "Actions",
+          "ArtCenter",
+          "Cost",
+          "CursorPreviewOffset",
+          "DangerRoomWeight",
+          "GridHeight",
+          "GridWidth",
+          "Height",
+          "HitRectAdjust",
+          "Hitpoints",
+          "PacketCooldown",
+          "PlantFoodDurationSeconds",
+          "PlantFoodPlayCount",
+          "PlantGridType",
+          "PlantingOffsetY",
+          "StartingCooldown"
+        ]
+      },
+      {
+        "objclass": "PlantPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+        "object_index": 12,
+        "type_name": "",
+        "present_fields": [
+          "Actions",
+          "ArtCenter",
+          "BoostRate",
+          "Cost",
+          "DetailProps",
+          "DisplayActions",
+          "DisplayAvatarActions",
+          "Hitpoints",
+          "MaxLevel",
+          "MinLevel",
+          "PacketCooldown",
+          "PlantFoodPlayCount",
+          "PlantGridType",
+          "PlantLevelStats",
+          "PlantStats",
+          "PowerCost",
+          "StartingCooldown"
+        ]
+      },
+      {
+        "objclass": "PlantPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+        "object_index": 19,
+        "type_name": "",
+        "present_fields": [
+          "Actions",
+          "ArtCenter",
+          "BlackListStages",
+          "BoostRate",
+          "Cost",
+          "DetailProps",
+          "DisplayActions",
+          "DisplayAvatarActions",
+          "Hitpoints",
+          "MaxLevel",
+          "MinLevel",
+          "PacketCooldown",
+          "PlantFoodPlayCount",
+          "PlantGridType",
+          "PlantLevelStats",
+          "PlantStats",
+          "PowerCost"
+        ]
+      },
+      {
+        "objclass": "PlantPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+        "object_index": 21,
+        "type_name": "",
+        "present_fields": [
+          "Actions",
+          "ArtCenter",
+          "BlackListStages",
+          "BoostRate",
+          "Cost",
+          "DetailProps",
+          "DisplayActions",
+          "DisplayAvatarActions",
+          "Hitpoints",
+          "MaxLevel",
+          "MinLevel",
+          "PacketCooldown",
+          "PlantFoodPlayCount",
+          "PlantGridType",
+          "PlantLevelStats",
+          "PlantStats",
+          "PowerCost",
+          "SoudacheAttackScale",
+          "SoudacheHealthScale"
+        ]
+      },
+      {
+        "objclass": "PlantPropertySheet",
+        "source_file": "04_JSON/dynamic/Packages/PACKAGES/PROPERTYSHEETS.json",
+        "object_index": 29,
+        "type_name": "",
+        "present_fields": [
+          "Actions",
+          "ArtCenter",
+          "BoostRate",
+          "Cost",
+          "DetailProps",
+          "DisplayActions",
+          "DisplayAvatarActions",
+          "Hitpoints",
+          "MaxLevel",
+          "MinLevel",
+          "PacketCooldown",
+          "PlantFoodPlayCount",
+          "PlantGridType",
+          "PlantLevelStats",
+          "PlantStats",
+          "PowerCost"
+        ]
+      }
+    ]
+  },
+  "caveats": [
+    "A plant/zombie-themed folder or filename is not a verified game entity mapping",
+    "PNG atlas pixels, PAM animation JSON, native PAM, resource RTON and gameplay properties are distinct representations",
+    "Name-based atlas/PAM grouping is only an unvalidated join candidate",
+    "Costumes and advancement require concrete configuration references and runtime verification",
+    "PlantLevelStats and SkillPropertySheet do not establish actual upgrade formulas without runtime data",
+    "Media-06's decoded PAM JSON is in an Actions source artifact; it still lacks a complete Git source archive"
+  ]
+}
