@@ -68,7 +68,11 @@ class EntityCrosswalkTests(unittest.TestCase):
               "CREATE TABLE game_objects(category TEXT, source_file TEXT, object_index INT, objclass TEXT, aliases_json TEXT, objdata_json TEXT);",
               ("INSERT INTO game_objects VALUES (?,?,?,?,?,?)",gameplay))
         dbzip(base/"pvz2_chs428_resource_catalog.zip","pvz2_chs428_resources.sqlite",
-              "CREATE TABLE groups(source_file TEXT,group_index INT,group_id TEXT,group_type TEXT);",
+              "CREATE TABLE groups(source_file TEXT,group_index INT,group_id TEXT,group_type TEXT);"
+              "CREATE TABLE resources(source_file TEXT,resource_id TEXT,resource_path TEXT,atlas_parent_id TEXT,"
+              "ax INT,ay INT,aw INT,ah INT);"
+              "INSERT INTO resources VALUES ('resourcesPlant1.json','pea_piece','IMAGES/PEA','ATLAS1',0,0,32,32);"
+              "INSERT INTO resources VALUES ('resourcesPlant1.json','IMAGE_PEA','IMAGES/PEAICON','ATLAS1',32,0,16,16);",
               ("INSERT INTO groups VALUES (?,?,?,?)",[
                   ("resourcesPlant1.json",0,"PlantPeashooter_1200","simple"),
                   ("resourcesZombie3.json",1,"ZombieDarkBasicGroup_1200","simple")]))
@@ -124,6 +128,9 @@ class EntityCrosswalkTests(unittest.TestCase):
             self.assertTrue(any(x["status"]=="unresolved" for x in links))
             grades=list(csv.DictReader((output/"level_rows.csv").open(encoding="utf-8-sig")))
             self.assertTrue(any(x["field"]=="PlantLevelStats" for x in grades))
+            icon_rows=list(csv.DictReader((output/"image_refs.csv").open(encoding="utf-8-sig")))
+            self.assertTrue(any(x["resource_id"]=="pea_piece" and x["match_status"]=="exact-RTON-resource-id" for x in icon_rows))
+            self.assertTrue(any(x["resource_id"]=="IMAGE_PEA" and x["match_status"]=="exact-RTON-resource-id" for x in icon_rows))
             images=list(csv.DictReader((output/"assets.csv").open(encoding="utf-8-sig")))
             self.assertTrue(any(x["format"]=="PNG" and x["association_status"]=="resource-group-name-candidate" for x in images))
             con=sqlite3.connect(output/"pvz2_chs428_entities.sqlite")
