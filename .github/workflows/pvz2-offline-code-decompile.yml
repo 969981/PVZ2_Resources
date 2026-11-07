@@ -8,6 +8,8 @@ on:
       - "scripts/offline/reverse_dependencies.py"
       - "scripts/offline/inspect_login_flow.py"
       - "tests/test_offline_login_flow.py"
+      - "scripts/offline/bridge_site_index.py"
+      - "tests/test_offline_bridge_site_index.py"
   workflow_dispatch:
 
 permissions:
@@ -56,6 +58,9 @@ jobs:
 
       - name: Validate targeted first-party login flow analyzer
         run: python3 -m unittest discover -s tests -p test_offline_login_flow.py -v
+
+      - name: Validate game login-to-native bridge scanner
+        run: python3 -m unittest discover -s tests -p test_offline_bridge_site_index.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -118,6 +123,25 @@ jobs:
               f.write(f"- Candidate methods indexed: {d['methods_indexed']}\n")
               f.write("- Static callback structure only; not yet a proven local offline session implementation.\n")
           assert d["source_path_found"]>=10, "Insufficient real Java first-party paths recovered"
+          PY
+
+      - name: Index cross-class login callback and JNI bootstrap references from actual JADX
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/bridge_site_index.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          f=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/login_game_jni_bridge_summary.json"
+          d=json.loads(f.read_text(encoding="utf-8"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as stream:
+              stream.write("## Actual Java login → game JNI candidate callsites\n\n")
+              stream.write("- First-party Java files scanned: "+str(d["first_party_java_sources_scanned"])+"\n")
+              stream.write("- Candidate call sites indexed: "+str(d["matching_source_sites_stored"])+"\n")
+              stream.write("- No patch addresses or verified native login callback yet.\n")
+          assert d["first_party_java_sources_scanned"]>50
           PY
 
       - name: Upload derived metadata only
