@@ -1,0 +1,962 @@
+{
+  "version": "CHN 4.2.8",
+  "origin": "SHA256-verified Internal-05 actual JSON not community article",
+  "total_source_json_files": 7981,
+  "objects_seen": 191461,
+  "candidate_field_counts": {
+    "chance-or-trigger-not-hp-damage": 18,
+    "damage-or-poison-ratio-candidate": 763,
+    "files": 7981,
+    "objects": 191461,
+    "poison-mechanic-candidate-not-proven-percent": 134,
+    "strong-name-based-hp-percent-candidate": 1967,
+    "unclassified-ratio-not-proven-hp-damage": 39585
+  },
+  "percent_field_hits": 42467,
+  "source_candidate_objects": 7185,
+  "reported_objects": 2500,
+  "level_vectors": 1060,
+  "unique_zombie_level_vectors": 18,
+  "top_source_candidate_classes": [
+    {
+      "objclass": "WorldData",
+      "file": "WORLDMAP.json",
+      "count": 656
+    },
+    {
+      "objclass": "CollectablePlantPieceType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 272
+    },
+    {
+      "objclass": "CollectableAvatarPieceType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 252
+    },
+    {
+      "objclass": "ProjectilePropertySheet",
+      "file": "PROJECTILETYPES.json",
+      "count": 250
+    },
+    {
+      "objclass": "CollectableAccessoryPieceType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 65
+    },
+    {
+      "objclass": "ZombieGargantuarProps",
+      "file": "PROPERTYSHEETS.json",
+      "count": 61
+    },
+    {
+      "objclass": "ZombiePropertySheet",
+      "file": "PROPERTYSHEETS.json",
+      "count": 52
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO11.json",
+      "count": 31
+    },
+    {
+      "objclass": "ZombossRobotSpawnNormalZombieActionDefinition",
+      "file": "ZOMBIEACTIONS.json",
+      "count": 31
+    },
+    {
+      "objclass": "LawnMowerProperties",
+      "file": "LEVELMODULES.json",
+      "count": 27
+    },
+    {
+      "objclass": "PrimalPeashooterProjectileProps",
+      "file": "PROJECTILETYPES.json",
+      "count": 24
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S32_45_N.json",
+      "count": 22
+    },
+    {
+      "objclass": "CollectableSunType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 20
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_053.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_1009.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_1054.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_1349.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_1514.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_155.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_242.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_410.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_458.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_629.json",
+      "count": 18
+    },
+    {
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "file": "RIFT_734.json",
+      "count": 18
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S26_56_N.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S28_9_H.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S30_52_N.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S33_16_N.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1031.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1071.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1111.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1151.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1191.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1231.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1271.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1311.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1351.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1391.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1471.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1511.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1551.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1591.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_711.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_751.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_791.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_831.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_871.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_911.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_951.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_991.json",
+      "count": 15
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO13.json",
+      "count": 13
+    },
+    {
+      "objclass": "ZombieZombossMechPVZ1RobotProps",
+      "file": "PROPERTYSHEETS.json",
+      "count": 12
+    },
+    {
+      "objclass": "ZombieChickenProps",
+      "file": "PROPERTYSHEETS.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO26.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S33_2_H.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1129.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_122.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1394.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1419.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_1503.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_276.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_358.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_379.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_392.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_408.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_514.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_599.json",
+      "count": 12
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_943.json",
+      "count": 12
+    },
+    {
+      "objclass": "ZombieZombossMechDarkProps",
+      "file": "PROPERTYSHEETS.json",
+      "count": 11
+    },
+    {
+      "objclass": "CollectableSeedPacketType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 11
+    },
+    {
+      "objclass": "ZombossRobotSpitBallActionDefinition",
+      "file": "ZOMBIEACTIONS.json",
+      "count": 11
+    },
+    {
+      "objclass": "CollectableCoinType",
+      "file": "COLLECTABLETYPES.json",
+      "count": 11
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_031.json",
+      "count": 11
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_146.json",
+      "count": 11
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "RIFT_447.json",
+      "count": 11
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "SOUDACHE_D4_3_3.json",
+      "count": 11
+    },
+    {
+      "objclass": "BowlingBulbProjectileProps",
+      "file": "PROJECTILETYPES.json",
+      "count": 10
+    },
+    {
+      "objclass": "PrimalRafflesiaProjectileProps",
+      "file": "PROJECTILETYPES.json",
+      "count": 10
+    },
+    {
+      "objclass": "CthulhuEyeballPropertySheet",
+      "file": "CTHULHUCONFIG.json",
+      "count": 10
+    },
+    {
+      "objclass": "PlantPropertySheet",
+      "file": "PROPERTYSHEETS.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO15.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO18.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO19.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO23.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO24.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO27.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "DINO28.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PREMIUMQUEST_WASABIWHIP_04.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S26_51_N.json",
+      "count": 10
+    },
+    {
+      "objclass": "DinoWaveActionProps",
+      "file": "PVZ1_S28_12_H.json",
+      "count": 10
+    }
+  ],
+  "level_profile_shapes": [
+    {
+      "count": 240,
+      "level_count": 5,
+      "objclass": "ZombiePropertySheet",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 57,
+      "level_count": 5,
+      "objclass": "ZombieGargantuarProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 12,
+      "level_count": 5,
+      "objclass": "ZombieChickenProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 12,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechPVZ1RobotProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 10,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechDarkProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 9,
+      "level_count": 5,
+      "objclass": "ZombieShooterProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 8,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechIceAgeProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechFutureProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechBeachProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechSkyCityProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombieBugProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechLostCityProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 7,
+      "level_count": 5,
+      "objclass": "ZombiePropertySheet",
+      "mode_hint": "PVZ1_S26_20_N"
+    },
+    {
+      "count": 6,
+      "level_count": 5,
+      "objclass": "ZombieEliteSkyCityElectricProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 5,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechEgyptProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 5,
+      "level_count": 5,
+      "objclass": "ZombiePirateCaptainParrotProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 5,
+      "level_count": 5,
+      "objclass": "ZombieCavalryProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 5,
+      "level_count": 5,
+      "objclass": "ZombieIceAgeChiefEliteProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 5,
+      "level_count": 5,
+      "objclass": "ZombieMoonTeleportationProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombiePVPNurseProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieExplorerProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieSelfExplodeProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechPirateProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechCowboyProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieBarrelPusherProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 8,
+      "objclass": "ZombiePropertySheet",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombiePonchoProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieChickenFarmerProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieFutureProtectorProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieMechFootballProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieGargantuarMechProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieDarkWizardProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieBeachOctopusProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieWeaselHoarderEliteProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieSwimmingRingProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieModernNewspaperProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieModernMinerProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 8,
+      "objclass": "ZombieRomeoProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 8,
+      "objclass": "ZombieJulietProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieGeneralZmechProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieHeianNinjaProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieEliteRomanHealerProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 4,
+      "level_count": 5,
+      "objclass": "ZombieMirrorQueenProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieSarcophagusProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieTombRaiserProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieZombossQigongProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieZombossQinShiHuangProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieZombossExplosiveProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieZombossMechHydraProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombiePirateCaptainProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieProspectorProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieFutureJetpackProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieMechProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieMechDiscoProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieHammerProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieQigongProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieDarkWizardEliteProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieTargetProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieIceAgeHunterEliteProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieIceAgeTroglobiteProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieSkycityBattlePlaneProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 8,
+      "objclass": "ZombieLostCityJaneProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieCrystalSkullProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieGentlemanProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieEightiesGlitterProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieModernAllStarProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieBumperCarProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieJalapenoProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieExplodenutProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieEliteOnmyojiProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieRenaiMerchantOfVeniceProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieSlimesGargantuarProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieGiftboxProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombieShooterProps",
+      "mode_hint": "PVZ1_S26_61_N"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombiePropertySheet",
+      "mode_hint": "PVZ1_S26_63_N"
+    },
+    {
+      "count": 3,
+      "level_count": 5,
+      "objclass": "ZombiePropertySheet",
+      "mode_hint": "PVZ1_S26_8_H"
+    },
+    {
+      "count": 2,
+      "level_count": 8,
+      "objclass": "ZombieGargantuarProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 2,
+      "level_count": 5,
+      "objclass": "BobsledProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 2,
+      "level_count": 5,
+      "objclass": "ZombieGongProps",
+      "mode_hint": "PROPERTYSHEETS"
+    },
+    {
+      "count": 2,
+      "level_count": 5,
+      "objclass": "ZombieDrinkProps",
+      "mode_hint": "PROPERTYSHEETS"
+    }
+  ],
+  "important_limitations": [
+    "A field containing Percent or Ratio is NOT proof of target maximum-health damage",
+    "Poison status is not automatically percent poison",
+    "Trigger chances and plant attack buffs are not percent damage",
+    "Even verified ZombieLevelStats are source data, modes choose different curves",
+    "Source object literals do not establish native runtime damage calculation",
+    "Output includes source SHA256 and object index; no original binary game assets copied"
+  ]
+}
