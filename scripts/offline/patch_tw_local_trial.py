@@ -114,8 +114,8 @@ def patch_smali(source: str, *, init_status:int, login_status:int,
     h=match.group("header")
     body="".join([
         f"{h}\n",
-        "    .locals 5\\n" if run_source is not None else "    .locals 4\\n",
-        (f"    iget-object v4, p0, {runnable_owner}->this$0:{OWNER}\\n"
+        "    .locals 5\n" if run_source is not None else "    .locals 4\n",
+        (f"    iget-object v4, p0, {runnable_owner}->this$0:{OWNER}\n"
          if run_source is not None else ""),
         f"    iget-wide v0, {outer_receiver}, {handle_owner}->mNativeDriverPtr:J\n",
         emit_invoke("Native_SDKInitStart", ["v0","v1"]),
