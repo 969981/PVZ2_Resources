@@ -159,6 +159,33 @@ def signature_trace_summary() -> dict:
         return {"status": "unavailable"}
 
 
+def attach_frida_warning_probe(js_path: Path, output: list[dict]):
+    """Optional Frida 16 hook on throwaway emulator; capture stack method names only."""
+    import frida
+    device = frida.get_usb_device(timeout=8)
+    session = device.attach(PACKAGE)
+    script = session.create_script(js_path.read_text(encoding="utf-8"))
+    def on_message(message, _data):
+        payload = message.get("payload")
+        if message.get("type") == "send" and isinstance(payload, dict):
+            typ = payload.get("type")
+            if typ in ("INTEGRITY_WARNING_STACK", "TRACE_HOOKS_INSTALLED", "TRACE_HOOK_ERROR"):
+                record = {"type": typ, "source": payload.get("source")}
+                if typ == "INTEGRITY_WARNING_STACK":
+                    frames = payload.get("frames", [])
+                    record["frames"] = [redact_evidence_line(str(item))
+                                        for item in frames[:24] if isinstance(item, str)]
+                if typ == "TRACE_HOOK_ERROR":
+                    record["error_kind"] = payload.get("error_kind")
+                output.append(record)
+        elif message.get("type") == "error":
+            output.append({"type": "FRIDA_SCRIPT_ERROR",
+                           "description": "error_kind_script_load_or_runtime"})
+    script.on("message", on_message)
+    script.load()
+    return session, script
+
+
 def classify_runtime(frames: list[dict], logcat: dict) -> str:
     if any(frame.get("integrity_warning_seen") for frame in frames):
         return "FAIL_INTEGRITY_WARNING"
@@ -170,7 +197,7 @@ def classify_runtime(frames: list[dict], logcat: dict) -> str:
     return "RUNTIME_OBSERVED_GAMEPLAY_NOT_VERIFIED"
 
 
-def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original') -> dict:
+def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original', frida_script: Path | None = None) -> dict:
     if build_kind not in ('original', 'smali-local-trial'):
         raise ValueError('Unsupported build kind')
     base = run_probe(apk, out, [30], game_modified=build_kind != 'original')
@@ -188,6 +215,9 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
         "baseline": base.get("frames", []),
         "after_consent": [], "status": "NOT_STARTED",
     }
+    frida_session = None
+    frida_script_instance = None
+    frida_records = []
     try:
         if base.get("status") != "FRAMES_CAPTURED_NEED_VISUAL_REVIEW":
             report["status"] = "BLOCKED_PRE_CONSENT"
@@ -206,6 +236,13 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
             report["status"] = "BLOCKED_PRIVACY_SCREEN_NOT_CONFIRMED"
             return report
         report["status"] = "CONSENT_ACTION_PREPARED"
+        if frida_script is not None:
+            try:
+                frida_session, frida_script_instance = attach_frida_warning_probe(frida_script, frida_records)
+                report["frida_status"] = "attached"
+            except Exception as exc:
+                report["frida_status"] = "unavailable"
+                report["frida_error_type"] = type(exc).__name__
         response = adb("shell", "input", "tap", str(AGREE_X), str(AGREE_Y), timeout=20)
         report["consent_clicked"] = response.returncode == 0
         if response.returncode:
@@ -235,6 +272,7 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
         report["logcat"] = logcat_summary()
         report["android_exit_info"] = exit_info_summary()
         report["signature_trace"] = signature_trace_summary()
+        report["frida_warning_events"] = frida_records
         report["privacy_gate_still_visible"] = screen_is_privacy_policy(report["after_consent"][-1])
         report["offline_after_consent"] = (
             decoded(adb("shell", "settings", "get", "global", "airplane_mode_on")) == "1"
@@ -242,6 +280,12 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original')
         report["status"] = classify_runtime(report["after_consent"], report["logcat"])
         return report
     finally:
+        if frida_session is not None:
+            try:
+                frida_session.detach()
+            except Exception:
+                pass
+        report["frida_warning_events"] = frida_records
         out.mkdir(parents=True, exist_ok=True)
         (out / "consent_probe.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -253,6 +297,8 @@ def main() -> None:
     parser.add_argument("--apk", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--checkpoints", default="5,25,60,120")
+    parser.add_argument("--frida-script", type=Path,
+                        help="optional read-only Frida dialog stack probe")
     parser.add_argument("--build-kind", choices=("original", "smali-local-trial"),
                         default="original")
     args = parser.parse_args()
@@ -264,7 +310,7 @@ def main() -> None:
         parser.error("Checkpoints must be comma-separated integer seconds")
     if not points or points != sorted(set(points)) or not 0 < points[0] or points[-1] > 180:
         parser.error("Checkpoints must be unique ascending seconds within 1..180")
-    print(json.dumps(run(args.apk, args.out, points, build_kind=args.build_kind), ensure_ascii=False, indent=2))
+    print(json.dumps(run(args.apk, args.out, points, build_kind=args.build_kind, frida_script=args.frida_script), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
