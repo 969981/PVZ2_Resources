@@ -83,7 +83,11 @@ jobs:
           disk-size: 10240M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
-          script: "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/consent_probe.py --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk" --out "$RUNNER_TEMP/pvz2-offline-consent-flow" --checkpoints 5,25,60,120
+          script: >-
+            "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/consent_probe.py
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+            --out "$RUNNER_TEMP/pvz2-offline-consent-flow"
+            --checkpoints 5,25,60,120
       - name: Summarize sanitized emulator results
         if: always()
         shell: bash
