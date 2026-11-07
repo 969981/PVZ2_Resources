@@ -144,8 +144,13 @@ def run(root,catalog_csv,out):
                                      vector_hash=digest,source_sha256=sha))
             if matched_fields or LEVEL.search(cls):
                 # A complete object trace, capped only per-object to avoid 100MB output.
-                critical={k:v for k,v in props.items() if
-                          PERCENT.search(k) or re.search(r"(?i)poison|skill|action|damage|attack|level|zombie|health|hp",k)}
+                critical={}
+                for k,v in props.items():
+                    if not (PERCENT.search(k) or re.search(r"(?i)poison|skill|action|damage|attack|level|zombie|health|hp",k)):
+                        continue
+                    raw=json.dumps(v,ensure_ascii=False,separators=(",",":"))
+                    critical[k]=v if len(raw)<=8000 else {"truncated":True,"chars":len(raw),
+                        "value_sha256":hashlib.sha256(raw.encode()).hexdigest(),"sample":raw[:1200]}
                 objects.append(dict(source_file=rel,object_index=i,objclass=cls,
                                     aliases=aliases,detected_fields=len(matched_fields),
                                     candidate_properties=critical))
