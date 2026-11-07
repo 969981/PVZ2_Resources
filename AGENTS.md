@@ -55,3 +55,12 @@ Respect third-party licenses. This repository does not contain a verified comple
 - Preserve unmodified originals, avoid touching `ROMS/`, never commit signed APKs, DEX/SO binaries, login tokens, device identifiers, private logcat, saves or unlicensed extracted assets.
 - Do not implement simulated real-money purchases or grant online account entitlements. Local offline economy must remain clearly separate from real online accounts.
 - Record package/version/build SHA, method, reproducibility and evidence status for every network contract or native hook. Never invent offsets or remote responses.
+
+
+## Catalog / individual-file browsing (CHN 4.2.8)
+- Catalog/CHN/V4.2.8/shards contains source-backed per-file original path, byte size, SHA256, actual source run and stage/shard; the CSV and SUMMARY are safe metadata, not copied source assets.
+- Treat small_file_candidate as a LEGACY optional <=512 KiB text-preview classification. It is NOT the GitHub maximum and must not be quoted as a count of ordinary-Git-eligible files.
+- Use git_size_eligible for technical size eligibility (<95 MiB), and git_warning_over_50mib separately. Under 95 MiB does not imply copyright authorization, repository capacity, or successful GitHub UI preview.
+- Use scripts/catalog/index_git_shard.py to stream-verify and inventory original files. Use scripts/catalog/materialize_readable.py to restore verified individual files locally; Readable/ remains Git-ignored.
+- Do not automatically stage Readable/, game textures, audio, or proprietary source bytes just because each file is below GitHub's 100 MiB hard limit. Repository-wide duplication and public redistribution rights must be handled separately.
+- Keep docs/Unpack/10-独立素材清单与Git体积规则.md and the Obsidian MOC up to date with source-backed per-format totals, true size thresholds, and unprocessed shard gaps.
