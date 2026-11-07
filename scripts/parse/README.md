@@ -3,6 +3,15 @@
 Processes the 26,774 SHA256-indexed original and derived file records in 15
 available Internal/Media Git shards. Missing Media-06 is not an empty shard.
 
+## One-command all-indexed-file parsing
+
+~~~bash
+python3 scripts/parse/parse_all.py --workers 2 --max-refs-per-json 24 --resume
+~~~
+
+Outputs checkpointed per-shard reports and a merged local SQLite/CSV under
+audit/local/CHN-4.2.8/deep-parse/. Existing Media-06 remains marked missing.
+
 ## Quick start
 
 Prerequisites: Python 3.10+, zstd, tar, optional Pillow for PNG pixel loading.
