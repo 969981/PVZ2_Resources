@@ -26,6 +26,12 @@ TERMS = {
     "POPCAP_PURCHASE_ADAPTER_CLASS": b"com/popcap/pvz2cthddev/TWPurchase",
     "POPCAP_PURCHASE_ADAPTER_DOTTED": b"com.popcap.pvz2cthddev.TWPurchase",
     "POPCAP_PURCHASE_ADAPTER_SHORT": b"TWPurchase",
+    "POPCAP_NATIVE_LOGIN_END": b"Native_SDKLoginEnd",
+    "POPCAP_NATIVE_LOGIN_START": b"Native_SDKLoginStart",
+    "POPCAP_NATIVE_INIT_END": b"Native_SDKInitEnd",
+    "POPCAP_NATIVE_INIT_START": b"Native_SDKInitStart",
+    "POPCAP_JNI_EXPORT_LOGIN_END": b"Java_com_popcap_pvz2cthddev_TWPurchase_Native_1SDKLoginEnd",
+    "POPCAP_JNI_EXPORT_INIT_END": b"Java_com_popcap_pvz2cthddev_TWPurchase_Native_1SDKInitEnd",
     "POPCAP_GAME_ACTIVITY": b"SexyAppActivity",
     "POPCAP_GAME_FRAMEWORK": b"SexyAppFrameworkActivity",
     "POPCAP_NATIVE_GAME_APP": b"AndroidGameApp",
@@ -57,7 +63,7 @@ def match_literals(data, segments, terms: dict[str,bytes] = TERMS) -> list[dict]
             before=data[offset-1] if offset else 0
             after_index=offset+len(value)
             after=data[after_index] if after_index<len(data) else 0
-            if before in (0,ord('L'),ord('/'),ord('.'),ord(';')) and after in (0,ord(';'),ord('/'),ord('.'),ord('$')):
+            if before in (0,ord('L'),ord('/'),ord('.'),ord(';'),ord('_')) and after in (0,ord(';'),ord('/'),ord('.'),ord('$')):
                 rva=native_rva(segments,offset)
                 rows.append({"identifier":label,"file_offset_hex":hex(offset),
                              "elf_rva_hex":rva,"mapped_to_load_segment":bool(rva)})
