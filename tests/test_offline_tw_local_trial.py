@@ -49,6 +49,26 @@ class OfflineLocalTestPatch(unittest.TestCase):
                          "Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;")
         self.assertIn("ThirdpartyPurchaseDriver;->mNativeDriverPtr:J",patched)
 
+    def test_verified_anonymous_runnable_is_patched_instead_of_owner(self):
+        inner=""".class public Lcom/popcap/pvz2cthddev/TWPurchase$1;
+.super Ljava/lang/Object;
+.field final synthetic this$0:Lcom/popcap/pvz2cthddev/TWPurchase;
+.method public run()V
+    .locals 2
+    invoke-virtual {v0, v1, v2}, Lcom/popcap/pvz2cthddev/TWPurchase;->Native_SDKInitStart(J)V
+    invoke-static {v0, v1, v2}, Lcom/talkweb/twOfflineSdk/TwOfflineSDK;->init(Landroid/app/Activity;Ljava/lang/String;Lcom/talkweb/twOfflineSdk/callback/TwOfflineCallback;)V
+    return-void
+.end method
+"""
+        patched, meta=patch_smali(BASE,init_status=0,login_status=0,run_source=inner)
+        self.assertEqual(meta["runnable_class"],
+                         "Lcom/popcap/pvz2cthddev/TWPurchase$1;")
+        self.assertIn("iget-object v4, p0, Lcom/popcap/pvz2cthddev/TWPurchase$1;->this$0:",patched)
+        self.assertIn("iget-wide v0, v4,",patched)
+        self.assertNotIn("TwOfflineSDK;->init",patched)
+        self.assertIn("Native_SDKLoginEnd(JILjava/lang/String;)V",patched)
+        self.assertIn("    return-void\n.end method",patched)
+
     def test_no_unspecified_native_signatures(self):
         with self.assertRaisesRegex(ValueError,"Expected exactly one verified native method"):
             patch_smali(BASE.replace("Native_SDKInitEnd(JI)V","Native_SDKInitEnd(J)V"),init_status=0,login_status=1)
