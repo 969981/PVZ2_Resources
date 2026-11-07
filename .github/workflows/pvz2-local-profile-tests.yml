@@ -1,0 +1,44 @@
+name: Offline local player and level result (no network) unit tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-local-profile-tests.yml"
+      - "Offline/adapter/java/**"
+      - "Offline/adapter/tests/**"
+  pull_request:
+    paths:
+      - "Offline/adapter/java/**"
+      - "Offline/adapter/tests/**"
+      - ".github/workflows/pvz2-local-profile-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  local-only-profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Compile isolated Android-compatible Java adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pvz2-offline-classes"
+          javac -d "$RUNNER_TEMP/pvz2-offline-classes" \
+            Offline/adapter/java/org/pvz2/offline/LocalProfileStore.java \
+            Offline/adapter/tests/LocalProfileStoreTest.java
+      - name: Run no-network local save/restart/replay tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -cp "$RUNNER_TEMP/pvz2-offline-classes" org.pvz2.offline.LocalProfileStoreTest
+          echo "Local-only profile store passed. NOT yet integrated into game engine." >> "$GITHUB_STEP_SUMMARY"
