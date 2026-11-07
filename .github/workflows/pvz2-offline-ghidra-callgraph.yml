@@ -89,6 +89,41 @@ jobs:
             --scratch "$RUNNER_TEMP/private-ghidra-input" \
             --out "$RUNNER_TEMP/ghidra-derived"
 
+      - name: Add structurally checked JNINativeMethod entry pointers to Ghidra lookup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/jni_registration_probe.py \
+            --so "$RUNNER_TEMP/private-ghidra-input/libSrc-arm64.so" \
+            --out "$RUNNER_TEMP/ghidra-derived"
+          python3 - <<'PY'
+          import csv,os,pathlib,json
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"ghidra-derived"
+          with (root/"arm64_url_string_xrefs.csv").open(encoding="utf-8-sig",newline="") as f:
+              source=list(csv.DictReader(f))
+          with (root/"jni_registration_candidates.csv").open(encoding="utf-8-sig",newline="") as f:
+              jni=list(csv.DictReader(f))
+          assert len(jni)>=4, "No real source-verified JNI registration pointer candidates"
+          rows=list(source)
+          for entry in jni:
+              rows.append({
+                  "domain_hint":"JNI:"+entry["native_java_method"],
+                  "native_literal_rva_hex":entry["name_literal_elf_rva"],
+                  "code_reference_rva_hex":entry["native_function_candidate_rva"],
+                  "followup_add_rva_hex":"",
+                  "instruction_pattern":"JNINativeMethod_function_pointer",
+                  "warning":"Structurally inferred native entry; not executed or validated online/offline"
+              })
+          out=root/"combined_function_entry_sites.csv"
+          columns=["domain_hint","native_literal_rva_hex","code_reference_rva_hex",
+                   "followup_add_rva_hex","instruction_pattern","warning"]
+          with out.open("w",encoding="utf-8",newline="") as f:
+              writer=csv.DictWriter(f,fieldnames=columns)
+              writer.writeheader()
+              writer.writerows(rows)
+          print("Original service refs:",len(source),"Native JNI entries:",len(jni))
+          PY
+
       - name: Recover actual function boundaries and caller/callee links with Ghidra
         shell: bash
         run: |
@@ -102,7 +137,7 @@ jobs:
             -import "$RUNNER_TEMP/private-ghidra-input/libSrc-arm64.so" \
             -scriptPath "$GITHUB_WORKSPACE/scripts/offline/ghidra" \
             -postScript PvZ2CodeXrefs.java \
-              "$RUNNER_TEMP/ghidra-derived/arm64_url_string_xrefs.csv" \
+              "$RUNNER_TEMP/ghidra-derived/combined_function_entry_sites.csv" \
               "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv" \
             -analysisTimeoutPerFile 1000 -max-cpu 2 -deleteProject
           test -s "$RUNNER_TEMP/ghidra-derived/ghidra_function_refs.csv"
@@ -112,15 +147,25 @@ jobs:
           with (root/"ghidra_function_refs.csv").open(encoding="utf-8") as f:
               records=list(csv.DictReader(f))
           resolved=sum(r["function_name"]!="UNRESOLVED" for r in records)
+          jni=[r for r in records if r["domain_hint"].startswith("JNI:")]
+          jni_resolved=sum(r["function_name"]!="UNRESOLVED" and
+                           r["mapped_instruction_address"]!="NO_DISASSEMBLY" for r in jni)
+          with (root/"ghidra_jni_function_refs.csv").open("w",encoding="utf-8",newline="") as f:
+              writer=csv.DictWriter(f,fieldnames=list(records[0]))
+              writer.writeheader()
+              writer.writerows(jni)
+          assert len(jni)==4, f"Expected four exact native JNINativeMethod entry candidates, got {len(jni)}"
           data={"source_apk_sha256":os.environ["SOURCE_SHA"],
                 "ghidra_version":"12.1.3",
                 "xref_rows":len(records),"function_rows_resolved":resolved,
+                "jni_function_candidates":len(jni),"jni_function_rows_resolved":jni_resolved,
                 "not_proven":"runtime execution or safe offline patch"}
           (root/"ghidra_function_summary.json").write_text(json.dumps(data,indent=2)+"\n")
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
               f.write("## Actual CHN 4.2.8 Ghidra native callgraph\n")
               f.write("- Candidate string refs: "+str(len(records))+"\n")
               f.write("- Mapped to functions: "+str(resolved)+"\n")
+              f.write("- Native JNI candidates mapped to disassembly/function: "+str(jni_resolved)+"/"+str(len(jni))+"\n")
               f.write("- These are NOT verified live network-check branches.\n")
               f.write("- No original SO, decompiled function bodies or APK uploaded.\n")
           PY
