@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "project": "PVZ2 CHN personal offline research",
+  "region": "CHN",
+  "apk_file": "PVZ2_4.2.8.apk",
+  "source_apk_sha256": "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4",
+  "package_name_candidate": "com.popcap.pvz2cthdbk",
+  "package_name_evidence": "Android resources only; verify using aapt2/ADB",
+  "runtime_status": "not_verified",
+  "offline_playable": false,
+  "modifies_payments": false,
+  "source_assets_redistributable": false
+}
