@@ -8,8 +8,11 @@ on:
       - ".github/workflows/pvz2-offline-gate-and-local-test.yml"
       - "scripts/offline/smali_gate_index.py"
       - "scripts/offline/patch_tw_local_trial.py"
+      - "scripts/offline/consent_probe.py"
+      - "scripts/offline/emulator_ui_capture.py"
       - "tests/test_offline_smali_gate_index.py"
       - "tests/test_offline_tw_local_trial.py"
+      - "tests/test_offline_runtime_diagnostics.py"
 permissions:
   contents: read
 concurrency:
@@ -43,6 +46,7 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tests -p 'test_offline_smali_gate_index.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
           python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py
           bash -n scripts/offline/build_from_committed_smali.sh
       - name: Scan all six real Smali DEX sources, metadata only
@@ -126,29 +130,43 @@ jobs:
             "$RUNNER_TEMP/qa-venv/bin/python" scripts/offline/consent_probe.py
             --apk "$RUNNER_TEMP/offline-local-apk/PVZ2_CHN_4.2.8_from_repo_smali_test.apk"
             --out "$RUNNER_TEMP/offline-gate-report/runtime"
-            --checkpoints 5,25,60,120
-      - name: Summarize verification honestly
+            --checkpoints 5,25,60,120 --build-kind smali-local-trial
+      - name: Report gameplay gate; fail CI when ANR or process exit is observed
         if: always()
         shell: bash
         run: |
           python3 - <<'PY'
-          import json,os,pathlib
+          import json,os,pathlib,sys
           root=pathlib.Path(os.environ["RUNNER_TEMP"])/"offline-gate-report"
           root.mkdir(exist_ok=True,parents=True)
           p=root/"runtime/consent_probe.json"
           d=json.loads(p.read_text()) if p.exists() else {}
-          result={"status":"RUNTIME_OBSERVED_GAMEPLAY_NOT_VERIFIED" if p.exists() else "BLOCKED_BEFORE_RUNTIME",
-                  "android_consent_clicked":d.get("consent_clicked"),
-                  "airplane_mode_after":d.get("offline_after_consent"),
-                  "native_main_menu_verified":False,
-                  "original_level_1_completed":False,
-                  "original_game_save_reloaded":False,
-                  "true_offline_playable_apk":False}
-          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\n")
-          print(json.dumps(result))
+          frames=d.get("after_consent",[])
+          failed=(str(d.get("status","")).startswith("FAIL_") or
+                  any(f.get("process_alive") is False for f in frames))
+          result={
+              "status":d.get("status","BLOCKED_BEFORE_RUNTIME"),
+              "build_kind":d.get("build_kind"),
+              "game_modified":d.get("game_modified"),
+              "android_consent_clicked":d.get("consent_clicked"),
+              "airplane_mode_after":d.get("offline_after_consent"),
+              "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
+                  d.get("logcat",{}).get("counts",{}).get("activity_anr",0)>0,
+              "process_alive_at_checkpoints":[f.get("process_alive") for f in frames],
+              "native_main_menu_verified":False,
+              "original_level_1_completed":False,
+              "original_game_save_reloaded":False,
+              "true_offline_playable_apk":False,
+              "ci_runtime_gate_passed":not failed and bool(frames),
+          }
+          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\\n")
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
-            f.write("## Private local-only trial\n\n")
-            for key,value in result.items(): f.write(f"- {key}: {value}\n")
+              f.write("## Android offline runtime evidence\\n\\n")
+              for k,v in result.items(): f.write(f"- {k}: {v}\\n")
+          print(json.dumps(result))
+          if failed:
+              print("::error::APK failed Android offline runtime: ANR or process exit")
+              sys.exit(1)
           PY
       - name: Upload redacted metadata and screenshots, never commercial APK
         if: always()
