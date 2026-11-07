@@ -4,7 +4,7 @@ type: runbook
 region: CHN
 version: 4.2.8
 tags: [PVZ2, CHN, Obsidian, parsed, git, JSON, RTID, images, audio]
-status: tool-committed-awaiting-source-backed-publishing-verification
+status: verified-26774-independent-parsed-json-published
 updated: 2026-11-07
 ---
 
@@ -103,11 +103,29 @@ python3 -m unittest discover -s tests -p test_split_parsed_records.py -v
 - 对游戏关卡的完整关联请使用 [[Unpack/05-关卡与波次RTID]] 的 SQLite；独立 JSON 中的 RTID 仅是有上限的真实样本。
 - 要在本地读取原始 PNG、WEM、PAM 文件，见 [[Unpack/11-全量文件恢复与格式验收]]。默认 Readable/ 在 .gitignore 中，不会自动重新公开游戏资产。
 
+## 2026-11-07 真实 Git 发布验收
+
+[逐文件 Git 发布工作流 #42333570856](https://github.com/969981/PVZ2_Resources/actions/runs/42333570856) 已成功：3/3 原创合成测试通过，实际从 26,774 条 source-backed parser CSV 记录生成并提交 **26,774 份独立 JSON**。GitHub 远端 master 的完整 tree 逐条统计为 26,774（tree 未截断），与 MANIFEST.json、INDEX.csv 一致：
+
+| 归档来源 | 独立解析文件 |
+|---|---:|
+| Internal（8 个分片） | 14,869 |
+| Media（7 个分片） | 11,905 |
+| 合计 | **26,774** |
+
+解析 JSON 总正文约 **45.76 MiB**（不含 Git 对象与索引）；按格式分目录可直接点击查看。
+
+入口：[Parsed/CHN/V4.2.8](https://github.com/969981/PVZ2_Resources/tree/master/Parsed/CHN/V4.2.8)、[INDEX.csv](https://github.com/969981/PVZ2_Resources/blob/master/Parsed/CHN/V4.2.8/INDEX.csv)、[MANIFEST.json](https://github.com/969981/PVZ2_Resources/blob/master/Parsed/CHN/V4.2.8/MANIFEST.json)。
+
+真实示例：[UI_MAINMENU_1200_00.png 的解析记录](https://github.com/969981/PVZ2_Resources/blob/master/Parsed/CHN/V4.2.8/Media/shard-00/PNG/07/07c10bbd3cf97bb639976614--UI_MAINMENU_1200_00.png.parsed.json)，真实源路径为 PNG/init/UI_MainMenu_1200/ATLASES/UI_MAINMENU_1200_00.png，解析器记录 1024×2048 RGBA、Pillow 成功加载像素。**此链接显示的是纹理的解析 JSON，不会在 GitHub 显示原图片像素**。
+
+原始 Media-06 仍不在可恢复归档中，因此本项目 26,774 是“当前已归档、已解析记录”的分母，而不是完整国服 APK 所有资产的最终种类数。
+
 ## 验收和限制
 
 - [x] 已完成源 Catalog 的 26,774/26,774 SHA256 来源验收；
 - [x] 已完成格式级真实解析和相关异常分类；
-- [ ] 独立 JSON 文件的最终 Actions 提交与远端逐项存在性核对（运行成功后更新）；
+- [x] 独立 JSON 文件已通过 [Actions #42333570856](https://github.com/969981/PVZ2_Resources/actions/runs/42333570856) 提交成功；Git 递归文件树检验 **26,774 个 .parsed.json**，manifest 与阶段分布完全一致。
 - [ ] Media-06 的正式 Git 归档及后续转换；
 - [ ] 所有游戏 WEM 的 PCM 解码、PAM 动画实际播放、POPFX 渲染等专用深层验收。
 
