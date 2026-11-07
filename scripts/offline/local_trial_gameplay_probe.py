@@ -181,8 +181,8 @@ def main():
     p.add_argument("--times",default="10,30,60,120,360,600")
     a=p.parse_args()
     t=[int(x) for x in a.times.split(",")]
-    if not t or t!=sorted(set(t)) or t[0]<45 or t[-1]>900:
-        p.error("Only sorted unique observation times 45..900 are permitted")
+    if not t or t!=sorted(set(t)) or t[0]<5 or t[-1]>900:
+        p.error("Only sorted unique observation times 5..900 are permitted")
     if not a.apk.is_file():p.error("Patch APK missing")
     print(json.dumps(run(a.apk,a.out,t),ensure_ascii=False,indent=2))
 
