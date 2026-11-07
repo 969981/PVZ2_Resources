@@ -8,6 +8,10 @@
   "shard": 5,
   "file_count": 8440,
   "small_file_candidates": 8047,
+  "git_size_eligible": 8440,
+  "git_size_ineligible": 0,
+  "git_warning_over_50mib": 0,
+  "git_safe_limit_bytes": 99614720,
   "total_size_bytes": 905869418,
   "formats": {
     "BNK": 3,
@@ -27,5 +31,5 @@
     "Textures": 632920193
   },
   "status": "real-source-streamed-sha256-verified",
-  "scope": "metadata-only; candidates are not approved for publication"
+  "scope": "metadata only: git_size_eligible means <95MiB ONLY, not publication approval; small_file_candidate means <=512KiB selected text types"
 }
