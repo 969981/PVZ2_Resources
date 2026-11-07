@@ -104,13 +104,16 @@ for p in sorted(root.glob("TWPurchase*.smali")):
             })
 print("TARGET_SMALI_RELEVANT_METHODS="+json.dumps(rows,ensure_ascii=False))
 PY
+    RUN_TARGET="$WORK/apktool-src/smali/com/popcap/pvz2cthddev/TWPurchase\$1.smali"
+    [[ -f "$RUN_TARGET" ]] || { echo "Real TWPurchase anonymous Runnable missing"; exit 7; }
     python3 "$ROOT/scripts/offline/patch_tw_local_trial.py" \
       --smali "$ORIGINAL" \
+      --run-smali "$RUN_TARGET" \
       --super-smali "$VERIFIED_SUPER" \
-      --output "$WORK/changed/TWPurchase.smali" \
+      --output "$WORK/changed/TWPurchase-1.smali" \
       --summary "$OUT/local_trial_patch_summary.json" \
       --init-status "$INIT_TRIAL" --login-status "$LOGIN_TRIAL"
-    cp "$WORK/changed/TWPurchase.smali" "$ORIGINAL"
+    cp "$WORK/changed/TWPurchase-1.smali" "$RUN_TARGET"
     java -Xmx3g -jar "$APKTOOL_JAR" b "$WORK/apktool-src" \
       -o "$WORK/changed/minimal-patched.apk"
     unzip -p "$WORK/changed/minimal-patched.apk" classes.dex > "$WORK/changed/$ENTRY"
