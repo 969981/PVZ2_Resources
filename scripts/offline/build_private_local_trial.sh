@@ -52,9 +52,36 @@ PY
   if [[ -f "$ORIGINAL" ]]; then
     [[ -z "$target" ]] || { echo "Duplicate TWPurchase class"; exit 3; }
     target="$ENTRY"
+    VERIFIED_SUPER="$WORK/apktool-src/smali/com/popcap/pvz2cthddev/ThirdpartyPurchaseDriver.smali"
+    if [[ ! -f "$VERIFIED_SUPER" ]]; then
+      # Superclass can reside in another DEX. Inspect each with separate
+      # minimal synthetic APK, without altering the target DEX scratch tree.
+      for PARENT_DEX in classes.dex classes2.dex classes3.dex classes4.dex classes5.dex classes6.dex; do
+        [[ "$PARENT_DEX" != "$ENTRY" ]] || continue
+        python3 - "$APK" "$PARENT_DEX" "$WORK/parent-minimal.apk" <<'PY'
+import sys,zipfile
+src,entry,dest=sys.argv[1:]
+with zipfile.ZipFile(src) as original,zipfile.ZipFile(dest,"w") as minimal:
+    for name in ("AndroidManifest.xml","resources.arsc"):
+        minimal.writestr(name,original.read(name),compress_type=zipfile.ZIP_STORED)
+    minimal.writestr("classes.dex",original.read(entry),compress_type=zipfile.ZIP_STORED)
+PY
+        rm -rf "$WORK/parent-scan"
+        java -Xmx3g -jar "$APKTOOL_JAR" d --no-res --no-assets -f \
+          -o "$WORK/parent-scan" "$WORK/parent-minimal.apk"
+        PROBE_SUPER="$WORK/parent-scan/smali/com/popcap/pvz2cthddev/ThirdpartyPurchaseDriver.smali"
+        if [[ -f "$PROBE_SUPER" ]]; then
+          cp "$PROBE_SUPER" "$WORK/verified-ThirdpartyPurchaseDriver.smali"
+          VERIFIED_SUPER="$WORK/verified-ThirdpartyPurchaseDriver.smali"
+          echo "Native handle parent found in $PARENT_DEX"
+          break
+        fi
+      done
+    fi
+    [[ -f "$VERIFIED_SUPER" ]] || { echo "Exact superclass not found in six DEX"; exit 5; }
     python3 "$ROOT/scripts/offline/patch_tw_local_trial.py" \
       --smali "$ORIGINAL" \
-      --super-smali "$WORK/apktool-src/smali/com/popcap/pvz2cthddev/ThirdpartyPurchaseDriver.smali" \
+      --super-smali "$VERIFIED_SUPER" \
       --output "$WORK/changed/TWPurchase.smali" \
       --summary "$OUT/local_trial_patch_summary.json" \
       --init-status "$INIT_TRIAL" --login-status "$LOGIN_TRIAL"
