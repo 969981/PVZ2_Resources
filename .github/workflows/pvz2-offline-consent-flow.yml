@@ -4,6 +4,9 @@ on:
     branches: [master]
     paths:
       - ".github/workflows/pvz2-offline-consent-flow.yml"
+      - "scripts/offline/consent_probe.py"
+      - "scripts/offline/emulator_ui_capture.py"
+      - "tests/test_offline_consent.py"
   workflow_dispatch:
 
 permissions:
