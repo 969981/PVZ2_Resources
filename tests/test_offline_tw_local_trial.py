@@ -33,6 +33,22 @@ class OfflineLocalTestPatch(unittest.TestCase):
         self.assertFalse(meta["gameplay_main_menu_verified"])
         self.assertFalse(meta["native_status_semantics_confirmed"])
 
+    def test_inherited_native_pointer_requires_proven_parent(self):
+        child=BASE.replace(".super Ljava/lang/Object;",
+                           ".super Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;")
+        child=child.replace(".field private mNativeDriverPtr:J\n","")
+        parent=""".class public Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;
+.super Ljava/lang/Object;
+.field protected mNativeDriverPtr:J
+"""
+        with self.assertRaisesRegex(ValueError,"Could not verify native driver field"):
+            patch_smali(child,init_status=0,login_status=0)
+        patched,metadata=patch_smali(child,init_status=0,login_status=0,
+                                    super_source=parent)
+        self.assertEqual(metadata["native_handle_field_owner"],
+                         "Lcom/popcap/pvz2cthddev/ThirdpartyPurchaseDriver;")
+        self.assertIn("ThirdpartyPurchaseDriver;->mNativeDriverPtr:J",patched)
+
     def test_no_unspecified_native_signatures(self):
         with self.assertRaisesRegex(ValueError,"Expected static native"):
             patch_smali(BASE.replace("Native_SDKInitEnd(JI)V","Native_SDKInitEnd(J)V"),init_status=0,login_status=1)
