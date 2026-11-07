@@ -7,6 +7,8 @@ on:
       - ".github/workflows/pvz2-offline-code-decompile.yml"
       - "scripts/offline/reverse_dependencies.py"
       - "scripts/offline/jni_registration_probe.py"
+      - "scripts/offline/twpurchase_login_branches.py"
+      - "tests/test_offline_twpurchase_login_branches.py"
       - "tests/test_offline_jni_registration.py"
       - "scripts/offline/inspect_login_flow.py"
       - "tests/test_offline_login_flow.py"
@@ -81,6 +83,9 @@ jobs:
 
       - name: Validate ELF JNI registration table scanner on generated synthetic fixtures
         run: python3 -m unittest discover -s tests -p test_offline_jni_registration.py -v
+
+      - name: Test native SDK login callback argument-shape analyzer
+        run: python3 -m unittest discover -s tests -p test_offline_twpurchase_login_branches.py -v
 
       - name: Restore original 4.2.8 APK from 88 volumes
         shell: bash
@@ -239,6 +244,24 @@ jobs:
               f.write("- Structurally valid table entries: "+str(d["candidate_rows"])+"\n")
               f.write("- Methods found: "+", ".join(d["methods_with_candidate_table_entries"])+"\n")
               f.write("- Results are NOT verified Java-to-native runtime call targets.\n")
+          PY
+
+      - name: Classify Native_SDKLoginEnd real callback argument shapes without values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/twpurchase_login_branches.py \
+            --sources "$RUNNER_TEMP/pvz2-private-code/jadx/sources" \
+            --out "$RUNNER_TEMP/pvz2-derived-metadata"
+          python3 - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-derived-metadata/twpurchase_login_end_branch_summary.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## Real TWPurchase login callback branch shapes\n")
+              f.write("- Native_SDKLoginEnd callsites: "+str(d["native_login_end_callsite_count"])+"\n")
+              f.write("- Argument count hints: "+str(d["argument_count_hints"])+"\n")
+              f.write("- Numeric status meanings remain UNVERIFIED.\n")
+          assert d["native_login_end_callsite_count"] >= 5
           PY
 
       - name: Upload derived metadata only
