@@ -47,3 +47,11 @@ Respect third-party licenses. This repository does not contain a verified comple
 - Keep `docs/ROADMAP.md`, `docs/FORMATS.md`, `docs/SCHEMAS.md`, and `docs/versions/CHN/4.2.8.md` at stable paths.
 - Never treat knowledge-graph backlinks, TODO completion or note frontmatter as proof of real-resource decoding. Include hash, exact build, tool/commit, original path, offset/field, reproduction command, and validation status when making claims.
 - Do not add large assets, proprietary game bytes, secrets, per-user Obsidian workspace state or community plugin code to the Vault.
+
+## CHN offline edition (M0/M1) rules
+
+- See `Offline/README.md`, `docs/Offline/00-离线版总览.md` and `scripts/offline/` before making changes to the offline workstream.
+- Do not claim an offline-playable APK on the basis of static host strings, synthetic tests, hook stubs or missing networking logs. Runtime success requires an airplane-mode device and a complete launch/play/save/restart trace.
+- Preserve unmodified originals, avoid touching `ROMS/`, never commit signed APKs, DEX/SO binaries, login tokens, device identifiers, private logcat, saves or unlicensed extracted assets.
+- Do not implement simulated real-money purchases or grant online account entitlements. Local offline economy must remain clearly separate from real online accounts.
+- Record package/version/build SHA, method, reproducibility and evidence status for every network contract or native hook. Never invent offsets or remote responses.

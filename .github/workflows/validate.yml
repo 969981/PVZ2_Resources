@@ -38,3 +38,7 @@ jobs:
         run: |
           python scripts/audit/inspect_apk.py --help
           python scripts/unpack/unpack_smf.py --help
+      - name: Offline research CLI help
+        run: |
+          python scripts/offline/audit_apk.py --help
+          python scripts/offline/collect_adb_evidence.py --help

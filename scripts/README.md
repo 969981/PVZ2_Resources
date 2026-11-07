@@ -14,3 +14,11 @@ See [Windows full unpack runbook](../docs/解包操作手册.md), [repository/AP
 `scripts/unpack/extract_rsg_groups.py` **exports whole group buffers only**. Per-member unpack and RTON -> JSON in the verified Stage 3 run were handled by upstream `tools/PVZ2-CN-Reverse-Tools/Resource_Tool/main.py` (pinned commit `04f57f42080ef831545c9b2877f81f811f0be4e2`). PTX/PAM/BNK full media conversion is not implemented by these scripts.
 
 CI has verified real CHN 4.2.8 Stage 1, 2, 3 and direct RTON workflows; that does not mean all sample bytes can be redistributed, nor that all gameplay semantics have been decoded. Keep game data and generated outputs in ignored directories and preserve the original ROMS archive.
+
+## Offline edition research (M0/M1)
+
+- `offline/audit_apk.py`: read-only APK SHA guard, ABI/DEX/ELF/Manifest inventory, optional aapt2 package version, bounded candidate-host scan. Generates ignored `audit/local/offline/4.2.8/` JSON+CSV.
+- `offline/collect_adb_evidence.py`: opt-in launch and ADB logcat capture on an **already installed** app; verifies manually enabled airplane mode unless `--allow-network` is selected. Output is ignored and potentially sensitive.
+- `../tests/test_offline.py`: synthetic-only regression tests; no device or original APK needed.
+
+See `../Offline/README.md` and `../docs/Offline/00-离线版总览.md`. Neither tool patches APKs or demonstrates a working offline build.
