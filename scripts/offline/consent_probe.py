@@ -54,6 +54,27 @@ POLICY_PALETTE = (
 )
 
 
+# A second real 2340x1080 screenshot of the SAME original privacy dialog
+# uses a narrower layout: body unchanged, buttons displaced ~40 px down.
+# This is an actual screenshot signature, not a generic click-any-popup rule.
+COMPACT_POLICY_PALETTE = (
+    (800, 188, (89, 154, 17)),
+    (1400, 188, (89, 154, 17)),
+    (900, 300, (203, 186, 153)),
+    (1500, 300, (203, 186, 153)),
+    (950, 920, (82, 224, 82)),
+    (1400, 920, (82, 224, 82)),
+)
+
+
+def privacy_compact_palette_matches(read_pixel, tolerance: int = 24) -> int:
+    return sum(
+        all(abs(actual-expected)<=tolerance
+            for actual,expected in zip(read_pixel((x,y)),rgb))
+        for x,y,rgb in COMPACT_POLICY_PALETTE
+    )
+
+
 def privacy_palette_matches(read_pixel, tolerance: int = 24) -> int:
     """Count reference privacy-dialog samples matching in all RGB channels."""
     return sum(
@@ -76,8 +97,9 @@ def screen_is_privacy_visual(frame: dict, images_dir: Path) -> tuple[bool, int]:
             if image.size != (2340, 1080):
                 return False, 0
             rgb = image.convert("RGB")
-            hits = privacy_palette_matches(rgb.getpixel)
-            return hits >= 7, hits
+            original_hits = privacy_palette_matches(rgb.getpixel)
+            compact_hits = privacy_compact_palette_matches(rgb.getpixel)
+            return original_hits >= 7 or compact_hits >= 5, max(original_hits, compact_hits)
     except (OSError, ValueError, ImportError):
         return False, 0
 
