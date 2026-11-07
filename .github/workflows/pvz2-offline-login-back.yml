@@ -1,0 +1,124 @@
+name: PVZ2 CHN 4.2.8 offline TwGame login BACK navigation
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/pvz2-offline-login-back.yml"
+      - "scripts/offline/consent_probe.py"
+      - "scripts/offline/emulator_ui_capture.py"
+      - "tests/test_offline_consent.py"
+      - "scripts/offline/login_back_probe.py"
+      - "tests/test_offline_login_back_probe.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pvz2-chn428-offline-login-back
+  cancel-in-progress: false
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            scripts
+            tests
+            ROMS/CHN/V4.2.8
+          sparse-checkout-cone-mode: true
+      - name: Run emulator smoke synthetic unit tests
+        run: python3 -m unittest discover -s tests -p test_offline_emulator.py -v
+      - name: Validate TwGame login screen detection gate
+        run: python3 -m unittest discover -s tests -p test_offline_login_back_probe.py -v
+      - name: Free runner disk and ensure 7zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+      - name: Restore source 4.2.8 APK and check SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pvz2-restore"
+          7z x "ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001" "-o$RUNNER_TEMP/pvz2-restore" -y
+          apk="$(find "$RUNNER_TEMP/pvz2-restore" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/pvz2-restore" ROMS .git/objects
+          df -h .
+      - name: Prepare isolated Pillow decoder for native UI screenshot verification
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/consent-venv"
+          "$RUNNER_TEMP/consent-venv/bin/python" -m pip install --disable-pip-version-check --quiet Pillow==11.3.0
+      - name: Enable KVM permissions if present
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          else
+            echo "::warning::No KVM on runner; emulator might be slow."
+          fi
+      - name: Boot Android 11, verify offline TwGame login, press BACK and capture evidence
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: >-
+            "$RUNNER_TEMP/consent-venv/bin/python" scripts/offline/login_back_probe.py
+            --apk "$RUNNER_TEMP/PVZ2_4.2.8.apk"
+            --out "$RUNNER_TEMP/pvz2-offline-login-back"
+            --times 480,600,720
+      - name: Summarize sanitized emulator results
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"pvz2-offline-login-back/login_back_report.json"
+          if not p.is_file():
+              print("No emulator diagnostic JSON available; inspect emulator step logs")
+          else:
+              d=json.loads(p.read_text(encoding="utf-8"))
+              print("UI_PROBE_RESULT:",d["status"])
+              with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+                  f.write("## PVZ2 CHN 4.2.8 offline TwGame BACK navigation\n\n")
+                  f.write("- Diagnostic status: **"+d["status"]+"**\n")
+                  f.write("- Long-run frames: "+str(len(d.get('frames', [])))+"\n")
+                  f.write("- Airplane mode still on: "+str(d.get('airplane_mode_after_test'))+"\n")
+                  f.write("- Offline playability: **not verified**\n")
+          PY
+      - name: Upload 1-day login BACK screenshots and metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn428-offline-extraction-monitor
+          path: ${{ runner.temp }}/pvz2-offline-login-back/
+          if-no-files-found: warn
+          retention-days: 1
