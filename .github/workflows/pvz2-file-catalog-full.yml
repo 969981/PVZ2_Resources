@@ -1,0 +1,166 @@
+name: PVZ2 4.2.8 full individual-file SHA catalog (no media re-upload)
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-file-catalog-full.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: pvz2-chn-428-full-file-catalog
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - stage: Internal
+            shard: "00"
+          - stage: Internal
+            shard: "01"
+          - stage: Internal
+            shard: "02"
+          - stage: Internal
+            shard: "03"
+          - stage: Internal
+            shard: "04"
+          - stage: Internal
+            shard: "05"
+          - stage: Internal
+            shard: "06"
+          - stage: Internal
+            shard: "07"
+          - stage: Media
+            shard: "00"
+          - stage: Media
+            shard: "01"
+          - stage: Media
+            shard: "02"
+          - stage: Media
+            shard: "03"
+          - stage: Media
+            shard: "04"
+          - stage: Media
+            shard: "05"
+          - stage: Media
+            shard: "06"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/index_git_shard.py
+            Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/
+          persist-credentials: true
+      - name: Verify source shard and Python parser
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v zstd >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq zstd; fi
+          test -f "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}/manifest.json"
+          python3 -m py_compile scripts/catalog/index_git_shard.py
+      - name: Index every actual file and mark true under-95MiB Git size eligibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/index_git_shard.py \
+            "Unpack/CHN/V4.2.8/${{ matrix.stage }}/shard-${{ matrix.shard }}" \
+            --out "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
+          python3 - <<'PY'
+          import csv,json,os,pathlib
+          d=pathlib.Path('Catalog/CHN/V4.2.8/shards') / (
+              '${{ matrix.stage }}-${{ matrix.shard }}')
+          s=json.loads((d/'summary.json').read_text())
+          with (d/'files.csv').open(encoding='utf-8-sig',newline='') as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==s['file_count']
+          assert sum(int(x['git_size_eligible']) for x in rows)==s['git_size_eligible']
+          assert sum(int(x['git_warning_over_50mib']) for x in rows)==s['git_warning_over_50mib']
+          assert s['git_size_eligible']+s['git_size_ineligible']==s['file_count']
+          print('SHARD_VERIFIED',s['stage'],s['shard'],s['file_count'],s['git_size_eligible'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-chn-428-file-catalog-${{ matrix.stage }}-${{ matrix.shard }}
+          path: Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Commit only file hashes, paths and size classifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "catalog-full-${{ matrix.stage }}-${{ matrix.shard }}"
+          git add --sparse -f -- "Catalog/CHN/V4.2.8/shards/${{ matrix.stage }}-${{ matrix.shard }}"
+          if git diff --cached --quiet; then
+            echo "No catalog changes"
+            exit 0
+          fi
+          git commit -m "data(catalog): SHA256 per-file ${{ matrix.stage }}-${{ matrix.shard }}"
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 8
+          done
+          exit 1
+  merge:
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 0
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/catalog/merge_asset_catalog.py
+            Catalog/CHN/V4.2.8/shards/
+          persist-credentials: true
+      - name: Refresh latest master after individual catalogs committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin master
+          git reset --hard origin/master
+          python3 -m py_compile scripts/catalog/merge_asset_catalog.py
+      - name: Build SQLite and all-files CSV with missing-shard coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog/merge_asset_catalog.py \
+            Catalog/CHN/V4.2.8/shards \
+            --out Catalog/CHN/V4.2.8/summary
+          python3 - <<'PY'
+          import json,pathlib
+          j=json.loads(pathlib.Path('Catalog/CHN/V4.2.8/summary/SUMMARY.json').read_text())
+          assert j['coverage']['Internal']['shards']==8,j
+          assert j['coverage']['Media']['shards']==7,j
+          assert j['missing_expected_shards']==['Media-07'],j
+          print('MERGED_CATALOG',j['coverage'])
+          PY
+      - name: Commit browsable SQLite/CSV metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c catalog-full-aggregate
+          git add --sparse -f Catalog/CHN/V4.2.8/summary
+          git commit -m "data(catalog): searchable original-file SHA and sizes across available media shards"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          exit 1
