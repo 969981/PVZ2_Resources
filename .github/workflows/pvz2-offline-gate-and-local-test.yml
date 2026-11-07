@@ -10,6 +10,7 @@ on:
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/consent_probe.py"
       - "scripts/offline/frida_warning_stack.js"
+      - "scripts/offline/run_frida_android_gate.sh"
       - "scripts/offline/find_integrity_warning.py"
       - "scripts/offline/map_integrity_resource.py"
       - "scripts/offline/trace_signature_read.py"
@@ -60,6 +61,7 @@ jobs:
           python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
           bash -n scripts/offline/build_from_committed_smali.sh
           node --check scripts/offline/frida_warning_stack.js
+          bash -n scripts/offline/run_frida_android_gate.sh
       - name: Scan all six real Smali DEX sources, metadata only
         run: |
           set -euo pipefail
@@ -159,29 +161,7 @@ jobs:
           disk-size: 16384M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
-          script: |
-            set -euo pipefail
-            adb root || true
-            adb wait-for-device
-            frida_archive="$RUNNER_TEMP/frida-server-16.7.19-android-x86_64.xz"
-            if curl -fL --retry 2 --max-time 180 \
-                 https://github.com/frida/frida/releases/download/16.7.19/frida-server-16.7.19-android-x86_64.xz \
-                 -o "$frida_archive"; then
-              xz -dc "$frida_archive" > "$RUNNER_TEMP/frida-server" &&
-              adb push "$RUNNER_TEMP/frida-server" /data/local/tmp/pvz2-frida-server &&
-              adb shell chmod 755 /data/local/tmp/pvz2-frida-server &&
-              adb shell '/data/local/tmp/pvz2-frida-server >/data/local/tmp/pvz2-frida-server.log 2>&1 &' ||
-                echo "FRIDA_SERVER_SETUP_UNAVAILABLE"
-            else
-              echo "FRIDA_SERVER_DOWNLOAD_UNAVAILABLE"
-            fi
-            "$RUNNER_TEMP/qa-venv/bin/python" scripts/offline/consent_probe.py \
-              --apk "$RUNNER_TEMP/offline-local-apk/PVZ2_CHN_4.2.8_from_repo_smali_test.apk" \
-              --out "$RUNNER_TEMP/offline-gate-report/runtime" \
-              --checkpoints 5,25,60,120 \
-              --build-kind smali-local-trial \
-              --frida-script scripts/offline/frida_warning_stack.js
-
+          script: bash scripts/offline/run_frida_android_gate.sh
       - name: Report gameplay gate; fail CI when ANR or process exit is observed
         if: always()
         shell: bash
