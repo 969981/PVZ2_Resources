@@ -97,6 +97,8 @@ def export(decoded: Path, source_apk: Path, output: Path) -> dict:
     }
     (output / "SOURCE_PROVENANCE.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output / ".gitignore").write_text(
+        "/build/\n/dist/\n*.apk\n*.dex\n", encoding="utf-8")
     return report
 
 
