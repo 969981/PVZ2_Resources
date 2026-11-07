@@ -1,0 +1,54 @@
+name: Inspect real PvZ2 CN media sample
+on:
+  push:
+    branches: [master]
+    paths: [".github/workflows/pvz2-media-sample.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: scripts
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Fetch pinned CN 4.2.8 unpacker
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init -q "$RUNNER_TEMP/pvz2-tool"
+          git -C "$RUNNER_TEMP/pvz2-tool" remote add origin https://github.com/lei1737524550/PVZ2-Chinese-Version-Reverse-Tools.git
+          git -C "$RUNNER_TEMP/pvz2-tool" fetch --depth=1 origin 04f57f42080ef831545c9b2877f81f811f0be4e2
+          git -C "$RUNNER_TEMP/pvz2-tool" checkout -q FETCH_HEAD
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42256393599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: pvz2-chn-4.2.8-rsb-4
+          path: ${{ runner.temp }}/rsb
+      - name: Real dino RSB into internal files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python "$RUNNER_TEMP/pvz2-tool/Resource_Tool/main.py" \
+            -unpack "$RUNNER_TEMP/rsb/dino.rsb" -json \
+            -o "$RUNNER_TEMP/decoded-dino" -j 2
+          python3 scripts/media/inspect_sample.py "$RUNNER_TEMP/decoded-dino/04_JSON" \
+            --out "$RUNNER_TEMP/media-audit"
+      - name: Publish media samples and full header inventory
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-chn-4.2.8-real-media-samples
+          path: ${{ runner.temp }}/media-audit/
+          if-no-files-found: warn
+          retention-days: 3
