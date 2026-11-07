@@ -1,0 +1,30 @@
+{
+  "source_archive": "Unpack/CHN/V4.2.8/Internal/shard-04",
+  "archive_sha256": "cb64017782f1498e1bfbd0c06c10c0c1504de57570652d06ec74916c486c3b55",
+  "source_run": 42259266531,
+  "region": "CHN",
+  "version": "4.2.8",
+  "stage": "Internal",
+  "shard": 4,
+  "file_count": 824,
+  "small_file_candidates": 1,
+  "git_size_eligible": 824,
+  "git_size_ineligible": 0,
+  "git_warning_over_50mib": 0,
+  "git_safe_limit_bytes": 99614720,
+  "total_size_bytes": 762756782,
+  "formats": {
+    "BNK": 8,
+    "JSON": 5,
+    "PAM": 638,
+    "PTX": 173
+  },
+  "category_bytes": {
+    "Animations": 115707272,
+    "Audio": 7409452,
+    "Data": 29554762,
+    "Textures": 610085296
+  },
+  "status": "real-source-streamed-sha256-verified",
+  "scope": "metadata only: git_size_eligible means <95MiB ONLY, not publication approval; small_file_candidate means <=512KiB selected text types"
+}
