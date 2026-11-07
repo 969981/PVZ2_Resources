@@ -1,0 +1,87 @@
+name: PVZ2 CHN 4.2.8 Media-06 recover missing artifact metadata
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/pvz2-media06-artifact-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: pvz2-chn-media06-metadata-audit
+  cancel-in-progress: false
+
+jobs:
+  audit_source_artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/media/audit_actions_media.py
+            tests/test_audit_actions_media.py
+            Catalog/CHN/V4.2.8/recovery/Media-06/
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run synthetic audit invariants before handling source files
+        run: python -m unittest discover -s tests -p test_audit_actions_media.py -v
+      - name: Recover unexpired, original Media-06 Actions artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 42321977158
+          name: pvz2-chn-4.2.8-media-6
+          path: ${{ runner.temp }}/media06
+      - name: Hash every actual file and inspect media headers (metadata only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/media/audit_actions_media.py \
+            "$RUNNER_TEMP/media06" \
+            --out Catalog/CHN/V4.2.8/recovery/Media-06 \
+            --expected-count 501 \
+            --source-run-id 42321977158 \
+            --artifact-id 13552674620
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('Catalog/CHN/V4.2.8/recovery/Media-06/SUMMARY.json')
+          r=json.loads(p.read_text())
+          assert r['file_count']==501,r
+          assert r['archive_manifest_verified'] is False
+          print('REAL_ARTIFACT_METADATA_AUDITED',r)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-media06-source-metadata-sha256
+          path: Catalog/CHN/V4.2.8/recovery/Media-06/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Commit only 501 source paths, SHA256s and format results
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "media06-audit-${GITHUB_RUN_ID}"
+          git add --sparse -f Catalog/CHN/V4.2.8/recovery/Media-06/
+          if git diff --cached --quiet; then
+            echo 'No metadata changes'
+            exit 0
+          fi
+          git commit -m 'data(media06): audit real artifact files without publishing game bytes'
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin master
+            git rebase FETCH_HEAD
+            if git push origin HEAD:refs/heads/master; then exit 0; fi
+            sleep 5
+          done
+          echo 'Metadata push failed after retries' >&2
+          exit 1
