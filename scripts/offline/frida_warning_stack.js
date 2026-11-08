@@ -8,19 +8,62 @@
 Java.perform(function () {
   const Log = Java.use('android.util.Log');
   const Exception = Java.use('java.lang.Exception');
-  // Bounded relative code addresses from the same live native thread.
-  // No instruction bytes, binary images, certificates or strings are exported.
-  function nativeBacktrace() {
+  // Frida enumerates HOST modules, not necessarily ARM guest ELF mappings
+  // when Android's x86_64 Native Bridge translates an ARM game library.
+  // No module paths, absolute addresses, hashes or raw code are exported.
+  function moduleProbe() {
     try {
-      const m = Process.findModuleByName('libSrc.so');
-      if (m === null) return {status: 'LIBSRC_NOT_MAPPED', frames: []};
-      const end = m.base.add(m.size);
-      const addresses = Thread.backtrace(undefined, Backtracer.ACCURATE);
-      const frames = addresses.filter(a => a.compare(m.base) >= 0 && a.compare(end) < 0)
-        .slice(0, 24).map(a => '0x' + a.sub(m.base).toString(16));
-      return {status: 'OBSERVED', module: 'libSrc.so', frames: frames};
+      const modules = Process.enumerateModules();
+      const names = modules.map(m => m.name.toLowerCase());
+      return {
+        status: 'OBSERVED',
+        process_arch: Process.arch,
+        mapped_module_count: modules.length,
+        libsrc_mapped: names.some(n => n === 'libsrc.so'),
+        native_bridge_module_detected: names.some(n =>
+          n.indexOf('ndk_translation') !== -1 ||
+          n.indexOf('houdini') !== -1)
+      };
     } catch (e) {
-      return {status: 'BACKTRACE_UNAVAILABLE', frames: []};
+      return {status: 'ENUMERATION_UNAVAILABLE'};
+    }
+  }
+
+  function nativeBacktrace() {
+    const probe = moduleProbe();
+    try {
+      let m = Process.findModuleByName('libSrc.so');
+      if (m === null) {
+        const matches = Process.enumerateModules().filter(mod =>
+          mod.name.toLowerCase() === 'libsrc.so');
+        m = matches.length > 0 ? matches[0] : null;
+      }
+      if (m === null) {
+        // Do not mislabel an x64 host module lookup failure as proof
+        // that translated ARM guest code never executed.
+        return {status: 'LIBSRC_NOT_MAPPED', frames: [], module_probe: probe};
+      }
+      const end = m.base.add(m.size);
+      function offsets(method) {
+        return Thread.backtrace(undefined, method)
+          .filter(a => a.compare(m.base) >= 0 && a.compare(end) < 0)
+          .slice(0, 24).map(a => '0x' + a.sub(m.base).toString(16));
+      }
+      const accurate = offsets(Backtracer.ACCURATE);
+      if (accurate.length > 0) {
+        return {status: 'OBSERVED', module: 'libSrc.so', frames: accurate,
+                backtracer: 'ACCURATE', module_probe: probe};
+      }
+      const fuzzy = offsets(Backtracer.FUZZY);
+      if (fuzzy.length > 0) {
+        // A fuzzy frame is evidence for investigation, NOT a confirmed PC.
+        return {status: 'OBSERVED_FUZZY', module: 'libSrc.so', frames: fuzzy,
+                backtracer: 'FUZZY', module_probe: probe};
+      }
+      return {status: 'LIBSRC_FRAMES_UNAVAILABLE', module: 'libSrc.so',
+              frames: [], module_probe: probe};
+    } catch (e) {
+      return {status: 'BACKTRACE_UNAVAILABLE', frames: [], module_probe: probe};
     }
   }
   function observe(label, message) {
@@ -105,5 +148,5 @@ Java.perform(function () {
           error_kind: 'install_failed'});
   }
 
-  send({type: 'TRACE_HOOKS_INSTALLED'});
+  send({type: 'TRACE_HOOKS_INSTALLED', native_module_probe: moduleProbe()});
 });
