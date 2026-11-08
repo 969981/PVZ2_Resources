@@ -17,6 +17,20 @@ class OfflineRuntimeDiagnosticsTests(unittest.TestCase):
         self.assertEqual(classify_runtime(frames, {"counts": {}}),
                          "FAIL_INTEGRITY_WARNING")
 
+    def test_frida_alert_takes_priority_when_ui_misses_it(self):
+        frames = [{"process_alive": True, "integrity_warning_seen": False}]
+        events = [{"type": "INTEGRITY_ALERT_REQUEST"}]
+        self.assertEqual(
+            classify_runtime(frames, {"counts": {"activity_anr": 0}}, events),
+            "FAIL_INTEGRITY_WARNING")
+
+    def test_untrusted_frida_values_do_not_invent_alert(self):
+        frames = [{"process_alive": True, "integrity_warning_seen": False}]
+        self.assertEqual(
+            classify_runtime(frames, {"counts": {}},
+                             [{"type": "UNRELATED"}, "INTEGRITY_ALERT_REQUEST"]),
+            "RUNTIME_OBSERVED_GAMEPLAY_NOT_VERIFIED")
+
     def test_anr_from_logcat_is_failure(self):
         summary = summarize_logcat_text(
             "W/ActivityManager: ANR in " + PACKAGE + "\n"
