@@ -11,6 +11,9 @@ on:
       - "scripts/offline/offline_iap_mock.py"
       - "scripts/offline/audit_purchase_callbacks.py"
       - "scripts/offline/consent_probe.py"
+      - "scripts/offline/frida_original_sdk_lifecycle_probe.js"
+      - "scripts/offline/passive_original_observation.py"
+      - "tests/test_offline_passive_resource_probe.py"
       - "scripts/offline/frida_warning_stack.js"
       - "scripts/offline/run_frida_android_gate.sh"
       - "scripts/offline/find_integrity_warning.py"
@@ -67,11 +70,14 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_signature_trace.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_frida_pid_attach.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_passive_resource_probe.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_native_stack_offsets.py' -v
           python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/offline_iap_mock.py scripts/offline/audit_purchase_callbacks.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
           bash -n scripts/offline/build_from_committed_smali.sh
           node --check scripts/offline/frida_warning_stack.js
+          node --check scripts/offline/frida_original_sdk_lifecycle_probe.js
           bash -n scripts/offline/run_frida_android_gate.sh
+          python3 -m py_compile scripts/offline/consent_probe.py scripts/offline/passive_original_observation.py
       - name: Scan all six real Smali DEX sources, metadata only
         run: |
           set -euo pipefail
