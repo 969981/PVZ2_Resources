@@ -26,6 +26,10 @@ case "$mode" in
     runner="scripts/offline/passive_original_observation.py"
     hook="scripts/offline/frida_original_resource_observer.js"
     ;;
+  lifecycle-observer)
+    runner="scripts/offline/passive_original_observation.py"
+    hook="scripts/offline/frida_original_sdk_lifecycle_probe.js"
+    ;;
   jni-trial)
     runner="scripts/offline/original_signed_session_trial.py"
     hook="scripts/offline/frida_original_local_session_trial.js"
@@ -35,7 +39,12 @@ case "$mode" in
     exit 2
     ;;
 esac
+extra_args=()
+if [[ "$mode" == "lifecycle-observer" ]]; then
+  extra_args=(--mode lifecycle-observer)
+fi
 echo "ORIGINAL_SIGNED_EXPERIMENT_MODE=$mode"
 "$python" "$runner" \
   --apk "$apk" --out "$out" \
-  --hook "$hook"
+  --hook "$hook" \
+  "${extra_args[@]}"
