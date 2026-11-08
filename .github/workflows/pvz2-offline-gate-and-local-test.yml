@@ -257,7 +257,7 @@ jobs:
               for k,v in result.items(): f.write(f"- {k}: {v}\n")
           print(json.dumps(result))
           if failed:
-              print("::error::APK failed Android offline runtime: ANR or process exit")
+              print("::error::Android offline runtime failed: " + result["status"])
               sys.exit(1)
           PY
       - name: Upload redacted metadata and screenshots, never commercial APK
