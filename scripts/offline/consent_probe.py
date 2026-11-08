@@ -23,6 +23,42 @@ except ModuleNotFoundError:
     from emulator_ui_capture import run_probe, sample, adb, decoded
 
 PACKAGE = "com.popcap.pvz2cthdbk"
+SDK_STAGES = frozenset((
+    "INITIALIZE_REQUEST", "JNI_INIT_START", "JNI_INIT_END",
+    "JNI_LOGIN_START", "JNI_LOGIN_END", "INIT_RUNNABLE",
+    "INIT_CALLBACK", "LOGIN_CALLBACK", "SDK_INIT", "SDK_LOGIN",
+))
+
+
+def validated_sdk_lifecycle_event(payload: object) -> dict | None:
+    """Whitelist non-sensitive timing and return codes from the passive probe.
+
+    Raw login strings, tokens, identities, native pointers and purchase data
+    are deliberately not inspected or serialized.
+    """
+    if not isinstance(payload, dict):
+        return None
+    kind = payload.get("type")
+    if kind == "SDK_LIFECYCLE_READY":
+        count = payload.get("installed_overloads")
+        return ({"type": kind, "installed_overloads": count}
+                if type(count) is int and 0 <= count <= 40 else None)
+    if kind != "SDK_LIFECYCLE_EVENT":
+        return None
+    stage, phase, elapsed = (payload.get("stage"), payload.get("phase"),
+                              payload.get("elapsed_ms"))
+    if (stage not in SDK_STAGES or phase not in ("ENTER", "RETURN", "THROW")
+            or type(elapsed) is not int or not 0 <= elapsed <= 3600000):
+        return None
+    result = {"type": kind, "stage": stage, "phase": phase,
+              "elapsed_ms": elapsed}
+    status = payload.get("status_code")
+    if (stage in ("JNI_INIT_END", "JNI_LOGIN_END")
+            and type(status) is int and -10 <= status <= 10000):
+        result["status_code"] = status
+    return result
+
+
 # Grounded by original real 2340x1080 screenshot, 2026-11-07:
 # /docs/Offline/08-首屏隐私条款与离线门控.md.
 AGREE_X, AGREE_Y = 1400, 920
@@ -226,7 +262,8 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                     if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
                                "GAME_EXIT_REQUEST", "TRACE_HOOKS_INSTALLED",
                                "TRACE_HOOK_ERROR", "LOCAL_SESSION_TRACE",
-                               "RESOURCE_LOADING_STAGE"):
+                               "RESOURCE_LOADING_STAGE", "SDK_LIFECYCLE_READY",
+                               "SDK_LIFECYCLE_EVENT"):
                         record = {"type": typ, "source": payload.get("source")}
                         if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
                                    "GAME_EXIT_REQUEST"):
@@ -252,6 +289,11 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                             source = payload.get("observation_source")
                             if source in ("static", "instance"):
                                 record["observation_source"] = source
+                        if typ in ("SDK_LIFECYCLE_READY", "SDK_LIFECYCLE_EVENT"):
+                            safe_event = validated_sdk_lifecycle_event(payload)
+                            if safe_event is None:
+                                return
+                            record = safe_event
                         output.append(record)
                 elif message.get("type") == "error":
                     output.append({"type": "FRIDA_SCRIPT_ERROR",
