@@ -42,6 +42,10 @@ def rank(rows: list[dict], maximum: int = 50) -> dict:
         candidates.append({
             "rva": f"0x{address:x}",
             "branch_mnemonic": row.get("mnemonic", ""),
+            "source_function_name": row.get("function_name", ""),
+            "source_function_entry": row.get("function_entry", ""),
+            "scope": row.get("scope", "UNKNOWN_STATIC_FUNCTION"),
+            "last_callsite_is_proven_predecessor": False,
             "flow_target_rvas": row.get("flow_targets", ""),
             "relative_to_jni_pointer_bytes": distance,
             "nearest_prior_callsite_rva": f"0x{prior:x}" if prior is not None else None,
@@ -55,6 +59,9 @@ def rank(rows: list[dict], maximum: int = 50) -> dict:
         "function_entry_rva": f"0x{boundary:x}",
         "registration_pointer_rva": f"0x{query:x}",
         "conditional_branches_total": len(candidates),
+        "one_hop_caller_branches_present": any(
+            x["scope"] == "ONE_HOP_STATIC_CALLER" for x in candidates
+        ),
         "top_candidates": candidates[:maximum],
         "actual_signature_or_login_branch_verified": False,
         "playability_verified": False,
