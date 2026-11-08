@@ -215,6 +215,48 @@ def android_runtime_abi() -> dict:
     return values
 
 
+def summarize_native_bridge_maps(raw: str) -> dict:
+    """Aggregate /proc/PID/maps without exporting addresses, paths or ELF data.
+
+    Android Native Bridge can map ARM guest ELF segments as data even when
+    Frida's host-only Process.enumerateModules() has no libSrc.so entry.
+    """
+    libsrc_count = 0
+    translator_count = 0
+    for line in raw.splitlines():
+        entry = line.strip().split()
+        if len(entry) < 6:
+            continue
+        basename = entry[-1].rsplit("/", 1)[-1].lower()
+        if basename == "libsrc.so":
+            libsrc_count += 1
+        if basename.startswith("libndk_translation") or basename.startswith("libhoudini"):
+            translator_count += 1
+    return {
+        "status": "OBSERVED",
+        "libsrc_file_mapping_seen": libsrc_count > 0,
+        "libsrc_segment_count": min(libsrc_count, 10000),
+        "native_bridge_file_mapping_seen": translator_count > 0,
+        "native_bridge_segment_count": min(translator_count, 10000),
+        "no_absolute_addresses_exported": True,
+    }
+
+
+def android_native_bridge_maps() -> dict:
+    """Check the target's file-backed mappings at one bounded checkpoint."""
+    try:
+        lookup = adb("shell", "pidof", PACKAGE, timeout=10)
+        pid = pid_from_adb_output(decoded(lookup)) if lookup.returncode == 0 else None
+        if pid is None:
+            return {"status": "PROCESS_UNAVAILABLE"}
+        response = adb("shell", "cat", f"/proc/{pid}/maps", timeout=15)
+        if response.returncode:
+            return {"status": "MAPS_UNAVAILABLE"}
+        return summarize_native_bridge_maps(decoded(response))
+    except (OSError, TimeoutError):
+        return {"status": "MAPS_UNAVAILABLE"}
+
+
 def pid_from_adb_output(raw: str) -> int | None:
     """Choose a numeric PID; never treat an APK package name as a Frida PID."""
     ids = raw.strip().split()
@@ -449,6 +491,7 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original',
             frame = sample(out, f"after_consent_{seconds:03d}s")
             frame["offset_target_seconds"] = seconds
             frame["signature_trace"] = signature_trace_summary()
+            frame["native_bridge_maps"] = android_native_bridge_maps()
             frame["privacy_policy_visible"] = screen_is_privacy_policy(frame)
             frame["integrity_warning_seen"] = any(
                 "盗版游戏" in (node.get("text", "") + node.get("content_desc", "")) or
