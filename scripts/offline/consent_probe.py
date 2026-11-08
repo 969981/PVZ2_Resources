@@ -314,7 +314,16 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
     raise RuntimeError("Frida PID attach failed: " + str(last_error))
 
 
-def classify_runtime(frames: list[dict], logcat: dict) -> str:
+def classify_runtime(frames: list[dict], logcat: dict,
+                     events: list[dict] | None = None) -> str:
+    # Frida observes the alert request before it reaches the UI, so its
+    # bounded positive events take precedence over a missed screen sample.
+    if isinstance(events, list) and any(
+        isinstance(event, dict) and event.get("type") in (
+            "INTEGRITY_ALERT_REQUEST", "INTEGRITY_WARNING_STACK")
+        for event in events
+    ):
+        return "FAIL_INTEGRITY_WARNING"
     if any(frame.get("integrity_warning_seen") for frame in frames):
         return "FAIL_INTEGRITY_WARNING"
     if any(frame.get("anr_dialog_seen") for frame in frames) or (
@@ -408,7 +417,8 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original',
         report["offline_after_consent"] = (
             decoded(adb("shell", "settings", "get", "global", "airplane_mode_on")) == "1"
         )
-        report["status"] = classify_runtime(report["after_consent"], report["logcat"])
+        report["status"] = classify_runtime(
+            report["after_consent"], report["logcat"], frida_records)
         return report
     finally:
         if frida_session is not None:
