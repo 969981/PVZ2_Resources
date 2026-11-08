@@ -20,6 +20,22 @@ xz -dc "$archive" > "$RUNNER_TEMP/frida-server"
 adb push "$RUNNER_TEMP/frida-server" /data/local/tmp/pvz2-frida-server
 adb shell chmod 755 /data/local/tmp/pvz2-frida-server
 adb shell '/data/local/tmp/pvz2-frida-server >/data/local/tmp/pvz2-frida-server.log 2>&1 &'
-"$python" scripts/offline/original_signed_session_trial.py \
+mode="${PVZ2_FRIDA_MODE:-passive-observer}"
+case "$mode" in
+  passive-observer)
+    runner="scripts/offline/passive_original_observation.py"
+    hook="scripts/offline/frida_original_resource_observer.js"
+    ;;
+  jni-trial)
+    runner="scripts/offline/original_signed_session_trial.py"
+    hook="scripts/offline/frida_original_local_session_trial.js"
+    ;;
+  *)
+    echo "Unsupported original-signed experiment mode: $mode" >&2
+    exit 2
+    ;;
+esac
+echo "ORIGINAL_SIGNED_EXPERIMENT_MODE=$mode"
+"$python" "$runner" \
   --apk "$apk" --out "$out" \
-  --hook scripts/offline/frida_original_local_session_trial.js
+  --hook "$hook"
