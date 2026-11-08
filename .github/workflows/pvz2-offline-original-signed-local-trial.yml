@@ -10,6 +10,7 @@ on:
         options:
           - passive-observer
           - jni-trial
+          - lifecycle-observer
   push:
     branches:
       - experiment/chn428-offline-gate-20261107
@@ -17,6 +18,7 @@ on:
       - ".github/workflows/pvz2-offline-original-signed-local-trial.yml"
       - "scripts/offline/frida_original_local_session_trial.js"
       - "scripts/offline/frida_original_resource_observer.js"
+      - "scripts/offline/frida_original_sdk_lifecycle_probe.js"
       - "scripts/offline/passive_original_observation.py"
       - "tests/test_offline_passive_resource_probe.py"
       - "scripts/offline/original_signed_session_trial.py"
@@ -49,6 +51,7 @@ jobs:
           python3 -m unittest discover -s tests -p test_offline_passive_resource_probe.py
           node --check scripts/offline/frida_original_local_session_trial.js
           node --check scripts/offline/frida_original_resource_observer.js
+          node --check scripts/offline/frida_original_sdk_lifecycle_probe.js
           bash -n scripts/offline/run_original_signed_frida_trial.sh
           sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
           if ! command -v 7z >/dev/null; then
