@@ -93,6 +93,8 @@ class PassiveResourceProbeTests(unittest.TestCase):
         })
         for invalid in (
             {**raw, "stage": "UNLISTED"},
+            {**raw, "stage": []},
+            {**raw, "stage": {}},
             {**raw, "elapsed_ms": True},
             {**raw, "phase": "REWRITE"},
             {**raw, "elapsed_ms": -5},
