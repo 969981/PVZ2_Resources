@@ -86,6 +86,77 @@ Java.perform(function () {
     });
   }
 
+
+  // Observe the *actual* asynchronous SDK lifecycle before consent. These
+  // wrappers invoke each original implementation exactly once, preserving its
+  // return value and exceptions. Never read or transmit SDK JSON, user IDs,
+  // login tokens, app IDs, native pointers, signatures or purchase data.
+  const lifecycleStarted = Date.now();
+  let lifecycleEvents = 0;
+  const LIFECYCLE_EVENT_LIMIT = 120;
+  const definitions = [
+    ['com.popcap.pvz2cthddev.TWPurchase', 'InitializeSDK', 'INITIALIZE_REQUEST'],
+    ['com.popcap.pvz2cthddev.TWPurchase', 'Native_SDKInitStart', 'JNI_INIT_START'],
+    ['com.popcap.pvz2cthddev.TWPurchase', 'Native_SDKInitEnd', 'JNI_INIT_END'],
+    ['com.popcap.pvz2cthddev.TWPurchase', 'Native_SDKLoginStart', 'JNI_LOGIN_START'],
+    ['com.popcap.pvz2cthddev.TWPurchase', 'Native_SDKLoginEnd', 'JNI_LOGIN_END'],
+    ['com.popcap.pvz2cthddev.TWPurchase$1', 'run', 'INIT_RUNNABLE'],
+    ['com.popcap.pvz2cthddev.TWPurchase$1$1', 'onResponse', 'INIT_CALLBACK'],
+    ['com.popcap.pvz2cthddev.TWPurchase$1$1$1', 'onResponse', 'LOGIN_CALLBACK'],
+    ['com.talkweb.twOfflineSdk.TwOfflineSDK', 'init', 'SDK_INIT'],
+    ['com.talkweb.twOfflineSdk.TwOfflineSDK', 'login', 'SDK_LOGIN']
+  ];
+
+  function lifecycleEmit(stage, phase, args) {
+    if (lifecycleEvents >= LIFECYCLE_EVENT_LIMIT) return;
+    lifecycleEvents += 1;
+    const record = {
+      type: 'SDK_LIFECYCLE_EVENT',
+      stage: stage,
+      phase: phase,
+      elapsed_ms: Math.max(0, Date.now() - lifecycleStarted)
+    };
+    // Status is an int supplied by JNI. Deliberately do not inspect the
+    // string argument (which may contain a token).
+    if ((stage === 'JNI_INIT_END' || stage === 'JNI_LOGIN_END') &&
+        args.length >= 2 && typeof args[1] === 'number' &&
+        Number.isInteger(args[1]) && args[1] >= -10 && args[1] <= 10000) {
+      record.status_code = args[1];
+    }
+    send(record);
+  }
+
+  let lifecycleHooks = 0;
+  definitions.forEach(function (definition) {
+    const klassName = definition[0];
+    const methodName = definition[1];
+    const stage = definition[2];
+    try {
+      const klass = Java.use(klassName);
+      const method = klass[methodName];
+      if (method === undefined || !method.overloads.length) {
+        throw new Error('method_unavailable');
+      }
+      method.overloads.forEach(function (overload) {
+        overload.implementation = function () {
+          lifecycleEmit(stage, 'ENTER', arguments);
+          try {
+            const value = overload.apply(this, arguments);
+            lifecycleEmit(stage, 'RETURN', arguments);
+            return value;
+          } catch (err) {
+            lifecycleEmit(stage, 'THROW', arguments);
+            throw err;
+          }
+        };
+        lifecycleHooks += 1;
+      });
+    } catch (_) {
+      errorOnce('lifecycle_hook_unavailable_' + stage.toLowerCase());
+    }
+  });
+  send({type: 'SDK_LIFECYCLE_READY', installed_overloads: lifecycleHooks});
+
   send({type: 'TRACE_HOOKS_INSTALLED'});
   sample();
   setInterval(sample, 30000);
