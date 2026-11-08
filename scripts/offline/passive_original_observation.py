@@ -108,6 +108,8 @@ def main() -> None:
     p.add_argument("--apk", required=True, type=Path)
     p.add_argument("--out", required=True, type=Path)
     p.add_argument("--hook", required=True, type=Path)
+    p.add_argument("--mode", choices=("passive-observer", "lifecycle-observer"),
+                   default="passive-observer")
     args = p.parse_args()
     if not args.hook.is_file() or not args.apk.is_file() or digest(args.apk) != APK_SHA:
         p.error("Expected a readable observer and exact original-signed APK SHA")
@@ -117,9 +119,10 @@ def main() -> None:
     telemetry = summarize(observed.get("frida_warning_events", []))
     result = {
         "status": "PASSIVE_CONTROL_NOT_GAMEPLAY_VALIDATION",
-        "experiment_mode": "passive-observer",
+        "experiment_mode": args.mode,
         "source_apk_signature_untouched": True,
-        "frida_native_login_or_java_method_overrides": False,
+        "frida_native_login_or_java_method_overrides": args.mode == "lifecycle-observer",
+        "java_lifecycle_instrumentation_active": args.mode == "lifecycle-observer",
         "frida_status": observed.get("frida_status"),
         "frida_diagnostics": observed.get("frida_diagnostics", {}),
         "consent_clicked": observed.get("consent_clicked") is True,
