@@ -52,5 +52,7 @@ Real APK evidence: [Actions #42325659025](https://github.com/969981/PVZ2_Resourc
 - 原版 SHA256 核对的 ARM64 `libSrc.so` 已定位 `Native_onSurfaceCreated` JNI 注册表候选 `0x05722FF0`；Ghidra 发现其处于 `FUN_057227F0` 内，存在函数边界不一致问题。完整性校验分支仍待确认。
 - 为分离**签名完整性门控**与**本地会话能否初始化**，新增一条对原版签名不作任何改动的 Frida 本地会话实验，见 `.github/workflows/pvz2-offline-original-signed-local-trial.yml`。该实验不建立网上账户或伪造付费能力；现阶段不代表可玩版本。
 
-最新对照测试：原版签名 APK 的 `passive-observer` 模式默认不替换游戏方法，单独记录资源阶段；原有本地 JNI 回调试验需手动选择 `jni-trial`。这是诊断实验而非可玩版本。技术说明：[[29-离线资源被动对照与JNI分支索引-2026-11-08]]。\n\n实际证据与技术记录：[[28-Ghidra-Surface入口与原版签名A-B证据-2026-11-08]] · [[27-离线门控与完整Smali本地会话实测]] · [[19-离线主菜单关卡结算重启读档验收规范]]。所有研究与可复现脚本都应保留源版本 SHA、Git commit、Android ABI、失败状态和原始结果引用。
+最新对照测试：原版签名 APK 的 `passive-observer` 模式默认不替换游戏方法，单独记录资源阶段；原有本地 JNI 回调试验需手动选择 `jni-trial`。这是诊断实验而非可玩版本。技术说明：[[29-离线资源被动对照与JNI分支索引-2026-11-08]]。
+
+实际证据与技术记录：[[28-Ghidra-Surface入口与原版签名A-B证据-2026-11-08]] · [[27-离线门控与完整Smali本地会话实测]] · [[19-离线主菜单关卡结算重启读档验收规范]]。所有研究与可复现脚本都应保留源版本 SHA、Git commit、Android ABI、失败状态和原始结果引用。
 
