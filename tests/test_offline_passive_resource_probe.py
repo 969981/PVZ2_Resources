@@ -16,6 +16,23 @@ class PassiveResourceProbeTests(unittest.TestCase):
         self.assertFalse(data["stage_changed_in_observation"])
         self.assertEqual(data["distinct_stage_values"], [1])
 
+    def test_instance_samples_are_distinguished_from_static(self):
+        data = summarize([
+            {"type": "TRACE_HOOKS_INSTALLED"},
+            {"type": "RESOURCE_LOADING_STAGE", "current_stage": 0,
+             "observation_source": "instance"},
+            {"type": "RESOURCE_LOADING_STAGE", "time_hint": 7,
+             "is_first_init": False, "observation_source": "static"},
+            {"type": "RESOURCE_LOADING_STAGE", "time_hint": None,
+             "observation_source": "instance"},
+        ])
+        self.assertEqual(data["numeric_stage_sample_count"], 2)
+        self.assertEqual(data["field_observation_sources"],
+                         {"static": 1, "instance": 1})
+        self.assertEqual(data["distinct_stage_values"], [0])
+        self.assertFalse(data["stage_changed_in_observation"])
+        self.assertEqual(data["resource_stage_samples"][1]["is_first_init"], False)
+
     def test_missing_fields_cannot_look_like_success(self):
         data = summarize([
             {"type": "TRACE_HOOK_ERROR", "source": "PassiveResourceObserver",
