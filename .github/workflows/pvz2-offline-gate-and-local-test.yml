@@ -229,7 +229,10 @@ jobs:
               "game_modified":d.get("game_modified"),
               "android_consent_clicked":d.get("consent_clicked"),
               "airplane_mode_after":d.get("offline_after_consent"),
-              "any_integrity_warning":any(f.get("integrity_warning_seen") for f in frames),
+              "any_integrity_warning":(any(f.get("integrity_warning_seen") for f in frames) or
+                  any(e.get("type") in ("INTEGRITY_ALERT_REQUEST", "INTEGRITY_WARNING_STACK")
+                      for e in d.get("frida_warning_events", []))),
+              "integrity_warning_visible":any(f.get("integrity_warning_seen") for f in frames),
               "signature_trace":d.get("signature_trace",{}),
               "frida_status":d.get("frida_status"),
               "frida_device_process":d.get("frida_diagnostics",{}),
@@ -267,4 +270,4 @@ jobs:
             ${{ runner.temp }}/offline-gate-report/runtime/*.json
             ${{ runner.temp }}/offline-gate-report/runtime/*.png
           if-no-files-found: warn
-          retention-days: 1
+          retention-days: 7
