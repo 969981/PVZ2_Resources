@@ -1,59 +1,91 @@
 /*
- * Passive baseline for the original-signed CHN 4.2.8 APK.
- * Never replaces a Java method, calls a native SDK login callback,
- * reads credentials, or changes a return value.
+ * Read-only resource-stage sampling for the original-signed CHN 4.2.8 APK.
  *
- * Resource-stage field names are hypotheses from the original Java layer:
- * absence of a field must NOT be reported as a successful stage read.
+ * Never replaces game methods, invokes login callbacks, accesses credentials,
+ * or changes native / Java return values. Java.choose is a bounded search
+ * for an already-existing SplashScreen instance (not object construction).
  */
 'use strict';
+
 Java.perform(function () {
-  let reportedUnavailable = false;
-  function readNumber(klass, name) {
+  const CLASS_NAME = 'com.popcap.pvz2cthddev.AndroidSplashScreen';
+  let lastError = null;
+
+  function errorOnce(kind) {
+    if (lastError === kind) return;
+    lastError = kind;
+    send({type: 'TRACE_HOOK_ERROR',
+          source: 'PassiveResourceObserver',
+          error_kind: kind});
+  }
+
+  function fieldValue(owner, field) {
     try {
-      const prop = klass[name];
-      if (prop === undefined || prop === null) return null;
-      const n = Number(prop.value);
-      return Number.isFinite(n) && n >= -1 && n <= 100000 ? n : null;
+      const wrapper = owner[field];
+      if (wrapper === undefined || wrapper === null) return null;
+      // Do not convert null, false, or empty strings to a fabricated zero.
+      const v = wrapper.value;
+      return (typeof v === 'number' && Number.isInteger(v)
+              && v >= -1 && v <= 100000) ? v : null;
     } catch (_) {
       return null;
     }
   }
+
+  function sampleFields(owner, origin) {
+    const stage = fieldValue(owner, 'mCurrentDecompressStage');
+    const time = fieldValue(owner, 'mLeftDecompressTime');
+    if (stage === null && time === null) return null;
+    const record = {type: 'RESOURCE_LOADING_STAGE', observation_source: origin};
+    if (stage !== null) record.current_stage = stage;
+    if (time !== null) record.time_hint = time;
+    try {
+      const value = owner.mIsFirstInit.value;
+      if (typeof value === 'boolean') record.is_first_init = value;
+    } catch (_) { /* optional field */ }
+    return record;
+  }
+
   function sample() {
     Java.perform(function () {
+      let klass;
       try {
-        const Splash = Java.use('com.popcap.pvz2cthddev.AndroidSplashScreen');
-        const stage = readNumber(Splash, 'mCurrentDecompressStage');
-        const left = readNumber(Splash, 'mLeftDecompressTime');
-        if (stage === null && left === null) {
-          if (!reportedUnavailable) {
-            send({type: 'TRACE_HOOK_ERROR',
-                  source: 'PassiveResourceObserver',
-                  error_kind: 'resource_fields_unavailable'});
-            reportedUnavailable = true;
-          }
-          return;
-        }
-        let first = null;
-        try {
-          const v = Splash.mIsFirstInit.value;
-          if (typeof v === 'boolean') first = v;
-        } catch (_) {}
-        const message = {type: 'RESOURCE_LOADING_STAGE'};
-        if (stage !== null) message.current_stage = stage;
-        if (left !== null) message.time_hint = left;
-        if (first !== null) message.is_first_init = first;
-        send(message);
+        klass = Java.use(CLASS_NAME);
       } catch (_) {
-        if (!reportedUnavailable) {
-          send({type: 'TRACE_HOOK_ERROR',
-                source: 'PassiveResourceObserver',
-                error_kind: 'splash_class_unavailable'});
-          reportedUnavailable = true;
-        }
+        errorOnce('splash_class_unavailable');
+        return;
+      }
+
+      const direct = sampleFields(klass, 'static');
+      if (direct !== null) {
+        lastError = null;
+        send(direct);
+        return;
+      }
+
+      // Most Activity fields are instance fields: looking only on Java.use()
+      // incorrectly reports them as missing. Inspect an existing object.
+      let observed = false;
+      try {
+        Java.choose(CLASS_NAME, {
+          onMatch: function (instance) {
+            const value = sampleFields(instance, 'instance');
+            if (value === null) return;
+            observed = true;
+            lastError = null;
+            send(value);
+            return 'stop';
+          },
+          onComplete: function () {
+            if (!observed) errorOnce('resource_fields_or_live_instance_unavailable');
+          }
+        });
+      } catch (_) {
+        errorOnce('splash_instance_scan_unavailable');
       }
     });
   }
+
   send({type: 'TRACE_HOOKS_INSTALLED'});
   sample();
   setInterval(sample, 30000);
