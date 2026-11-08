@@ -71,7 +71,7 @@ jobs:
             sudo udevadm control --reload-rules
             sudo udevadm trigger --name-match=kvm
           fi
-      - name: Real Android 11 original-signed APK, passive baseline by default
+      - name: Actual Android 11 original-signed APK, SDK lifecycle instrumentation
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -100,8 +100,8 @@ jobs:
             "source_apk_signature_untouched":x.get("source_apk_signature_untouched",False),
             "experiment_mode":x.get("experiment_mode",os.environ.get("PVZ2_FRIDA_MODE")),
             "frida_status":x.get("frida_status"),
-            "passive_observer_telemetry":x.get("observer",{}),
-            "jni_trial_hooks_executed":x.get("local_trial_markers",{}),
+            "sdk_lifecycle_telemetry":x.get("observer",{}),
+            "jni_trial_hooks_executed":False,
             "process_alive_at_checkpoints":statuses,
             "integrity_warning_at_checkpoints":x.get("integrity_warning_at_checkpoints",[]),
             "main_menu_accepted":False,
