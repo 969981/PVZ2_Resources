@@ -430,7 +430,7 @@ def classify_runtime(frames: list[dict], logcat: dict,
 
 
 def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original', frida_script: Path | None = None) -> dict:
-    if build_kind not in ('original', 'smali-local-trial'):
+    if build_kind not in ('original', 'smali-local-trial', 'direct-resigned'):
         raise ValueError('Unsupported build kind')
     base = run_probe(apk, out, [30], game_modified=build_kind != 'original')
     report = {
@@ -537,7 +537,7 @@ def main() -> None:
     parser.add_argument("--checkpoints", default="5,25,60,120")
     parser.add_argument("--frida-script", type=Path,
                         help="optional read-only Frida dialog stack probe")
-    parser.add_argument("--build-kind", choices=("original", "smali-local-trial"),
+    parser.add_argument("--build-kind", choices=("original", "smali-local-trial", "direct-resigned"),
                         default="original")
     args = parser.parse_args()
     if not args.apk.is_file():
