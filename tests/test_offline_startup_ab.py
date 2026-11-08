@@ -28,6 +28,22 @@ class StartupABTests(unittest.TestCase):
         self.assertFalse(report["specific_integrity_branch_verified"])
         self.assertFalse(report["offline_playable_verified"])
 
+    def test_frida_alert_outweighs_clean_screenshot(self):
+        """A transient warning cannot be hidden by a later clean sample."""
+        report = summarize({
+            "integrity_warning_at_checkpoints": [False, False],
+            "after_consent": [{"integrity_warning_seen": False}],
+            "frida_warning_events": [{"type": "INTEGRITY_ALERT_REQUEST"}],
+        })
+        self.assertTrue(report["integrity_warning_observed"])
+
+    def test_conflicting_samples_preserve_positive_warning(self):
+        report = summarize({
+            "integrity_warning_at_checkpoints": [False],
+            "after_consent": [{"integrity_warning_seen": True}],
+        })
+        self.assertTrue(report["integrity_warning_observed"])
+
     def test_missing_evidence_is_not_interpreted_as_no_warning(self):
         report = compare({}, {})
         self.assertIsNone(report["original"]["integrity_warning_observed"])
