@@ -196,6 +196,25 @@ def signature_trace_summary() -> dict:
         return {"status": "unavailable"}
 
 
+def android_runtime_abi() -> dict:
+    """Read fixed public emulator ABI properties; never device identifiers."""
+    props = {
+        "primary_abi": "ro.product.cpu.abi",
+        "abi_list": "ro.product.cpu.abilist",
+        "native_bridge": "ro.dalvik.vm.native.bridge",
+    }
+    values = {}
+    for name, prop in props.items():
+        try:
+            process = adb("shell", "getprop", prop, timeout=12)
+            val = decoded(process).strip()[:160] if process.returncode == 0 else ""
+            values[name] = (val if re.fullmatch(r"[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+)*", val)
+                            else "unavailable")
+        except (OSError, TimeoutError):
+            values[name] = "unavailable"
+    return values
+
+
 def pid_from_adb_output(raw: str) -> int | None:
     """Choose a numeric PID; never treat an APK package name as a Frida PID."""
     ids = raw.strip().split()
@@ -205,19 +224,50 @@ def pid_from_adb_output(raw: str) -> int | None:
     return first if first > 0 else None
 
 
+def validated_native_module_probe(payload: object) -> dict:
+    """Keep only architecture and aggregate module-presence flags.
+
+    These are Frida *host* process modules. On an x86_64 Android Emulator,
+    an ARM ELF under native-bridge translation may not appear as a host module.
+    """
+    if not isinstance(payload, dict):
+        return {"status": "MISSING"}
+    status = payload.get("status")
+    if status not in ("OBSERVED", "ENUMERATION_UNAVAILABLE"):
+        return {"status": "INVALID"}
+    result = {"status": status}
+    if status == "OBSERVED":
+        arch = payload.get("process_arch")
+        if arch in ("ia32", "x64", "arm", "arm64"):
+            result["process_arch"] = arch
+        for key in ("libsrc_mapped", "native_bridge_module_detected"):
+            if type(payload.get(key)) is bool:
+                result[key] = payload[key]
+        count = payload.get("mapped_module_count")
+        if type(count) is int and 0 <= count <= 20000:
+            result["mapped_module_count"] = count
+    return result
+
+
 def validated_native_trace(payload: object) -> dict:
-    """Retain only bounded exact libSrc.so offsets, never arbitrary script data."""
+    """Retain bounded libSrc.so relative offsets, no absolute host pointers."""
     if not isinstance(payload, dict):
         return {"status": "MISSING", "frames": []}
     status = payload.get("status")
-    if status not in ("OBSERVED", "LIBSRC_NOT_MAPPED", "BACKTRACE_UNAVAILABLE"):
+    if status not in ("OBSERVED", "OBSERVED_FUZZY", "LIBSRC_NOT_MAPPED",
+                      "LIBSRC_FRAMES_UNAVAILABLE", "BACKTRACE_UNAVAILABLE"):
         return {"status": "INVALID", "frames": []}
     values = payload.get("frames", [])
     if not isinstance(values, list):
         return {"status": "INVALID", "frames": []}
     offsets = [value.lower() for value in values[:24]
                if isinstance(value, str) and re.fullmatch(r"0x[0-9a-fA-F]{1,16}", value)]
-    return {"status": status, "module": "libSrc.so", "frames": offsets}
+    result = {"status": status, "module": "libSrc.so", "frames": offsets}
+    backtracer = payload.get("backtracer")
+    if backtracer in ("ACCURATE", "FUZZY"):
+        result["backtracer"] = backtracer
+    result["module_probe"] = validated_native_module_probe(payload.get("module_probe"))
+    return result
 
 
 def attach_frida_warning_probe(js_path: Path, output: list[dict],
@@ -266,6 +316,9 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                                "RESOURCE_LOADING_STAGE", "SDK_LIFECYCLE_READY",
                                "SDK_LIFECYCLE_EVENT"):
                         record = {"type": typ, "source": payload.get("source")}
+                        if typ == "TRACE_HOOKS_INSTALLED":
+                            record["native_module_probe"] = validated_native_module_probe(
+                                payload.get("native_module_probe"))
                         if typ in ("INTEGRITY_WARNING_STACK", "INTEGRITY_ALERT_REQUEST",
                                    "GAME_EXIT_REQUEST"):
                             frames = payload.get("frames", [])
@@ -347,6 +400,7 @@ def run(apk: Path, out: Path, times: list[int], *, build_kind: str = 'original',
         "consent_clicked": False, "main_menu_verified": False,
         "level_verified": False, "save_verified": False,
         "created_utc": datetime.now(timezone.utc).isoformat(),
+        "android_runtime_abi": android_runtime_abi(),
         "preflight_status": base.get("status"),
         "offline_before_consent": base.get("airplane_mode"),
         "baseline": base.get("frames", []),
