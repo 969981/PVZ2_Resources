@@ -240,6 +240,21 @@ jobs:
               "frida_warning_event_count":len(d.get("frida_warning_events",[])),
               "integrity_alert_request_count":sum(e.get("type")=="INTEGRITY_ALERT_REQUEST" for e in d.get("frida_warning_events",[])),
               "native_rva_event_count":sum(bool(e.get("native_trace",{}).get("frames")) for e in d.get("frida_warning_events",[])),
+              "native_accurate_rva_event_count":sum(
+                  e.get("native_trace",{}).get("status")=="OBSERVED" and
+                  e.get("native_trace",{}).get("backtracer")=="ACCURATE"
+                  for e in d.get("frida_warning_events",[])),
+              "native_fuzzy_candidate_event_count":sum(
+                  e.get("native_trace",{}).get("status")=="OBSERVED_FUZZY"
+                  for e in d.get("frida_warning_events",[])),
+              "android_runtime_abi":d.get("android_runtime_abi",{}),
+              "frida_host_module_probe":next((
+                  e.get("native_module_probe") for e in d.get("frida_warning_events",[])
+                  if e.get("type")=="TRACE_HOOKS_INSTALLED" and
+                     isinstance(e.get("native_module_probe"),dict)),{}),
+              "guest_elf_maps_at_checkpoints":[
+                  f.get("native_bridge_maps",{"status":"MISSING"})
+                  for f in frames],
               "traced_exit_event_count":sum(e.get("type")=="GAME_EXIT_REQUEST" for e in d.get("frida_warning_events",[])),
               "android_exit_info":d.get("android_exit_info",{}).get("relevant_lines",[])[:10],
               "any_android_anr":any(f.get("anr_dialog_seen") for f in frames) or
