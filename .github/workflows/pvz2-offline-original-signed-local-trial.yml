@@ -1,0 +1,142 @@
+name: PVZ2 CHN 4.2.8 original-signed baseline and local JNI trial
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Use passive observation by default; JNI override is opt-in research only'
+        required: true
+        default: passive-observer
+        type: choice
+        options:
+          - passive-observer
+          - jni-trial
+          - lifecycle-observer
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-original-signed-local-trial.yml"
+      - "scripts/offline/frida_original_local_session_trial.js"
+      - "scripts/offline/frida_original_resource_observer.js"
+      - "scripts/offline/frida_original_sdk_lifecycle_probe.js"
+      - "scripts/offline/passive_original_observation.py"
+      - "tests/test_offline_passive_resource_probe.py"
+      - "scripts/offline/original_signed_session_trial.py"
+      - "scripts/offline/run_original_signed_frida_trial.sh"
+permissions:
+  contents: read
+concurrency:
+  group: pvz2-chn428-original-signed-local-frida
+  cancel-in-progress: true
+jobs:
+  real-original-trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    env:
+      PVZ2_FRIDA_MODE: ${{ github.event.inputs.mode || 'passive-observer' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          filter: blob:none
+          sparse-checkout: |
+            ROMS/CHN/V4.2.8
+            scripts/offline
+            tests/test_offline_passive_resource_probe.py
+      - name: Validate scripts and original 88-volume container
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/offline/original_signed_session_trial.py scripts/offline/passive_original_observation.py scripts/offline/consent_probe.py
+          python3 -m unittest discover -s tests -p test_offline_passive_resource_probe.py
+          node --check scripts/offline/frida_original_local_session_trial.js
+          node --check scripts/offline/frida_original_resource_observer.js
+          node --check scripts/offline/frida_original_sdk_lifecycle_probe.js
+          bash -n scripts/offline/run_original_signed_frida_trial.sh
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+      - name: Restore ORIGINAL signed APK from source and lock SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/restore-source"
+          7z x ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001 "-o$RUNNER_TEMP/restore-source" -y
+          apk="$(find "$RUNNER_TEMP/restore-source" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"
+          echo "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4  $RUNNER_TEMP/PVZ2_4.2.8_original.apk" | sha256sum -c -
+          rm -rf ROMS "$RUNNER_TEMP/restore-source" .git/objects
+      - name: Install locked Frida client and screenshot decoder
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/local-frida-venv"
+          "$RUNNER_TEMP/local-frida-venv/bin/python" -m pip install --quiet Pillow==11.3.0 frida==16.7.19
+      - name: Enable Android emulator KVM
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          fi
+      - name: Real Android 11 original-signed APK, passive baseline by default
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: bash scripts/offline/run_original_signed_frida_trial.sh
+      - name: Record exact, conservative acceptance status
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,sys
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"original-signed-local-session"
+          root.mkdir(parents=True,exist_ok=True)
+          p=root/"original_signed_trial.json"
+          x=json.loads(p.read_text()) if p.is_file() else {}
+          statuses=x.get("process_alive_at_checkpoints",[])
+          result={
+            "status":"ORIGINAL_SIGNED_LOCAL_EXPERIMENT_NOT_YET_PLAYABLE",
+            "source_apk_signature_untouched":x.get("source_apk_signature_untouched",False),
+            "experiment_mode":x.get("experiment_mode",os.environ.get("PVZ2_FRIDA_MODE")),
+            "frida_status":x.get("frida_status"),
+            "passive_observer_telemetry":x.get("observer",{}),
+            "jni_trial_hooks_executed":x.get("local_trial_markers",{}),
+            "process_alive_at_checkpoints":statuses,
+            "integrity_warning_at_checkpoints":x.get("integrity_warning_at_checkpoints",[]),
+            "main_menu_accepted":False,
+            "level_1_accepted":False,
+            "original_save_reload_accepted":False,
+            "offline_playable_accepted":False
+          }
+          (root/"acceptance.json").write_text(json.dumps(result,indent=2)+"\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("## Original-signed, Frida local-only experiment\n\n")
+            for k,v in result.items():
+              f.write(f"- {k}: {v}\n")
+          print(json.dumps(result))
+          if not x or x.get("frida_status")!="attached" or not statuses or not all(status is True for status in statuses):
+            print("::error::Original-signed Android experiment did not complete live observations")
+            sys.exit(1)
+          # Instrumentation survival is not evidence of menu gameplay.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-original-signed-local-jni-trial
+          path: |
+            ${{ runner.temp }}/original-signed-local-session/*.json
+            ${{ runner.temp }}/original-signed-local-session/*.png
+          retention-days: 2
+          if-no-files-found: warn

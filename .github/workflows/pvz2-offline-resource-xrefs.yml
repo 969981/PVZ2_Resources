@@ -1,0 +1,69 @@
+name: PVZ2 CHN 4.2.8 offline warning Smali reference fast scan
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-resource-xrefs.yml"
+      - "scripts/offline/map_integrity_resource.py"
+      - "scripts/offline/dynamic_resource_gate_index.py"
+      - "tests/test_offline_integrity_resource_map.py"
+      - "tests/test_offline_dynamic_resource_gate_index.py"
+permissions:
+  contents: read
+jobs:
+  reference-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          filter: blob:none
+          sparse-checkout: |
+            scripts/offline/map_integrity_resource.py
+            scripts/offline/dynamic_resource_gate_index.py
+            tests/test_offline_integrity_resource_map.py
+            tests/test_offline_dynamic_resource_gate_index.py
+            Reconstructed/CHN_4.2.8/SmaliProject
+      - name: Test candidate parser
+        run: |
+          python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_dynamic_resource_gate_index.py' -v
+      - name: Find generated resource ID and reference methods
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/reference-scan"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,os
+          from scripts.offline.map_integrity_resource import discover_named_candidate,locate_source_refs
+          root=Path("Reconstructed/CHN_4.2.8/SmaliProject")
+          candidates=discover_named_candidate(root)
+          assert candidates and candidates[0]["id"]=="0x7f0f01d6", candidates
+          data={"status":"GENERATED_FIELD_CALLSITE_SCAN_NO_TEXT_CAUSALITY",
+                "resource_candidates":candidates,
+                **locate_source_refs(root,candidates)}
+          out=Path(os.environ["RUNNER_TEMP"])/"reference-scan"
+          (out/"integrity_field_xrefs.json").write_text(
+              json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"
+          )
+          from scripts.offline.dynamic_resource_gate_index import scan
+          extra=scan(root)
+          (out/"dynamic_warning_candidates.json").write_text(
+              json.dumps(extra,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"
+          )
+          print(json.dumps({"dynamic_candidates":extra["candidate_methods"]}))
+          print(json.dumps({"refs":len(data["references"]),
+                            "files_examined":data["smali_files_examined"],
+                            "status":data["status"]}))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pvz2-offline-check-sign-failed-xrefs
+          path: ${{ runner.temp }}/reference-scan/*.json
+          retention-days: 2
+          if-no-files-found: warn

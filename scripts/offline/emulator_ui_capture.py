@@ -2,7 +2,8 @@
 """Real Android PVZ2 CHN first-screen capture on clean ephemeral emulator.
 
 Personal research only: NO passwords, logins, automated taps, APK changes or
-server calls. Screenshots remain GitHub Actions Artifacts for 1 day; do not
+server calls. An explicit game_modified flag distinguishes experimental builds.
+Screenshots remain GitHub Actions Artifacts for 1 day; do not
 commit game-owned images. Treat UIAutomator XML as non-authoritative for
 native OpenGL screens. Script exit success != offline playability.
 """
@@ -95,12 +96,12 @@ def sample(out, label):
     return record
 
 
-def run_probe(apk, out, checkpoints):
+def run_probe(apk, out, checkpoints, *, game_modified=False):
     out.mkdir(parents=True, exist_ok=True)
     report = {
         "scope": "clean_emulator_offline_first_screen_research",
-        "source_apk_sha256_expected": "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4",
-        "package": PACKAGE, "game_unmodified": True,
+        "source_apk_sha256_expected": (None if game_modified else "64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4"),
+        "package": PACKAGE, "game_unmodified": not game_modified,
         "verified_offline_menu": False, "verified_offline_level": False,
         "verified_save": False, "status": "NOT_STARTED", "frames": [],
     }

@@ -1,0 +1,187 @@
+name: PVZ2 CHN 4.2.8 matched original vs resign Frida native bridge A-B
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/chn428-offline-gate-20261107
+    paths:
+      - ".github/workflows/pvz2-offline-matched-signature-frida-ab.yml"
+permissions:
+  contents: read
+concurrency:
+  group: pvz2-chn428-matched-signature-frida-ab
+  cancel-in-progress: true
+jobs:
+  matched-native-bridge-ab:
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [original, direct-resigned]
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      VARIANT: ${{ matrix.variant }}
+      SOURCE_SHA: 64b0f2cddb6221baf35fb32d4a0f6e64153428edf5ee5922beddb9726bedbda4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          filter: blob:none
+          fetch-depth: 1
+          sparse-checkout: |
+            ROMS/CHN/V4.2.8
+            scripts/offline
+            tests
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Synthetic parser and JS syntax preflight
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p 'test_offline_native_stack_offsets.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
+          python3 -m py_compile scripts/offline/consent_probe.py
+          node --check scripts/offline/frida_warning_stack.js
+          bash -n scripts/offline/run_matched_signer_frida_ab.sh
+      - name: Restore original APK and SHA lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y p7zip-full
+          fi
+          test "$(find ROMS/CHN/V4.2.8 -maxdepth 1 -name 'PVZ2_4.2.8.7z.*' | wc -l)" -eq 88
+          mkdir -p "$RUNNER_TEMP/restore-source" "$RUNNER_TEMP/matched-ab"
+          7z x ROMS/CHN/V4.2.8/PVZ2_4.2.8.7z.001 "-o$RUNNER_TEMP/restore-source" -y
+          apk="$(find "$RUNNER_TEMP/restore-source" -type f -iname '*.apk' -print -quit)"
+          test -n "$apk"
+          mv "$apk" "$RUNNER_TEMP/PVZ2_4.2.8_original.apk"
+          echo "$SOURCE_SHA  $RUNNER_TEMP/PVZ2_4.2.8_original.apk" | sha256sum -c -
+          rm -rf "$RUNNER_TEMP/restore-source" ROMS
+      - name: Prepare bytecode-identical original or direct-resigned APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="$RUNNER_TEMP/PVZ2_4.2.8_original.apk"
+          if [ "$VARIANT" = original ]; then
+            echo "TRIAL_APK=$src" >> "$GITHUB_ENV"
+            echo "BUILD_KIND=original" >> "$GITHUB_ENV"
+          else
+            keytool -genkeypair -noprompt -keystore "$RUNNER_TEMP/ab-key.jks" \
+              -storepass "isolated-only-test" -alias local -keypass "isolated-only-test" \
+              -keyalg RSA -keysize 3072 -validity 1 \
+              -dname "CN=Isolated A-B research, O=Local, C=ZZ" >/dev/null 2>&1
+            bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+            "$bt/apksigner" sign --ks "$RUNNER_TEMP/ab-key.jks" \
+              --ks-key-alias local --ks-pass pass:isolated-only-test \
+              --key-pass pass:isolated-only-test \
+              --out "$RUNNER_TEMP/direct_resigned.apk" "$src"
+            "$bt/apksigner" verify --verbose "$RUNNER_TEMP/direct_resigned.apk" >/dev/null
+            echo "TRIAL_APK=$RUNNER_TEMP/direct_resigned.apk" >> "$GITHUB_ENV"
+            echo "BUILD_KIND=direct-resigned" >> "$GITHUB_ENV"
+          fi
+          python3 - <<'PY'
+          import os,json,zipfile,hashlib,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          original=root/"PVZ2_4.2.8_original.apk"
+          trial=original if os.environ["VARIANT"]=="original" else root/"direct_resigned.apk"
+          with zipfile.ZipFile(original) as a, zipfile.ZipFile(trial) as b:
+              src={x.filename:x for x in a.infolist() if not x.filename.startswith("META-INF/")}
+              dst={x.filename:x for x in b.infolist() if not x.filename.startswith("META-INF/")}
+              same_names=src.keys()==dst.keys()
+              same_crc_sizes=(same_names and all(
+                  (i.CRC,i.file_size,i.compress_size,i.compress_type)==
+                  (dst[k].CRC,dst[k].file_size,dst[k].compress_size,dst[k].compress_type)
+                  for k,i in src.items()))
+              bytecode=[f"classes{n}.dex" if n>1 else "classes.dex" for n in range(1,7)]
+              bytecode+=["lib/arm64-v8a/libSrc.so", "AndroidManifest.xml"]
+              exact={k:hashlib.sha256(a.read(k)).digest()==hashlib.sha256(b.read(k)).digest() for k in bytecode}
+              offsets_same=sum(src[k].header_offset==dst[k].header_offset for k in src if k in dst)
+          assert same_names and same_crc_sizes and all(exact.values()), "Non-signature entry identity differs"
+          report={"variant":os.environ["VARIANT"],"nonmeta_entry_count":len(src),
+                  "nonmeta_names_crc_sizes_identical":True,
+                  "selected_code_and_manifest_bytes_identical":True,
+                  "same_nonmeta_header_offsets":offsets_same,
+                  "main_menu_verified":False,"payment_or_entitlement_changed":False}
+          (root/"matched-ab/apk_identity.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps(report))
+          PY
+      - name: Install pinned Frida client and allow KVM
+        run: |
+          python3 -m venv "$RUNNER_TEMP/qa-venv"
+          "$RUNNER_TEMP/qa-venv/bin/python" -m pip install --quiet Pillow==11.3.0 frida==16.7.19
+          if [ -e /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+          fi
+      - name: Matched Android 11 emulator, consent, PID Frida and native module probe
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 16384M
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: bash scripts/offline/run_matched_signer_frida_ab.sh
+      - name: Export conservative A-B instrumentation evidence
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,sys
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"matched-ab"
+          root.mkdir(parents=True,exist_ok=True)
+          p=root/"runtime/consent_probe.json"
+          d=json.loads(p.read_text()) if p.exists() else {}
+          frames=d.get("after_consent",[])
+          events=d.get("frida_warning_events",[])
+          hook=next((e.get("native_module_probe") for e in events if
+                     e.get("type")=="TRACE_HOOKS_INSTALLED"),{})
+          report={
+            "variant":os.environ["VARIANT"],
+            "build_kind":d.get("build_kind"),
+            "status":d.get("status","NO_RUNTIME_RESULT"),
+            "consent_clicked":d.get("consent_clicked"),
+            "frida_attached":d.get("frida_status")=="attached",
+            "frida_hook_loaded":bool(hook),
+            "process_alive_at_checkpoints":[f.get("process_alive") for f in frames],
+            "integrity_warning_at_checkpoints":[f.get("integrity_warning_seen") for f in frames],
+            "native_warning_request_count":sum(e.get("type")=="INTEGRITY_ALERT_REQUEST" for e in events),
+            "exit_request_count":sum(e.get("type")=="GAME_EXIT_REQUEST" for e in events),
+            "frida_host_module_probe":hook,
+            "android_runtime_abi":d.get("android_runtime_abi",{}),
+            "native_bridge_maps":[f.get("native_bridge_maps",{}) for f in frames],
+            "arm64_native_pc_lr_verified":False,
+            "main_menu_verified":False,
+            "level_1_completed":False,
+            "save_reload_verified":False,
+            "offline_playable":False
+          }
+          (root/"ab_result.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps(report,ensure_ascii=False))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write("## SHA-locked original vs direct-resigned A/B: "+report["variant"]+"\n")
+              for key,val in report.items():out.write("- "+key+": "+str(val)+"\n")
+          if not d or not report["consent_clicked"] or not report["frida_attached"] or not report["frida_hook_loaded"]:
+              print("::error::Frida/consent evidence incomplete; cannot claim A/B native trace comparison")
+              sys.exit(1)
+          PY
+      - name: Upload sanitized JSON and screenshots, never APK or private key
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pvz2-ch428-matched-frida-ab-${{ matrix.variant }}
+          path: |
+            ${{ runner.temp }}/matched-ab/*.json
+            ${{ runner.temp }}/matched-ab/runtime/*.json
+            ${{ runner.temp }}/matched-ab/runtime/*.png
+          retention-days: 7
+          if-no-files-found: warn
