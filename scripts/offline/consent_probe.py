@@ -47,7 +47,8 @@ def validated_sdk_lifecycle_event(payload: object) -> dict | None:
         return None
     stage, phase, elapsed = (payload.get("stage"), payload.get("phase"),
                               payload.get("elapsed_ms"))
-    if (stage not in SDK_STAGES or phase not in ("ENTER", "RETURN", "THROW")
+    if (type(stage) is not str or stage not in SDK_STAGES
+            or type(phase) is not str or phase not in ("ENTER", "RETURN", "THROW")
             or type(elapsed) is not int or not 0 <= elapsed <= 3600000):
         return None
     result = {"type": kind, "stage": stage, "phase": phase,
