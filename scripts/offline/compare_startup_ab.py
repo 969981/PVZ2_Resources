@@ -32,22 +32,24 @@ def _alive(doc: dict) -> list[bool]:
 
 
 def _warning(doc: dict) -> bool | None:
-    values = doc.get("integrity_warning_at_checkpoints")
-    if isinstance(values, list) and values:
-        valid = [x for x in values if type(x) is bool]
-        if valid:
-            return any(valid)
-    frames = doc.get("after_consent")
-    if isinstance(frames, list) and frames:
-        valid = [x.get("integrity_warning_seen") for x in frames
-                 if isinstance(x, dict) and type(x.get("integrity_warning_seen")) is bool]
-        if valid:
-            return any(valid)
-    events = _event_types(doc)
-    if "INTEGRITY_ALERT_REQUEST" in events or "INTEGRITY_WARNING_STACK" in events:
-        return True
-    return None
+    """Positive Frida events override screenshots that missed a brief alert.
 
+    A screenshot with no alert is only a negative *sample*, not proof that
+    a transient native warning was never requested.
+    """
+    events = _event_types(doc)
+    if events & {"INTEGRITY_ALERT_REQUEST", "INTEGRITY_WARNING_STACK"}:
+        return True
+    observations = []
+    values = doc.get("integrity_warning_at_checkpoints")
+    if isinstance(values, list):
+        observations.extend(v for v in values if type(v) is bool)
+    frames = doc.get("after_consent")
+    if isinstance(frames, list):
+        observations.extend(frame["integrity_warning_seen"]
+                            for frame in frames if isinstance(frame, dict)
+                            and type(frame.get("integrity_warning_seen")) is bool)
+    return any(observations) if observations else None
 
 def summarize(doc: dict) -> dict:
     if not isinstance(doc, dict):
