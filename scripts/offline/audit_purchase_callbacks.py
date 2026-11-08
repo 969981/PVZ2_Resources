@@ -18,15 +18,15 @@ METHODS = {
 }
 TW_OWNER = "Lcom/popcap/pvz2cthddev/TWPurchase;"
 SDK_OWNER = "Lcom/talkweb/twOfflineSdk/TwOfflineSDK;"
-HEADER = re.compile(r"(?m)^\\.method\\s+([^\\n]+)$")
-BLOCK = re.compile(r"(?ms)^\\.method\\s+([^\\n]+)\\n(.*?)^\\.end method")
-INVOKE = re.compile(r"(?m)^\\s*invoke-[^\\n]*?,\\s*(L[^;]+;)->([A-Za-z0-9_$<>]+)\\(")
+HEADER = re.compile(r"(?m)^\.method\s+([^\n]+)$")
+BLOCK = re.compile(r"(?ms)^\.method\s+([^\n]+)\n(.*?)^\.end method")
+INVOKE = re.compile(r"(?m)^\s*invoke-[^\n]*?,\s*(L[^;]+;)->([A-Za-z0-9_$<>]+)\(")
 
 
 def parse_methods(smali: str) -> list[dict]:
     records = []
     for header, body in BLOCK.findall(smali):
-        name_match = re.search(r"([A-Za-z0-9_$<>]+)\\(", header)
+        name_match = re.search(r"([A-Za-z0-9_$<>]+)\(", header)
         if name_match is None:
             continue
         name = name_match.group(1)
@@ -39,7 +39,7 @@ def parse_methods(smali: str) -> list[dict]:
         ]
         records.append({
             "name": name,
-            "native": bool(re.search(r"\\bnative\\b", header)),
+            "native": bool(re.search(r"\bnative\b", header)),
             "sdk_calls": sorted({x["method"] for x in calls if x["owner"] == SDK_OWNER}),
             "local_calls": sorted({x["method"] for x in calls if x["owner"] == TW_OWNER}),
         })
