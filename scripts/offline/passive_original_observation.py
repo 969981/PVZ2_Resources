@@ -26,6 +26,8 @@ def summarize(events: list[dict]) -> dict:
     samples = []
     hook_loaded = False
     errors = []
+    lifecycle = []
+    hooks_installed = None
     for event in events:
         if not isinstance(event, dict):
             continue
@@ -37,6 +39,20 @@ def summarize(events: list[dict]) -> dict:
                 "source": str(event.get("source", ""))[:80],
                 "error_kind": str(event.get("error_kind", ""))[:80],
             })
+        elif kind == "SDK_LIFECYCLE_READY":
+            count = event.get("installed_overloads")
+            if type(count) is int and 0 <= count <= 40:
+                hooks_installed = count
+        elif kind == "SDK_LIFECYCLE_EVENT":
+            # The collection layer has already whitelisted names/values;
+            # repeat minimal defensive checks for independently supplied data.
+            try:
+                from scripts.offline.consent_probe import validated_sdk_lifecycle_event
+            except ModuleNotFoundError:
+                from consent_probe import validated_sdk_lifecycle_event
+            safe = validated_sdk_lifecycle_event(event)
+            if safe is not None and len(lifecycle) < 120:
+                lifecycle.append(safe)
         elif kind == "RESOURCE_LOADING_STAGE":
             record = {}
             for key in ("current_stage", "time_hint"):
@@ -61,6 +77,29 @@ def summarize(events: list[dict]) -> dict:
         "stage_field_observed": bool(stages),
         "resource_field_errors": errors[:10],
         "resource_stage_samples": samples[:40],
+        "sdk_lifecycle_hooks_installed": hooks_installed,
+        "sdk_lifecycle_event_count": len(lifecycle),
+        "sdk_lifecycle_events": lifecycle[:90],
+        "init_callback_observed": any(
+            x["stage"] == "INIT_CALLBACK" and x["phase"] == "ENTER"
+            for x in lifecycle
+        ),
+        "login_callback_observed": any(
+            x["stage"] == "LOGIN_CALLBACK" and x["phase"] == "ENTER"
+            for x in lifecycle
+        ),
+        "jni_init_end_status_codes": sorted({
+            x["status_code"] for x in lifecycle
+            if x["stage"] == "JNI_INIT_END" and x["phase"] == "ENTER"
+            and "status_code" in x
+        }),
+        "jni_login_end_status_codes": sorted({
+            x["status_code"] for x in lifecycle
+            if x["stage"] == "JNI_LOGIN_END" and x["phase"] == "ENTER"
+            and "status_code" in x
+        }),
+        "login_success_proven": False,
+        "native_player_state_proven": False,
     }
 
 
