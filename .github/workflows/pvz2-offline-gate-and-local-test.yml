@@ -9,6 +9,7 @@ on:
       - "scripts/offline/smali_gate_index.py"
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/offline_iap_mock.py"
+      - "scripts/offline/audit_purchase_callbacks.py"
       - "scripts/offline/consent_probe.py"
       - "scripts/offline/frida_warning_stack.js"
       - "scripts/offline/run_frida_android_gate.sh"
@@ -19,6 +20,7 @@ on:
       - "tests/test_offline_smali_gate_index.py"
       - "tests/test_offline_tw_local_trial.py"
       - "tests/test_offline_iap_mock.py"
+      - "tests/test_offline_purchase_callback_audit.py"
       - "tests/test_offline_runtime_diagnostics.py"
       - "tests/test_offline_integrity_warning_location.py"
       - "tests/test_offline_integrity_resource_map.py"
@@ -59,13 +61,14 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_smali_gate_index.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_iap_mock.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_purchase_callback_audit.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_integrity_warning_location.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_integrity_resource_map.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_signature_trace.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_frida_pid_attach.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_native_stack_offsets.py' -v
-          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/offline_iap_mock.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
+          python3 -m py_compile scripts/offline/smali_gate_index.py scripts/offline/patch_tw_local_trial.py scripts/offline/offline_iap_mock.py scripts/offline/audit_purchase_callbacks.py scripts/offline/find_integrity_warning.py scripts/offline/map_integrity_resource.py scripts/offline/trace_signature_read.py
           bash -n scripts/offline/build_from_committed_smali.sh
           node --check scripts/offline/frida_warning_stack.js
           bash -n scripts/offline/run_frida_android_gate.sh
@@ -80,6 +83,22 @@ jobs:
           assert data["smali_files_scanned"] == 16375, data
           assert not data["signature_validation_cause_verified"]
           print("COMPLETE_SIX_DEX_GATE_SCAN_STATIC_ONLY")
+          PY
+      - name: Inventory original Smali purchase callbacks without modifying them
+        run: |
+          set -euo pipefail
+          python3 scripts/offline/audit_purchase_callbacks.py \
+            --smali-root "$SMALI_SOURCE" \
+            --output "$RUNNER_TEMP/offline-gate-report/purchase_callback_index.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"offline-gate-report/purchase_callback_index.json"
+          r=json.loads(p.read_text())
+          assert r["status"]=="READ_ONLY_STATIC_PAYMENT_PATH_INDEX"
+          assert not r["payment_validation_modified"]
+          assert not r["all_payment_paths_exhaustively_proven"]
+          assert not r["native_callback_status_codes_verified"]
+          print("READ_ONLY_PURCHASE_PATH_AUDIT_PASSED")
           PY
       - name: Validate synthetic-only offline IAP callback contract
         run: |
