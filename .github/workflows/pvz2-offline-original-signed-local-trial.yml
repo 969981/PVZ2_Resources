@@ -1,12 +1,24 @@
-name: PVZ2 CHN 4.2.8 original-signed local JNI trial
+name: PVZ2 CHN 4.2.8 original-signed baseline and local JNI trial
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Use passive observation by default; JNI override is opt-in research only'
+        required: true
+        default: passive-observer
+        type: choice
+        options:
+          - passive-observer
+          - jni-trial
   push:
     branches:
       - experiment/chn428-offline-gate-20261107
     paths:
       - ".github/workflows/pvz2-offline-original-signed-local-trial.yml"
       - "scripts/offline/frida_original_local_session_trial.js"
+      - "scripts/offline/frida_original_resource_observer.js"
+      - "scripts/offline/passive_original_observation.py"
+      - "tests/test_offline_passive_resource_probe.py"
       - "scripts/offline/original_signed_session_trial.py"
       - "scripts/offline/run_original_signed_frida_trial.sh"
 permissions:
@@ -18,6 +30,8 @@ jobs:
   real-original-trial:
     runs-on: ubuntu-latest
     timeout-minutes: 42
+    env:
+      PVZ2_FRIDA_MODE: ${{ github.event.inputs.mode || 'passive-observer' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,12 +40,15 @@ jobs:
           sparse-checkout: |
             ROMS/CHN/V4.2.8
             scripts/offline
+            tests/test_offline_passive_resource_probe.py
       - name: Validate scripts and original 88-volume container
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/offline/original_signed_session_trial.py scripts/offline/consent_probe.py
+          python3 -m py_compile scripts/offline/original_signed_session_trial.py scripts/offline/passive_original_observation.py scripts/offline/consent_probe.py
+          python3 -m unittest discover -s tests -p test_offline_passive_resource_probe.py
           node --check scripts/offline/frida_original_local_session_trial.js
+          node --check scripts/offline/frida_original_resource_observer.js
           bash -n scripts/offline/run_original_signed_frida_trial.sh
           sudo rm -rf /usr/share/dotnet /usr/local/share/powershell || true
           if ! command -v 7z >/dev/null; then
@@ -63,7 +80,7 @@ jobs:
             sudo udevadm control --reload-rules
             sudo udevadm trigger --name-match=kvm
           fi
-      - name: Real Android 11 original-signed APK and local JNI-only trial
+      - name: Real Android 11 original-signed APK, passive baseline by default
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -90,7 +107,9 @@ jobs:
           result={
             "status":"ORIGINAL_SIGNED_LOCAL_EXPERIMENT_NOT_YET_PLAYABLE",
             "source_apk_signature_untouched":x.get("source_apk_signature_untouched",False),
+            "experiment_mode":x.get("experiment_mode",os.environ.get("PVZ2_FRIDA_MODE")),
             "frida_status":x.get("frida_status"),
+            "passive_observer_telemetry":x.get("observer",{}),
             "jni_trial_hooks_executed":x.get("local_trial_markers",{}),
             "process_alive_at_checkpoints":statuses,
             "integrity_warning_at_checkpoints":x.get("integrity_warning_at_checkpoints",[]),
