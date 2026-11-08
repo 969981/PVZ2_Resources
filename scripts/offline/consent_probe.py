@@ -245,9 +245,13 @@ def attach_frida_warning_probe(js_path: Path, output: list[dict],
                         if typ == "RESOURCE_LOADING_STAGE":
                             for key in ("current_stage", "time_hint"):
                                 value = payload.get(key)
-                                if isinstance(value, int) and not isinstance(value, bool) and -1 <= value <= 100000:
+                                if type(value) is int and -1 <= value <= 100000:
                                     record[key] = value
-                            record["is_first_init"] = payload.get("is_first_init") is True
+                            if type(payload.get("is_first_init")) is bool:
+                                record["is_first_init"] = payload["is_first_init"]
+                            source = payload.get("observation_source")
+                            if source in ("static", "instance"):
+                                record["observation_source"] = source
                         output.append(record)
                 elif message.get("type") == "error":
                     output.append({"type": "FRIDA_SCRIPT_ERROR",
