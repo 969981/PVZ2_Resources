@@ -9,6 +9,8 @@ on:
       - "scripts/offline/smali_gate_index.py"
       - "scripts/offline/patch_tw_local_trial.py"
       - "scripts/offline/offline_iap_mock.py"
+      - "scripts/offline/compare_startup_ab.py"
+      - "tests/test_offline_startup_ab.py"
       - "scripts/offline/audit_purchase_callbacks.py"
       - "scripts/offline/consent_probe.py"
       - "scripts/offline/frida_original_sdk_lifecycle_probe.js"
@@ -64,6 +66,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_offline_smali_gate_index.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_tw_local_trial.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_iap_mock.py' -v
+          python3 -m unittest discover -s tests -p 'test_offline_startup_ab.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_purchase_callback_audit.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_runtime_diagnostics.py' -v
           python3 -m unittest discover -s tests -p 'test_offline_integrity_warning_location.py' -v
