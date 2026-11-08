@@ -45,11 +45,16 @@ def summarize(events: list[dict]) -> dict:
                     record[key] = val
             if "is_first_init" in event and type(event["is_first_init"]) is bool:
                 record["is_first_init"] = event["is_first_init"]
+            if event.get("observation_source") in ("static", "instance"):
+                record["observation_source"] = event["observation_source"]
             if "current_stage" in record or "time_hint" in record:
                 samples.append(record)
     stages = [x["current_stage"] for x in samples if "current_stage" in x]
+    sources = {source: sum(x.get("observation_source") == source for x in samples)
+               for source in ("static", "instance")}
     return {
         "frida_script_loaded": hook_loaded,
+        "field_observation_sources": sources,
         "numeric_stage_sample_count": len(samples),
         "distinct_stage_values": sorted(set(stages))[:30],
         "stage_changed_in_observation": len(set(stages)) > 1,
